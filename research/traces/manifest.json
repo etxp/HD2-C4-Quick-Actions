@@ -1,0 +1,66 @@
+{
+  "kind": "SANITIZED_RUNTIME_EVIDENCE",
+  "kept_fields": [
+    "action_gate",
+    "action_lock",
+    "action_result",
+    "ammo_available",
+    "ammo_counter_semantics",
+    "button_id",
+    "capture_enabled",
+    "controls_allowed",
+    "current_fire_mode",
+    "current_weapon",
+    "down",
+    "elapsed_ms",
+    "enabled",
+    "event",
+    "executed_action",
+    "fire_gate_active",
+    "fire_gate_status",
+    "fire_mode_after",
+    "fire_mode_before",
+    "fire_mode_unchanged",
+    "fresh_menu_edge",
+    "input",
+    "mode_unchanged",
+    "original_input",
+    "pending_action",
+    "pressed",
+    "previous_down",
+    "raw_pressed",
+    "raw_released",
+    "raw_value",
+    "reason",
+    "record_type",
+    "released",
+    "request_id",
+    "requested_action",
+    "runtime_state",
+    "tick",
+    "version",
+    "window_has_focus",
+    "window_mouse_focus",
+    "window_show_cursor"
+  ],
+  "traces": [
+    {
+      "path": "research/traces/exp05-controller.jsonl",
+      "rows": 1238,
+      "sha256": "4545e4807499458f4bc27939f491bff67dd6fc89d443f158df7afa4bd787fe03"
+    },
+    {
+      "path": "research/traces/exp05-reload.jsonl",
+      "rows": 267,
+      "sha256": "928d80ce99a4b88c184f581dc33f660ed8db7fbef3d36ca1d5561728cac49b2a"
+    },
+    {
+      "path": "research/traces/exp06-automatic.jsonl",
+      "rows": 1201,
+      "sha256": "78fe3f874ee4489a154d9074455ad47ecfa479afaaabe7a3660d0d1e98a74786"
+    }
+  ],
+  "removed": "absolute paths, timestamps/session names, entity IDs/identities, pointers, memory snapshots, engine catalog and free-form device details",
+  "user_confirmation": "Latest automatic version reported working normally; Xbox previously reported working normally",
+  "unchanged_event_order": true
+}
