@@ -1,0 +1,11 @@
+{
+  "name": "HD2 C4 Quick Actions",
+  "version": "0.6.0",
+  "runtime_version": "0.6.0-exp06",
+  "game_build": "24826606",
+  "source": "src/c4_dual_input_auto.lua",
+  "tested_source_sha256": "4134de7cb71ff39a738c13122dc23fe1ec09535397d1e455efb7ab5f687cdb40",
+  "package": "dist/HD2-C4-Quick-Actions-v0.6.0.zip",
+  "license": "MIT",
+  "description": "Independent C4 deployment and detonation controls for mouse and controller. Automatic activation; no F6 required. Requires Bingus Shared Loader v15+ / API 1. Tested on build 24826606."
+}

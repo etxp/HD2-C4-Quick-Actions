@@ -1,0 +1,22 @@
+{
+  "project": "HD2 C4 Quick Actions",
+  "version": "0.6.0",
+  "package": "dist/HD2-C4-Quick-Actions-v0.6.0.zip",
+  "sha256": "c60148a67c49f35398a947cc33bf6e3b926256e738330caffecbfae4dc2f3068",
+  "bytes": 36875,
+  "entries": {
+    "Addon/9ba626afa44a3aa3.patch_0": "fb72e889a0291bfa39a3ba37c86c7ed6c5cf067182c4280c1ce5d6fc72f9ea81",
+    "Addon/9ba626afa44a3aa3.patch_0.gpu_resources": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "Addon/9ba626afa44a3aa3.patch_0.stream": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "manifest.json": "21bde8971c23d57358e54c348e19af251c43ab096fbb21f1869f5e2372a167b7",
+    "README.txt": "59f4306870f67297f7a306c6ad2fa16d87d9384874d7d8614c03794fb6378499",
+    "LICENSE.txt": "63be50a72e731644d29b292c498321a39e0aee84cd7676050e5ff87d05446d60"
+  },
+  "source_sha256": "4134de7cb71ff39a738c13122dc23fe1ec09535397d1e455efb7ab5f687cdb40",
+  "plaintext_matches_tested_source": true,
+  "native_behavior_changes": false,
+  "resources": 1,
+  "loader_included": false,
+  "installed": false,
+  "game_executed_by_build": false
+}

@@ -1,0 +1,14 @@
+{
+  "asset": "assets/cover.png",
+  "width": 1672,
+  "height": 941,
+  "sha256": "49b4d33ddaaaf55d829aaca3c3311496512dfd9dfb3ec547eab2a4e57dc78873",
+  "source_frame": "assets/cover-source.png",
+  "source_frame_sha256": "401989ed19956ade780fa6fd31b6e3b46b3b36035648256a3c30049de8e31b35",
+  "source_video": "User-supplied gameplay recording",
+  "source_timestamp_seconds": 17.5,
+  "generation_mode": "built_in_image_gen",
+  "prompt": "assets/cover-prompt.txt",
+  "prompt_sha256": "10df7dbf60480ef1e3d49c01de257818ee949c15d609ab9a4e9fd82d552a2036",
+  "ai_assisted": true
+}

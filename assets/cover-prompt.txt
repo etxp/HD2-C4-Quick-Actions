@@ -1,0 +1,12 @@
+Use case: compositing.
+Asset type: a restrained 16:9 cover banner for the GitHub mod project HD2 C4 Quick Actions, ideally 2048 x 1152.
+Input image 1 is the edit target: an actual frame from the user's Helldivers 2 gameplay video. Use this exact desert scene as the photographic background, not as inspiration for a newly invented scene.
+Create a simple, credible mod cover with two parts. Put a flat matte charcoal panel over the left 32% of the canvas, full height, with a straight vertical edge. The remaining 68% shows the original screenshot in its original positions, so that the player with the yellow C4 backpack and raised throwing hand remains clearly visible near the center, and the existing explosion stays on the right. Preserve the actual player's helmet, armor, cape, fingers/hand pose, backpack shape, equipment, desert dunes, horizon, fire and smoke geometry. No new characters, explosions, props, lens flares or floating debris.
+Remove all game HUD, Chinese notifications, compass, crosshair, inventory, key prompts and health/stamina bars. Fill only those small HUD areas with their natural local background. Retain the real game's texture and warm desert lighting. Do not repaint or beautify the scene; no painterly treatment, plastic detail, fake photorealism, excessive clarity or exaggerated cinematic color grading.
+Typography only in the charcoal left panel, left aligned with a generous margin. Exact text:
+HD2
+C4
+QUICK
+ACTIONS
+Make HD2 small and understated in warm off-white. Make C4 the main emphasis, large and bold in muted warm yellow matching the game's existing C4-pack accents. Put QUICK and ACTIONS below in clear, moderately sized off-white bold sans-serif lettering, not wider than the panel. Use precise, plain modern sans-serif type and consistent spacing. Keep the whole typographic group vertically centered, with generous unused space above and below.
+No subtitle, slogan, badge, version number, icons, logo, decorative frame, diagonal stripe, glow, bevel, texture on the panel or extra text. The result should feel like a human arranged a real gameplay screenshot and four lines of clean type, with minimal editing. One finished landscape cover only.

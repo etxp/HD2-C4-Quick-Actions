@@ -1,0 +1,17 @@
+{
+  "loader": {
+    "commit": "836427cef78b8a67cf771c1f16291d93be921744",
+    "release": "v15",
+    "internal_version": 16,
+    "api": 1,
+    "files": {
+      "scripts/build_addon.py": "a4e5aefb58152b8380c504f154bceb242a1b0b0ba8d6266f249409012896cbee",
+      "scripts/archive.py": "1da94db4352340246ae99515638784f0653839f26fc77b7405a9bb39d834f9c2"
+    },
+    "repository": "https://github.com/CowboyBingus/BingusSharedLoader.git"
+  },
+  "addon": {
+    "resource": "mods/etxp/c4_boundary_probe",
+    "guid": "b0aa8e22-956d-4c7d-973c-937085f9c0d8"
+  }
+}

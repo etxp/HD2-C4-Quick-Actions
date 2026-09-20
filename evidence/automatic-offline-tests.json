@@ -1,0 +1,172 @@
+{
+  "evidence_kind": "MOCK_AND_STATIC",
+  "source_sha256": "4134de7cb71ff39a738c13122dc23fe1ec09535397d1e455efb7ab5f687cdb40",
+  "exit_code": 0,
+  "passed": 159,
+  "runs": [
+    {
+      "command": [
+        "luajit",
+        "tests/test_automatic.lua"
+      ],
+      "exit_code": 0,
+      "stdout": "[C4 Dual Input EXP06] Automatic C4; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011855Z_001_part*.log\nPASS automatic mouse both actions, mode 0, 30 Hz\n[C4 Dual Input EXP06] Automatic C4; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011855Z_001_part*.log\nPASS automatic mouse both actions, mode 0, 60 Hz\n[C4 Dual Input EXP06] Automatic C4; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011855Z_001_part*.log\nPASS automatic mouse both actions, mode 0, 144 Hz\n[C4 Dual Input EXP06] Automatic C4; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011855Z_001_part*.log\nPASS automatic mouse both actions, mode 1, 30 Hz\n[C4 Dual Input EXP06] Automatic C4; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011855Z_001_part*.log\nPASS automatic mouse both actions, mode 1, 60 Hz\n[C4 Dual Input EXP06] Automatic C4; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011855Z_001_part*.log\nPASS automatic mouse both actions, mode 1, 144 Hz\n[C4 Dual Input EXP06] Automatic C4; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011855Z_001_part*.log\nPASS automatic xbox both actions, mode 0, 30 Hz\n[C4 Dual Input EXP06] Automatic C4; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011855Z_001_part*.log\nPASS automatic xbox both actions, mode 0, 60 Hz\n[C4 Dual Input EXP06] Automatic C4; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011855Z_001_part*.log\nPASS automatic xbox both actions, mode 0, 144 Hz\n[C4 Dual Input EXP06] Automatic C4; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011855Z_001_part*.log\nPASS automatic xbox both actions, mode 1, 30 Hz\n[C4 Dual Input EXP06] Automatic C4; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011855Z_001_part*.log\nPASS automatic xbox both actions, mode 1, 60 Hz\n[C4 Dual Input EXP06] Automatic C4; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011855Z_001_part*.log\nPASS automatic xbox both actions, mode 1, 144 Hz\n[C4 Dual Input EXP06] Automatic C4; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011856Z_001_part*.log\nPASS automatic ps both actions, mode 0, 30 Hz\n[C4 Dual Input EXP06] Automatic C4; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011856Z_001_part*.log\nPASS automatic ps both actions, mode 0, 60 Hz\n[C4 Dual Input EXP06] Automatic C4; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011856Z_001_part*.log\nPASS automatic ps both actions, mode 0, 144 Hz\n[C4 Dual Input EXP06] Automatic C4; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011856Z_001_part*.log\nPASS automatic ps both actions, mode 1, 30 Hz\n[C4 Dual Input EXP06] Automatic C4; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011856Z_001_part*.log\nPASS automatic ps both actions, mode 1, 60 Hz\n[C4 Dual Input EXP06] Automatic C4; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011856Z_001_part*.log\nPASS automatic ps both actions, mode 1, 144 Hz\n[C4 Dual Input EXP06] Automatic C4; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011856Z_001_part*.log\nPASS empty C4, resupply, R chamber refill, both mouse actions without F6\n[C4 Dual Input EXP06] Automatic C4; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011856Z_001_part*.log\nPASS F6 has no enable or disable effect\n[C4 Dual Input EXP06] Automatic C4; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011856Z_001_part*.log\nPASS held mouse during R is discarded until release and a fresh press\n[C4 Dual Input EXP06] Automatic C4; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011856Z_001_part*.log\nPASS reload cancels pending without later replay\n[C4 Dual Input EXP06] Automatic C4; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011856Z_001_part*.log\nPASS OS focus automatically resumes after release, without replaying held input\n[C4 Dual Input EXP06] Automatic C4; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011856Z_001_part*.log\nPASS engine focus automatically resumes after release, without replaying held input\n[C4 Dual Input EXP06] Automatic C4; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011856Z_001_part*.log\nPASS visible UI cursor automatically resumes after release, without replaying held input\n[C4 Dual Input EXP06] Automatic C4; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011856Z_001_part*.log\nPASS UI opening inside original update immediately invalidates pending actions\n[C4 Dual Input EXP06] Automatic C4; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011856Z_001_part*.log\nPASS UI close via held controller trigger waits for a new pull\n[C4 Dual Input EXP06] Automatic C4; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011856Z_001_part*.log\nPASS gamepad operation does not require mouse capture\n[C4 Dual Input EXP06] Automatic C4; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011856Z_001_part*.log\nPASS equipping C4 while holding a mouse button needs a fresh press\n[C4 Dual Input EXP06] Automatic C4; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011856Z_001_part*.log\nPASS startup held trigger is not converted into an automatic action\n[C4 Dual Input EXP06] Automatic C4; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011856Z_001_part*.log\nPASS automatic hotplug drops pending and reconnected held triggers\n[C4 Dual Input EXP06] Automatic C4; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011856Z_001_part*.log\nPASS simultaneous mirrored mouse and gamepad edges still choose Detonate once\n[C4 Dual Input EXP06] Automatic C4; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011856Z_001_part*.log\nPASS missing window API prevents automatic takeover\n[C4 Dual Input EXP06] Automatic C4; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011856Z_001_part*.log\nPASS invalid window state pauses and valid state resumes after release\n[C4 Dual Input EXP06] Automatic C4; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011856Z_001_part*.log\nPASS window API exception restores gate and cannot replay input on recovery\n[C4 Dual Input EXP06] Automatic C4; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011856Z_001_part*.log\nPASS unsupported controller preserves original Fire instead of automatic takeover\n[C4BoundaryProbe] disabled: src/c4_dual_input_auto.lua:944: unsupported_game_module_hash\nPASS bad_hash prevents native calls and gate writes\n[C4BoundaryProbe] disabled: src/c4_dual_input_auto.lua:948: unsupported_live_action_code_0099d220\nPASS bad_code prevents native calls and gate writes\n[C4 Dual Input EXP06] Automatic C4; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011856Z_001_part*.log\n[C4BoundaryProbe] disabled: original_update_error: tests/gamepad_entry_fixture.lua:113: fixture_original_error\nPASS original update exception restores gate and latches addon fault\n[C4 Dual Input EXP06] Automatic C4; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011856Z_001_part*.log\n[C4BoundaryProbe] disabled: src/c4_dual_input_auto.lua:229: log_write_failed\nPASS log failure restores gate and automatic mode cannot restart itself\n[C4BoundaryProbe] disabled: src/c4_dual_input_auto.lua:229: log_write_failed\nPASS automatic activation log failure stays inside startup failure handler\nAutomatic integration suite: 41 cases passed\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "luajit",
+        "tests/test_gamepad.lua"
+      ],
+      "exit_code": 0,
+      "stdout": "[C4 Dual Input EXP05] F6 enable/disable; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011856Z_001_part*.log\nPASS xbox triggers preserve mode 0 and do not repeat at 30 Hz\n[C4 Dual Input EXP05] F6 enable/disable; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011856Z_001_part*.log\nPASS xbox triggers preserve mode 0 and do not repeat at 60 Hz\n[C4 Dual Input EXP05] F6 enable/disable; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011857Z_001_part*.log\nPASS xbox triggers preserve mode 0 and do not repeat at 144 Hz\n[C4 Dual Input EXP05] F6 enable/disable; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011857Z_001_part*.log\nPASS xbox triggers preserve mode 1 and do not repeat at 30 Hz\n[C4 Dual Input EXP05] F6 enable/disable; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011857Z_001_part*.log\nPASS xbox triggers preserve mode 1 and do not repeat at 60 Hz\n[C4 Dual Input EXP05] F6 enable/disable; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011857Z_001_part*.log\nPASS xbox triggers preserve mode 1 and do not repeat at 144 Hz\n[C4 Dual Input EXP05] F6 enable/disable; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011857Z_001_part*.log\nPASS ps triggers preserve mode 0 and do not repeat at 30 Hz\n[C4 Dual Input EXP05] F6 enable/disable; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011857Z_001_part*.log\nPASS ps triggers preserve mode 0 and do not repeat at 60 Hz\n[C4 Dual Input EXP05] F6 enable/disable; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011857Z_001_part*.log\nPASS ps triggers preserve mode 0 and do not repeat at 144 Hz\n[C4 Dual Input EXP05] F6 enable/disable; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011858Z_001_part*.log\nPASS ps triggers preserve mode 1 and do not repeat at 30 Hz\n[C4 Dual Input EXP05] F6 enable/disable; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011858Z_001_part*.log\nPASS ps triggers preserve mode 1 and do not repeat at 60 Hz\n[C4 Dual Input EXP05] F6 enable/disable; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011858Z_001_part*.log\nPASS ps triggers preserve mode 1 and do not repeat at 144 Hz\n[C4 Dual Input EXP05] F6 enable/disable; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011858Z_001_part*.log\nPASS PS trigger naming also works when the game exposes it through Pad1\n[C4 Dual Input EXP05] F6 enable/disable; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011858Z_001_part*.log\nPASS analog hysteresis rejects partial pulls and threshold jitter\n[C4 Dual Input EXP05] F6 enable/disable; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011858Z_001_part*.log\nPASS a held trigger at F6 enable waits for release and a new pull\n[C4 Dual Input EXP05] F6 enable/disable; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011858Z_001_part*.log\nPASS simultaneous LT and RT choose one Detonate, including mirrored mouse input\n[C4 Dual Input EXP05] F6 enable/disable; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011858Z_001_part*.log\nPASS mouse and controller share one edge when a mapping mirrors the same held pull\n[C4 Dual Input EXP05] F6 enable/disable; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011858Z_001_part*.log\nPASS a mirrored Xbox and PS device never causes a second independent route\n[C4 Dual Input EXP05] F6 enable/disable; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011858Z_001_part*.log\nPASS disconnection cancels pending and reconnect held triggers require release\n[C4 Dual Input EXP05] F6 enable/disable; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011858Z_001_part*.log\nPASS unsupported active pad leaves original Fire available and reports button names\n[C4 Dual Input EXP05] F6 enable/disable; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011858Z_001_part*.log\nPASS F6 disarm while holding RT waits for actual trigger release before restoration\n[C4 Dual Input EXP05] F6 enable/disable; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011858Z_001_part*.log\nPASS gamepad menu press disarms and records the exact input and raw state\n[C4 Dual Input EXP05] F6 enable/disable; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011858Z_001_part*.log\nPASS empty chamber never disables the addon and RT can still detonate\n[C4 Dual Input EXP05] F6 enable/disable; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011858Z_001_part*.log\nPASS down-only guard state suspends temporarily without permanently toggling F6 off\n[C4 Dual Input EXP05] F6 enable/disable; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011858Z_001_part*.log\nPASS real keyboard menu edge still disarms and identifies the exact key\n[C4 Dual Input EXP05] F6 enable/disable; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011858Z_001_part*.log\nPASS old record/byte counters do not disable EXP05\nTOTAL 26 gamepad and disarm regression checks; mocks only\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "luajit",
+        "tests/test_gamepad_mouse_regression.lua"
+      ],
+      "exit_code": 0,
+      "stdout": "[C4 Dual Input EXP05] F6 enable/disable; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011858Z_001_part*.log\nPASS physical mapping and held-edge dedup, mode 0 at 30 Hz\n[C4 Dual Input EXP05] F6 enable/disable; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011858Z_001_part*.log\nPASS physical mapping and held-edge dedup, mode 0 at 60 Hz\n[C4 Dual Input EXP05] F6 enable/disable; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011859Z_001_part*.log\nPASS physical mapping and held-edge dedup, mode 0 at 144 Hz\n[C4 Dual Input EXP05] F6 enable/disable; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011859Z_001_part*.log\nPASS physical mapping and held-edge dedup, mode 1 at 30 Hz\n[C4 Dual Input EXP05] F6 enable/disable; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011859Z_001_part*.log\nPASS physical mapping and held-edge dedup, mode 1 at 60 Hz\n[C4 Dual Input EXP05] F6 enable/disable; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011859Z_001_part*.log\nPASS physical mapping and held-edge dedup, mode 1 at 144 Hz\n[C4 Dual Input EXP05] F6 enable/disable; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011859Z_001_part*.log\nPASS simultaneous physical presses invoke Detonate once and never vanilla Deploy\n[C4 Dual Input EXP05] F6 enable/disable; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011859Z_001_part*.log\n[C4 Dual Input EXP05] F6 enable/disable; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011859Z_001_part*.log\nPASS arming while held needs a released baseline and never synthesizes a request\n[C4 Dual Input EXP05] F6 enable/disable; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011859Z_001_part*.log\nPASS F6 disarm during left hold restores only on release without native replay\n[C4 Dual Input EXP05] F6 enable/disable; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011859Z_001_part*.log\nPASS switching to another weapon restores C4 and passes normal Fire and Aim through\n[C4 Dual Input EXP05] F6 enable/disable; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011900Z_001_part*.log\nPASS inventory change inside original update restores before the wrapper returns\n[C4 Dual Input EXP05] F6 enable/disable; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011900Z_001_part*.log\n[C4 Dual Input EXP05] F6 enable/disable; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011900Z_001_part*.log\n[C4 Dual Input EXP05] F6 enable/disable; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011900Z_001_part*.log\n[C4 Dual Input EXP05] F6 enable/disable; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011900Z_001_part*.log\n[C4 Dual Input EXP05] F6 enable/disable; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011900Z_001_part*.log\n[C4 Dual Input EXP05] F6 enable/disable; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011900Z_001_part*.log\nPASS menu keys and focus loss disarm, restore and drop queued actions\n[C4 Dual Input EXP05] F6 enable/disable; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011900Z_001_part*.log\nPASS native refill still gates Deploy while Detonate works with no ready ammo\n[C4 Dual Input EXP05] F6 enable/disable; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011900Z_001_part*.log\nPASS one pending Deploy retains the original refill behavior without repeat expansion\n[C4BoundaryProbe] disabled: src/c4_dual_input_gamepad.lua:894: unsupported_game_module_hash\n[C4BoundaryProbe] disabled: src/c4_dual_input_gamepad.lua:898: unsupported_live_action_code_0099d220\nPASS startup hash or code mismatch performs no memory writes or native binds\n[C4 Dual Input EXP05] F6 enable/disable; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011900Z_001_part*.log\n[C4BoundaryProbe] disabled: src/c4_dual_input_gamepad.lua:642: fire_gate_write_failed\n[C4 Dual Input EXP05] F6 enable/disable; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011900Z_001_part*.log\n[C4BoundaryProbe] disabled: src/c4_dual_input_gamepad.lua:626: fire_gate_write_failed; restore pending: fire_gate_write_failed\nPASS write failure denies mouse actions; transient restoration failures retry\n[C4 Dual Input EXP05] F6 enable/disable; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011900Z_001_part*.log\n[C4BoundaryProbe] disabled: src/c4_dual_input_gamepad.lua:626: src/c4_dual_input_gamepad.lua:566: fire_gate_restore_read_unavailable; restore pending: src/c4_dual_input_gamepad.lua:566: fire_gate_restore_read_unavailable\nPASS read failure blocks actions and restores on recovery\n[C4 Dual Input EXP05] F6 enable/disable; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011900Z_001_part*.log\n[C4BoundaryProbe] disabled: src/c4_dual_input_gamepad.lua:179: log_write_failed\n[C4 Dual Input EXP05] F6 enable/disable; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011900Z_001_part*.log\n[C4BoundaryProbe] disabled: src/c4_dual_input_gamepad.lua:1249: pre_mutation_log_flush_failed\nPASS log write or flush failure restores the gate and denies direct actions\n[C4 Dual Input EXP05] F6 enable/disable; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011900Z_001_part*.log\nPASS an original update exception is propagated with C4 flags restored\n[C4 Dual Input EXP05] F6 enable/disable; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011900Z_001_part*.log\nPASS guarded native code changing after startup prevents the direct action\n[C4 Dual Input EXP05] F6 enable/disable; RMB/LT/L2 Deploy; LMB/RT/R2 Detonate; F7 marker. Log: C4DualInput_20260920T011900Z_001_part*.log\n[C4BoundaryProbe] disabled: src/c4_dual_input_gamepad.lua:905: action_code_changed_0099d220\nPASS code changes before enabling prevent acquiring the Fire gate\nTOTAL 21 EXP04 integration regressions on EXP05; mock Windows/native APIs only\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "luajit",
+        "tests/test_mouse.lua"
+      ],
+      "exit_code": 0,
+      "stdout": "PASS gate owns only selected local C4 and restores its flags without mode/ammo changes\nPASS non-C4, unknown flags and a preexisting mute are never owned or written\nPASS arming waits for both physical release and the native Fire latch to clear\nPASS disarming while held mutes until release to avoid replaying vanilla Fire\nPASS switching equipment restores the previous C4 even with a button held\nPASS restore follows component compaction without touching the old address\nPASS destroyed or reused entity and changed owner epoch cannot receive stale restore\nPASS failed write and failed readback retain enough ownership for rollback\nPASS transient unavailable memory retains restore ownership for retry\nPASS foreign configuration changes are not overwritten during restore\nPASS logging failure and last-moment identity change prevent acquiring the gate\nPASS router uses edges, independent modes and full release after identity changes\nPASS simultaneous mouse edges deterministically choose Detonate only\nPASS a complete click between samples is accepted once\nTOTAL 14 EXP04 gate and router checks; synthetic memory only\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "luajit",
+        "tests/test_actions.lua"
+      ],
+      "exit_code": 0,
+      "stdout": "PASS live descriptor and type match authorize a fresh C4 capability\nPASS Deploy while selected Detonate preserves mode and calls full original consumption sequence\nPASS Detonate in Deploy mode with zero backpack ammo calls only lifecycle 520\nPASS empty Deploy never borrows deployed-charge display count or calls native mutation\nPASS unsupported descriptors and function types prevent all actions\nPASS unsupported ammo path retains C4 identity, flags and exact rejection without a capability\nPASS WeaponRounds supports Deploy across modes through the same four original calls\nPASS empty magazine with a ready chamber still admits the native last round\nPASS empty or blocked chamber denies Deploy even with magazine rounds; Detonate stays independent\nPASS non-chambered rounds use selected magazine signed count, never unrelated chamber state\nPASS rounds settings honor entity override before resource template\nPASS native ammo branch priority selects rounds even if resource and heat flags are also set\nPASS missing configuration, invalid selected magazine and mismatched component cannot authorize actions\nPASS resource hash table collision wraps using all 64 hash bits\nPASS snapshot instability invalidates even a retained action diagnostic\nPASS ability registry must refer to the exact selected owned entity\nPASS native block and exclusion bits deny requests\nPASS native paired exclusion bits preserve original allowance\nPASS outside grounded avatar scope and original Fire state deny test keys\nPASS arming cannot execute a simultaneously held test key\nPASS preexisting native action is neither restarted nor queued behind\nPASS one pending action coalesces repeated requests and waits for native completion\nPASS pending remains bounded while native weapon is temporarily blocked by own action\nPASS queued Deploy survives native completion until the real chamber becomes ready\nPASS repeat requests during refill neither grow the pending slot nor refresh its deadline\nPASS weapon switch, focus, disarm, mouse and failed context also clear a refill-waiting request\nPASS native action replacement and native exclusion cancel a refill-waiting request\nPASS an empty chamber without a transient refill flag is rejected rather than retained\nPASS native completion is not inferred from delay and timeout cannot reset an active action\nPASS expired pending action does not execute after late native completion\nPASS switching to another weapon cancels pending and never dispatches on return\nPASS capture off, loss of focus, mouse input and unavailable data discard pending\nPASS simultaneous test keys do not choose an unverified priority\nPASS replacement by a vanilla action ends observation without cancelling game state\nPASS post-call state must prove the requested native lifecycle actually started\nPASS snapshot invalidation between request and call prevents native invocation\nPASS code changes after startup are rejected before all native side effects\nPASS module and live code mismatch prevent even binding function pointers\nPASS failed logging cannot invoke native gameplay actions\nTOTAL 39 action checks; synthetic game data and native calls only\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "luajit",
+        "tests/test_rolling_log.lua"
+      ],
+      "exit_code": 0,
+      "stdout": "PASS ring log retains at most four bounded files over many rotations\nPASS rotation fails explicitly on flush, reopen or header write errors\nPASS oversized individual records are rejected rather than escaping disk bounds\nTOTAL 3 bounded rolling log checks\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "python",
+        "-B",
+        "tests/test_action_collection.py"
+      ],
+      "exit_code": 0,
+      "stdout": "PASS collector separates cross-mode lifecycle and ammo evidence from gameplay success\nPASS collector never treats an interrupted or faulted lifecycle as completed\nPASS collector tolerates only a trailing incomplete write, not corrupt full records\nPASS collector prioritizes the last actual capture and retains the underlying failure\nPASS newer startup-only logs cannot replace the most recent tested session\nPASS fixed diagnostic status is included in collection summaries\nPASS EXP04 short mouse clicks count as tests only with an active C4 gate\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "python",
+        "-B",
+        "tests/test_gamepad_collection.py"
+      ],
+      "exit_code": 0,
+      "stdout": "PASS collector orders wrapped ring slots by sequence and joins a split lifecycle\nPASS collector selects the latest tested EXP05 session over an untested startup and older EXP04\nPASS collector preserves raw ring parts and marks incomplete trailing writes\nPASS collector rejects unrelated session headers in a ring slot\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "python",
+        "-B",
+        "tests/test_automatic_collection.py"
+      ],
+      "exit_code": 0,
+      "stdout": "PASS EXP06 selection ignores newer EXP05 and unused automatic startup\nPASS automatic capture includes inputs before and after a transient reload pause\nPASS archived phase follows runtime version including ring-only EXP06 header\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "luajit",
+        "-e",
+        "assert(loadfile('src/c4_dual_input_auto.lua')); print('PASS assembled EXP06 syntax')"
+      ],
+      "exit_code": 0,
+      "stdout": "PASS assembled EXP06 syntax\n",
+      "stderr": ""
+    }
+  ],
+  "direct_native_calls": [
+    "0x7c21a0",
+    "0x73ca00",
+    "0x73bf20",
+    "0x74b220"
+  ],
+  "game_executed": false,
+  "validation_scope": "MOCK_AND_STATIC_ONLY",
+  "tested_exp05_xbox_user_confirmed": true,
+  "playstation_hardware_verified": false,
+  "reload_disarm_root_cause": "EXP05 input_guard R fresh edge permanently cleared M.capture",
+  "activation": "AUTOMATIC_LOCAL_C4",
+  "reload": "TRANSIENT_PAUSE_THEN_RELEASE_BASELINE",
+  "mapping": {
+    "mouse": "RMB Deploy / LMB Detonate",
+    "xbox": "LT Deploy / RT Detonate",
+    "playstation": "L2 Deploy / R2 Detonate"
+  },
+  "files": {
+    "LICENSE": "63be50a72e731644d29b292c498321a39e0aee84cd7676050e5ff87d05446d60",
+    "dependencies.lock.json": "df4643710bff77fb355dc5e65c0ca8f867c0120a5c5c2dc5731b42d6af80f42f",
+    "docs/INSTALL.txt": "59f4306870f67297f7a306c6ad2fa16d87d9384874d7d8614c03794fb6378499",
+    "evidence/action-layout.json": "7c3ffde4a8e827cc3ac26ffec57dc1a781c86f4f7781fa0059ddc76b2fd16574",
+    "evidence/context-layout.json": "ec664fdd88404ac1afacb571c3d3bc2c804641cbb022376308cd41f37d079049",
+    "evidence/mouse-layout.json": "ffe419835e535e634d6008fcd7a53198712a8509c704be1adcc8ee11a87af5aa",
+    "project.json": "666240dc7763ef219ff1a938209f49c0d6215c2ab2593f6d32ad39d4a6fe0df5",
+    "scripts/assemble_automatic.py": "2364e2557bc49ff53481e612d9731d3e6533aabd9f0845ee4e8442c767aabec4",
+    "scripts/assemble_context.py": "b775b495e7a54d72291eaee3bfd9d067faf78b0f9284a37d649de11e408394da",
+    "scripts/assemble_gamepad.py": "e5d641454c0ef9612a1dd5a79439ac8a46a319af3530f7351330d0fd9cb560b5",
+    "scripts/assemble_mouse.py": "21fdb67246bae9bd0730414e58e6de77fa71a1307d6b7ec6065e1e0818a5167c",
+    "scripts/build.py": "377665aae84c0cd45cc69a998c32c0d84d2161d4d070eb7dd9cb97b028a5f3be",
+    "scripts/check_automatic.py": "5ab8dbc734a413f38db76833c832921def9a2e099f5b8a07e3cd340bf91ea135",
+    "scripts/collect_actions.py": "8376a3be41d889d07f22ca2e47ac0c160e8f4a81fcea1461c2d97f6410d5fe58",
+    "src/action_backend.lua": "aec3f37d88503a0555be23d751f9740553894a0793a172927da11fbe5c0089af",
+    "src/action_controller.lua": "f7cb88f704f38d636468ae4296d25542eb6bb89ced648a57e3abf3524a2820f8",
+    "src/action_reader.lua": "a7d8dd86603b3db777fbe140faf88042867b5726b0dc3132729243d2d23c16a9",
+    "src/automatic_tick.lua": "edb5660f1ec36ac9bccdb3622be9aaaf5db2c82f8d62ff2c13874dadf4385dd8",
+    "src/c4_action_prototype.lua": "71fac7e9f55b1f5db10bf166f0cb67c994a2f174d78b40e18eace5aaee588664",
+    "src/c4_context_probe.lua": "a24fb8df099f79a6fccdfdee76f7976fe2b2cf1b3bb4c44e7c2e01daf9c2f29d",
+    "src/c4_dual_input.lua": "8dc29dba6ba6193ff1a7c45f73b87e29996bcfb2a2a317d9f95fec7be729d243",
+    "src/c4_dual_input_auto.lua": "4134de7cb71ff39a738c13122dc23fe1ec09535397d1e455efb7ab5f687cdb40",
+    "src/c4_dual_input_gamepad.lua": "a3c6a4d5fde616e619fdd9eefdee8adf76340896a71b61377bee31b62253d17b",
+    "src/c4_probe.lua": "f7f1e5efc2f1a7c4a6f95aac2d35110ffae6024ae34297bd19f05a126ab8565b",
+    "src/context_reader.lua": "6fd657bd614e30b7389f2aca69c48f2798f5afe862e0310f0089b26ca41512be",
+    "src/context_runtime.lua": "91dc43332f4f007b2ef919c47e7ff826b2af210435ed3317ad25a77cbd825ae3",
+    "src/dual_input_tick.lua": "f6aa02357362534651989d5f3ed622c4df9896c08508b60e5f5dbad0081508c9",
+    "src/fire_gate_windows.lua": "31c1d3ade4f135fedc9165cf16f487faaa3a26ccd7a044b236cd173250b157b9",
+    "src/gamepad_input.lua": "cb86ce520549f16d55f5833d2fbc5cd68f7410e22e323868b4b10dc282fa5227",
+    "src/gameplay_guard.lua": "bb6f74282aa4eaeadc209dbbdd9dce3199d15d0eda6646dfbe6ad59c3461ce46",
+    "src/input_guard.lua": "964f207ef7f204fe21bc63d90d0823da5319dd1f4084b1d3beb3c1bf0622a006",
+    "src/mouse_router.lua": "52ae4ad0ec5344a188d826adaa5fd0b7b1f0c88fb7211aa1b7b33055ebe14925",
+    "src/mouse_tick.lua": "7606a809f57d270df314577d43ebfb390ce0ea4588df66eaf530789cb956ae9e",
+    "src/native_actions_windows.lua": "3d21840008b460885bb827fa7b07f72c79ee0531aea6688b45d6f1e616a1b385",
+    "src/read_only_windows.lua": "1e22d81254f5a388fad9177a9cde1d1e16a0ca63a4c7abb5af7008021e77e944",
+    "src/rolling_log.lua": "0381c861e7acd10523120973eb505b84cb6165ba3ea734f9d9b7b3e6983f4199",
+    "src/weapon_fire_gate.lua": "e429afaa2f9bec32fedf39a6835a522eab4da31cd2811e05928a6d8722b3122c",
+    "src/window_focus.lua": "bf88edc83fccbdc55ac1f4332afccb1f94fa761f5eebd4496e469371b836f317",
+    "tests/action_fixture.lua": "d1a0c96f77c83a40208f1bb412216c4dbb6d3d4384dd2ef5982346981f982e35",
+    "tests/context_fixture.lua": "4d8ab78de4b122c1f8a20178f18ec3499ced0ebb3dd67bf97a53dec7f5208fd6",
+    "tests/gamepad_entry_fixture.lua": "4382a629b27997056b0101ef16b5d7dd44a3a7adee7ac18530fa18e2f0d70854",
+    "tests/test_action_collection.py": "8dd1759d86fd3b6aac512e90db796b8be86858d5560d46a0eb7b7702eea89433",
+    "tests/test_actions.lua": "78653ce2499784b7ae02ab373b6edf4bf60024a82bb8f675e8c3eb0da7fc63fb",
+    "tests/test_automatic.lua": "88df21a2c6425529fb69e7d23a4c7c0d5bbe088bf203fa0c5ac84a7599169dae",
+    "tests/test_automatic_collection.py": "2f41e26ab07a011fcf5ed7c29b2502f8f1d4c06b804a7fa240c0db882e560b91",
+    "tests/test_gamepad.lua": "1d86dd5c7b9ed87237d4b518d780f21b4a38c7d9c98bbb6bc6d8549e436e724a",
+    "tests/test_gamepad_collection.py": "c3af34d0f0213fcabf95fa8ac91268cbf48c3496585605b402d79b9fb44e21a5",
+    "tests/test_gamepad_mouse_regression.lua": "0017cddb1aed8bfc892a65093d8a8aed93a58c1ef287890fbc3f584120c06366",
+    "tests/test_mouse.lua": "e3678001484fecb32fcd57a88ab15d12b25f8ab05a7e02a35273b8bed026ce9e",
+    "tests/test_rolling_log.lua": "5b9315240abf32d501c2710499dd35eb421a8a2c69b7ec357861a084c5135ba6"
+  }
+}
