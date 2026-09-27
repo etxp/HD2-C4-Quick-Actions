@@ -36,4 +36,9 @@ This repository update publishes the 1.1 source and documentation only. It does 
 
 Runtime code is not gated on a game build number or whole-file hash. It resolves and checks the native functions and structures it uses; incompatible changes may still require a mod update. Offline tests do not establish live-game compatibility.
 
+## Contributors
+
+- **etxp** — project direction, feature requirements, in-game testing, feedback and release approval.
+- **OpenAI Codex (AI assistant)** — assisted with implementation, debugging, offline tests, packaging, documentation and media preparation under etxp's direction.
+
 Project-authored code and documentation use the [MIT license](LICENSE). External dependencies and game material retain their own rights; see [third-party notes](THIRD_PARTY.md).

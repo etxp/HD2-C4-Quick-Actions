@@ -1,5 +1,7 @@
 # Contributing
 
+Project credits are listed in [Contributors](README.md#contributors) / [貢獻者](README.zh-TW.md#貢獻者), including OpenAI Codex's role as an AI assistant.
+
 Use Python 3.10+ and LuaJIT 2.1. Follow [BUILDING.md](docs/BUILDING.md), run `python3 scripts/check.py`, and include the result with changes. Packaging additionally requires the separately obtained, hash-checked loader helper and libdeflate-gzip.
 
 Keep gameplay changes separate from packaging/documentation changes. Preserve ownership, native identity, UI and cleanup checks. Do not add executable-memory patches, trampolines or game-build hash allowlists. A changed native contract needs new evidence and gameplay testing.
