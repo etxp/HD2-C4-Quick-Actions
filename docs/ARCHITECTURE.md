@@ -1,46 +1,15 @@
-# Runtime architecture
+# Architecture — 1.1
 
-The mod handles the equipped, locally owned C4 using the game's original action lifecycle. Deploy uses ability **521**; Detonate uses **520**. The input mapping does not change the selected firing mode.
+- `entry.lua.in` assembles the addon lifecycle, update integration and cleanup. `assemble.py` embeds project modules and creates a separately loaded catalog resource.
+- `MBMBindings` and `MBMProfile` integrate official Mod Bindings Menu v2. Physical mouse/controller polling and old Standard/Reversed routes are not used.
+- `GameplayGuard`, `NativeUiGuard`, `AvatarScope` and the context/action readers validate selected C4, player ownership, state and interfaces before new actions.
+- `NativeResolver` locates masked code signatures and related structures at runtime. It verifies identity and code before calls; no game-build allowlist or whole-module hash gate is used.
+- `ActionController` and `ActionBackend` request original native throw/detonate operations. `PassengerHold` retains lean-out through the full throw; `AutoReload` and `PassengerReloadRecovery` handle interruptible reload opportunities.
+- `AimInputGate` suppresses overlapping native input paths while preserving release-to-throw aiming. `WeaponFireGate` manages scoped C4 fire-route data and restores owned state.
+- `CollisionEvents` reads bounded collision snapshots without advancing the engine iterator. `ContactReader` verifies charge ownership and identity; `ContactController` preserves each charge's selected mode and requests contact detonation once. Manual detonation remains available during flight.
+- `ModeLabels` changes the existing C4 selector labels using verified writable data and restores only still-owned entries. No executable code pages are patched or allocated.
+- `RollingLog` bounds diagnostics. Context changes revoke pending actions; cleanup releases held input and attempts restoration of owned data.
 
-```mermaid
-flowchart LR
-    M[Mouse buttons] --> E[Released baseline and fresh input edges]
-    P[Xbox or PlayStation triggers] --> E
-    W[Focus, cursor and guard keys] --> G[Automatic context gate]
-    C[Local equipped C4 identity] --> G
-    G --> E
-    E --> A[One action lock and bounded pending request]
-    A --> N[Native eligibility and original C4 lifecycle]
-```
+Runtime guard/catalog details are implementation compatibility checks, not a promise of compatibility with every future game update. Native signature catalogs are included to make the runtime and synthetic tests reproducible. Full game binaries, capture dumps and external mod sources are excluded.
 
-## Context and native calls
-
-`context_reader.lua` identifies the local mission/avatar, owned equipped C4 entity and descriptors. `action_reader.lua` checks its native weapon, ammo/chamber, action and conservative grounded-player state. Both firing-mode values are supported; unsupported state prevents a custom action.
-
-The only bound native calls in this build are at RVAs `0x7c21a0`, `0x73ca00`, `0x73bf20` and `0x74b220`. Deploy follows original start/consume/count/after behavior; Detonate follows the original start path. The game handles the resulting animation, effects and network action. The mod does not directly spawn charges or explosions.
-
-The runtime verifies the game module SHA-256 and 34 reviewed native signatures before acquiring the gate and before actions. These assumptions are specific to game build `24826606`, not portable offsets for arbitrary updates.
-
-## Original Fire ownership
-
-To avoid processing the same click twice, `weapon_fire_gate.lua` temporarily clears the original C4 Fire dispatch bit on the exact local weapon instance. The sole memory-write site in `fire_gate_windows.lua` exchanges the second flag byte for `0x1148 ↔ 0x148`. It compares and reads back the flags. Aim behavior remains original.
-
-Weapon changes, pauses, shutdown and failures restore the saved C4 through a fresh entity/component lookup, rather than an old pointer. A held Fire input delays restoration on the same C4 until release to avoid replaying it as a vanilla action. Disappeared/reused entities and unexpected flags are not overwritten.
-
-## Inputs and automatic activation
-
-Mouse and engine Pad/PS4Pad input feed one edge router. Controllers use verified button names, with 55% activation / 25% release hysteresis and a 10% baseline requirement. One active device is selected; duplicate native/Steam Input representations do not create separate action paths. Unsupported device profiles retain original input behavior.
-
-The router accepts fresh presses after a fully released baseline. Simultaneous requests prefer Detonate. An action lock observes native active/inactive lifecycle changes; at most one pending request is kept within its original 1.5-second deadline. Reload waiting follows the existing implementation; a new pre-trigger feature was explicitly out of scope.
-
-Automatic mode starts with the mod. R and other guard keys pause input instead of permanently clearing the enable state. OS foreground ownership and read-only engine focus/cursor signals are checked before and after the original update. Pauses clear pending and input baselines; normal operation resumes after release. `mouse_focus` is logged rather than required so controllers can operate without mouse capture.
-
-These signals are not a complete UI state machine. Cursorless menus remain a validation boundary. Missing or invalid window state prevents custom takeover and records the reason.
-
-## Failures and diagnostics
-
-Memory/code verification, logging and original-callback failures stop new custom actions and attempt Fire restoration. The automatic mode does not restart a latched fault. Callback return values and original exceptions are preserved.
-
-Four rotating logs retain at most four 4 MiB segments. `capture_enabled` indicates that automatic mode is running; `fire_gate_active` indicates current C4 ownership; `gameplay_guard.runtime_state` records a transient pause reason. F7 adds a marker, while F6 has no effect in this version.
-
-See the [historical native research](../research/docs/NATIVE_EXP03.md), [Fire routing analysis](../research/docs/NATIVE_EXP04.md) and [validation](VALIDATION.md).
+See `NATIVE-AIM.md`, `NATIVE-RELOAD.md` and `NATIVE-CONTACT-RESEARCH.md` for the development rationale; these are dated research notes. Current acceptance scope is in `VALIDATION.md`.

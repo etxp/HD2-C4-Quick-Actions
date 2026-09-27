@@ -1,21 +1,43 @@
+local R=dofile('private/tests/mock_symbols.lua')
+local D=dofile('private/tests/mock_fields.lua')
 -- Full assembled input addon with mock Windows and a synthetic vanilla Fire branch.
 -- This cannot prove real game timing, visuals, animation or multiplayer behavior.
 local ffi=require('ffi')
 local bit=require('bit')
-local base=dofile('src/context_reader.lua')
+local base=dofile('private/tests/modules/context_reader.lua')(R,D)
 local fixture=dofile('tests/action_fixture.lua')
-local signatures,expected_hash={},nil
-do
-    local f=assert(io.open('evidence/mouse-layout.json','rb'));local text=f:read('*a');f:close()
-    expected_hash=assert(text:match('"module_sha256"%s*:%s*"([0-9a-f]+)"'))
-    for rva,h in text:gmatch('"rva"%s*:%s*(%d+),%s*"hex"%s*:%s*"([0-9a-f]+)"') do
-        signatures[tonumber(rva)]=h:gsub('..',function(v) return string.char(tonumber(v,16)) end)
+local image_file=assert(io.open('private/tests/mock-native.bin','rb'))
+local native_image=image_file:read('*a');image_file:close()
+local native_catalog=dofile('private/build/native_catalog.lua')
+local runtime_pointer_rva
+for _,node in ipairs(native_catalog.nodes) do
+    for _,ref in ipairs(node.refs or {}) do
+        if node.name=='fn_reload' and ref.guard_bytes then
+            local at=R[node.name]+ref.at
+            local displacement=base.u32(native_image:sub(at+1,at+4),0)
+            if displacement>=0x80000000 then displacement=displacement-0x100000000 end
+            runtime_pointer_rva=R[node.name]+ref['end']+displacement
+        end
     end
 end
+local expected_hash=string.rep('0',64) -- irrelevant file hash for legacy mock API
 local function scenario(options)
     options=options or {}
-    local s=fixture('rounds');s.u32(s.driver_state,0x1148);s.pad_devices={};s.log_files={}
-    s.lines={};s.keys={};s.mouse={};s.writes={};s.updates=0;s.focused=true;s.vanilla={};s.aim_ticks=0
+    local s=fixture('rounds');s.u32(s.driver_state,0x2148);s.pad_devices={};s.log_files={}
+    if options.native_ui then
+        s.ui_manager=s.allocate();s.ptr(s.game+R.global_ui,s.ui_manager)
+        s.zero(s.ui_manager+0x4294,0x90)
+        s.pose_input=s.avatar+0x150+0xa7aec+0x1b68
+        for _,i in ipairs({8,9,14,15,17}) do s.zero(s.pose_input+i*32,8) end
+        function s.ui(primary,modal,secondary,pending)
+            s.zero(s.ui_manager+0x4294,0x90)
+            s.u32(s.ui_manager+0x4294,primary or 0)
+            s.u32(s.ui_manager+0x4298,modal or 0)
+            s.u32(s.ui_manager+0x4318,secondary or 0)
+            s.u32(s.ui_manager+0x4320,pending or 0)
+        end
+    end
+    s.lines={};s.keys={};s.mouse={};s.writes={};s.passenger_writes={};s.updates=0;s.focused=true;s.vanilla={};s.aim_ticks=0;s.sprint_breaks=0
     local k,b,u={},{},{}
     function k.GetModuleHandleA() return ffi.cast('void *',s.game) end
     function k.GetModuleFileNameW() return 1 end
@@ -30,18 +52,37 @@ local function scenario(options)
     function k.ReadProcessMemory(_,address,out,n,count)
         if s.fail_reads then return 0 end
         local at=tonumber(ffi.cast('uintptr_t',address))
-        local value=signatures[at-s.game]
-        if value then
-            if options.bad_code or s.bad_code then value=string.rep('\0',#value) end
-        else value=s.api.read(at,n) end
+        local value=s.api.read(at,n)
+        local relative=at-s.game
+        if not value and relative>=0 and relative+n<=#native_image then
+            value=native_image:sub(relative+1,relative+n)
+            if (options.bad_code or s.bad_code) and relative<=R.fn_start and relative+n>R.fn_start then
+                local pos=R.fn_start-relative+1
+                value=value:sub(1,pos-1)..'\0'..value:sub(pos+1)
+            end
+            if options.native_pointer_value then
+                local first=math.max(relative,runtime_pointer_rva)
+                local last=math.min(relative+n,runtime_pointer_rva+8)
+                if first<last then
+                    value=value:sub(1,first-relative)..options.native_pointer_value:sub(
+                        first-runtime_pointer_rva+1,last-runtime_pointer_rva)..value:sub(last-relative+1)
+                end
+            end
+        end
         if not value or #value~=n then return 0 end
         ffi.copy(out,value,n);count[0]=n;return 1
     end
     function k.WriteProcessMemory(_,address,value,n,count)
         local at=tonumber(ffi.cast('uintptr_t',address))
         local byte=type(value)=='string' and value:sub(1,n) or ffi.string(value,n)
+        if s.seat_row and at==s.seat_row+0x30 then
+            assert(n==1 and (byte=='\0' or byte=='\1'),'unscoped passenger mutation')
+            s.passenger_writes[#s.passenger_writes+1]={address=at,byte=byte,n=n}
+            if s.fail_passenger_writes then return 0 end
+            s.put(at,byte);count[0]=1;return 1
+        end
         assert(at==s.driver_state+1 and n==1,'unscoped memory mutation')
-        assert(byte=='\1' or byte=='\17','invalid flags byte')
+        assert(byte=='\1' or byte=='\33','invalid flags byte')
         s.writes[#s.writes+1]={address=at,byte=byte,n=n}
         if s.fail_writes then return 0 end
         s.put(at,byte);count[0]=1;return 1
@@ -55,7 +96,10 @@ local function scenario(options)
     end
     function b.BCryptDestroyHash() return 0 end
     function b.BCryptCloseAlgorithmProvider() return 0 end
-    local functions={[0x7c21a0]='start',[0x73ca00]='consume',[0x73bf20]='count',[0x74b220]='after'}
+    local functions={[R.fn_start]='start',[R.fn_consume]='consume',[R.fn_count]='count',[R.fn_after]='after',
+        [R.fn_reload]='reload',[R.fn_reload_eligible]='reload_eligible',
+        [R.fn_input_mapping]='input_mapping',[R.fn_input_inhibit]='input_inhibit',[R.fn_input_unblock]='input_unblock'}
+    if options.native_ui then functions[R.fn_lean]='lean' end
     s.bound=0
     package.loaded.ffi=setmetatable({os='Windows',load=function(name)
         return assert(({kernel32=k,bcrypt=b,user32=u})[name])
@@ -63,8 +107,12 @@ local function scenario(options)
         if type(kind)=='string' and kind:find('(*)',1,true) then
             local name=assert(functions[value-s.game],'unreviewed native call');s.bound=s.bound+1
             return function(manager,...)
-                assert(not s.log_failure and not s.flush_failure,'action after log failure')
-                assert(base.u32(s.api.read(s.driver_state,4),0)==0x148,'action without owned Fire gate')
+                if name~='reload_eligible' and name~='input_mapping' and name~='input_unblock' then
+                    assert(not s.log_failure and not s.flush_failure,'action after log failure')
+                end
+                if name~='input_unblock' then
+                    assert(base.u32(s.api.read(s.driver_state,4),0)==0x148,'action without owned Fire gate')
+                end
                 return s.native[name](tonumber(ffi.cast('uintptr_t',manager)),...)
             end
         end
@@ -102,7 +150,9 @@ local function scenario(options)
         s.pad_devices[slot]=p;_G.stingray[slot]=p.api;return p
     end
     if options.pad_profile then s.connect(options.pad_slot or 'Pad1',options.pad_profile) end
-    _G.CowboyBingusModLoader={api=1,version=16,log_directory='/nonexistent-c4-mouse-fixture',
+    if options.aim_profile then dofile('tests/aim_fixture.lua')(s,R,D,base) end
+    if options.aim_setup then options.aim_setup(s) end
+    _G.CowboyBingusModLoader={api=1,version=16,log_directory=options.aim_profile and 'private/tests/aim-profile' or '/nonexistent-c4-mouse-fixture',
         open_log=function(name) local log={lines={}};s.log_files[name]=log;return {write=function(_,line)
             if s.log_failure then return nil end
             if options.fail_log_record and line:find('"record_type":"'..options.fail_log_record..'"',1,true) then return nil end
@@ -123,10 +173,19 @@ local function scenario(options)
                 break
             end
         end
+        if s.fire_mask_mode then
+            if s.fire_mask_mode()~=0 then fire=false end
+            s.put(s.fire_input_state,fire and '\1' or '\0')
+        end
+        if fire then s.sprint_breaks=s.sprint_breaks+1 end
+        if s.mask_mode then
+            if s.mask_mode()~=0 then aim=false end
+            s.put(s.aim_state,aim and '\1' or '\0')
+        end
         if aim then s.aim_ticks=s.aim_ticks+1 end
         if c4 then
             local flags=base.u32(s.api.read(s.driver_state,4),0)
-            if bit.band(flags,0x1000)~=0 then
+            if bit.band(flags,0x2000)~=0 then
                 local previous=s.api.read(s.fire_state,1)~='\0'
                 if fire and not previous then
                     local mode=base.u32(s.api.read(0x4b000000+16,4),0)
@@ -139,6 +198,8 @@ local function scenario(options)
         return 'original',nil,extra
     end
     _G.shutdown=function() return 'shutdown-original' end
+    package.loaded['mods/etxp/c4_quick_actions_catalog']=nil
+    package.preload['mods/etxp/c4_quick_actions_catalog']=function()return dofile('private/build/c4_catalog.lua')end
     s.module=assert(loadfile(options.entry or 'src/c4_dual_input_gamepad.lua'))()
     function s.tick(dt)
         local a,b,c=_G.update(dt or 1/60,42)

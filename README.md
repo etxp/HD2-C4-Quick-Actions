@@ -1,60 +1,39 @@
-![HD2 C4 Quick Actions — C4 gameplay cover](assets/cover.png)
-
-# HD2 C4 Quick Actions
+# HD2 C4 Quick Actions 1.1
 
 [繁體中文](README.zh-TW.md)
 
-Independent C4 deployment and detonation controls for **Helldivers 2**, with automatic activation for mouse and controller.
+Throw and detonate C4 with separate, customizable controls in Helldivers 2. Set both actions through Mod Bindings Menu for keyboard, mouse, Xbox or PlayStation controllers. No F6 activation is needed.
 
-| Input | Deploy C4 | Detonate C4 |
-| --- | --- | --- |
-| Mouse | Right button | Left button |
-| Xbox controller | LT | RT |
-| PlayStation controller | L2 | R2 |
+## Version 1.1
 
-Equip your C4, release both mouse buttons and triggers, then use the controls above. **No F6 activation is required.** R keeps the game's reload behavior; after reloading you can continue using the mapping. Switching weapons restores normal firing controls.
+- **Manual / Contact modes:** choose in the existing C4 weapon-settings menu. Contact charges detonate on collision; manual detonation remains available during flight.
+- **Custom bindings:** configure Throw C4 and Detonate C4, including release-to-throw. No separate Standard / Reversed packages.
+- **Prone and diving:** throw and detonate through prone, diving and airborne transitions.
+- **Vehicle passengers:** FRV and tank passenger support, with automatic lean-out held through the complete throw.
+- **Automatic reload:** reload after throwing and after resupplying from empty. Other player actions can interrupt reload; includes recovery after an interrupted passenger reload when leaving the vehicle.
+- **Smoother controls:** throw and detonate bindings suppress overlapping vanilla aim/fire inputs. Holding a release-to-throw binding retains aiming.
+- **Interface protection:** map, interface, weapon-settings and ragdoll states block new actions. Changing modes does not consume the held C4.
 
-## Install
+Vehicle features apply to passenger seats, not drivers. Already thrown Contact charges retain their mode and continue reacting to collisions after a weapon switch or while the map is open.
 
-1. Close the game.
-2. Install [Bingus Shared Loader](https://github.com/CowboyBingus/BingusSharedLoader) **v15+ / API 1**, if it is not already installed.
-3. Import [HD2-C4-Quick-Actions-v0.6.0.zip](dist/HD2-C4-Quick-Actions-v0.6.0.zip) into your mod manager, enable the mod and loader, then deploy.
-4. Replace earlier C4 research versions (EXP01–EXP06); keep only one C4 version enabled.
+## Requirements and installation
 
-The ZIP in `dist/` is the installable mod. A GitHub source-code ZIP is the development repository. The loader remains a separate dependency. For removal, disable this mod and redeploy with your manager.
+- Bingus Shared Loader **v17+ / API 1**.
+- Official Mod Bindings Menu **v2+ / API 1**.
+- **HD2 Mod Manager 1.3** or **HD2 Arsenal**. Both use the same V1-manifest ZIP.
 
-## Behavior
+Disable older C4 Quick Actions editions, import `HD2-C4-Quick-Actions-1.1.zip`, select **Installation → C4 Quick Actions — MBM controls**, and deploy. Configure **Throw C4** and **Detonate C4** on the MODS bindings page. See [installation instructions](docs/INSTALL.txt).
 
-- Actions are independent of the selected C4 firing mode.
-- Holding a button does not repeatedly request actions. Simultaneous deploy and detonate inputs give detonate priority.
-- Native reload timing and action eligibility still apply. This mod does not shorten animations or add a reload pre-trigger feature.
-- Reload/menu keys, loss of focus and visible UI cursors temporarily suspend custom actions. Release the controls before resuming; paused pending actions are discarded.
-- Controller triggers activate at 55% travel and release at 25%; activation baselines require both triggers below 10%.
-- Original Aim behavior is retained. The mod shares one action lock across mouse and controller.
+This repository update publishes the 1.1 source and documentation only. It does not create a GitHub Release or add the 1.1 binary ZIP. The existing `dist/HD2-C4-Quick-Actions-v0.6.0.zip` is historical, not the current version. Developers can [build 1.1 from source](docs/BUILDING.md).
 
-## Compatibility and validation
+## Source and validation
 
-**Tested game build: `24826606`.** The runtime checks the game module hash and reviewed native signatures before taking control. Other builds require revalidation.
+- [Build and run offline tests](docs/BUILDING.md)
+- [Architecture](docs/ARCHITECTURE.md) and [validation scope](docs/VALIDATION.md)
+- [Full English mod description](docs/release-1.1/MOD-DESCRIPTION.en.md) / [繁體中文介紹](docs/release-1.1/MOD-DESCRIPTION.zh-TW.md)
+- [Changelog](CHANGELOG.md) and [contribution guide](CONTRIBUTING.md)
+- [Earlier public source and research](legacy/0.6.0/README-HISTORY.md)
 
-The tester reported normal mouse and Xbox operation, including the automatic version. Its latest recorded session contains **31 Deploy and 52 Detonate calls, all with observed native completion, with no recorded action faults or feature disarm**. Offline checks cover Xbox and PlayStation profiles, but **PlayStation hardware has not been tested**. Controller support depends on the device/profile exposed by the game; this is not a claim that every model or connection method works.
+Runtime code is not gated on a game build number or whole-file hash. It resolves and checks the native functions and structures it uses; incompatible changes may still require a mod update. Offline tests do not establish live-game compatibility.
 
-The implementation retains a conservative local, grounded-player scope. Multiplayer host/client, movement interruptions and every possible UI state are not fully validated. Window focus/cursor signals do not identify every cursorless menu. See the [validation record](docs/VALIDATION.md) for the exact scope.
-
-## Source and development
-
-The repository includes the complete Lua runtime, assembly and packaging scripts, tests, native-layout verification data, historical research notes and sanitized runtime traces.
-
-```bash
-python -B scripts/check_automatic.py
-python -B scripts/build.py --loader /path/to/BingusSharedLoader
-```
-
-Python 3.10+ and LuaJIT are required for development. The build helper is pinned in [dependencies.lock.json](dependencies.lock.json). See [building](docs/BUILDING.md), [architecture](docs/ARCHITECTURE.md) and [research](research/README.md).
-
-The public release preserves the exact tested EXP06 Lua payload. Historical `EXP06`, `C4DualInput` and `c4_boundary_probe` identifiers remain internally for evidence continuity and upgrades; the mod manager displays **HD2 C4 Quick Actions**.
-
-## License and credits
-
-Project-authored code and documentation are available under the [MIT License](LICENSE). External dependencies and game material retain their own terms; see [third-party references](THIRD_PARTY.md).
-
-Research, implementation, tests and documentation were developed with AI assistance. Runtime observations, mock checks and user confirmations are identified separately throughout the evidence.
+Project-authored code and documentation use the [MIT license](LICENSE). External dependencies and game material retain their own rights; see [third-party notes](THIRD_PARTY.md).

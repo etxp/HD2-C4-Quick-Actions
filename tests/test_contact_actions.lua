@@ -1,0 +1,101 @@
+local fixture=dofile('tests/contact_fixture.lua')
+local function check(name,fn)fn();print('PASS '..name)end
+check('contact matches either event side and calls only the owned impacted charge once',function()
+    local s=fixture();local other=s.add(202,{foreign=true});local unowned=s.add(203,{owned=false})
+    s.throw(100);local ours=s.add(201)
+    s.events.contacts={s.collide(other),s.collide(unowned),s.collide(ours),s.collide(ours,0,'b')}
+    s.controller.step(200);s.controller.step(200);s.controller.step(201)
+    assert(not s.controller.disabled and #s.effects==1 and s.effects[1]==201)
+end)
+check('contact mode does not detonate before collision or from an end-contact event',function()
+    local s=fixture();s.throw(0);local c=s.add(1);s.controller.step(200)
+    s.events.contacts={s.collide(c,2)};s.controller.step(300);assert(#s.effects==0)
+    s.events.contacts={s.collide(c,0,'b')};s.controller.step(400);assert(#s.effects==1)
+end)
+check('manual charges remain manual after switching selector to contact',function()
+    local s=fixture();s.throw(0,'MANUAL');local c=s.add(1);s.controller.step(200)
+    s.mode('CONTACT');s.events.contacts={s.collide(c)};s.controller.step(600)
+    assert(not s.controller.disabled and #s.effects==0)
+end)
+check('contact charge stays armed after switching to manual, gun or interface',function()
+    local s=fixture();s.throw(0);local c=s.add(1);s.controller.step(200);s.mode('MANUAL')
+    s.u32(s.state+0x1c,1);s.put(s.avatar_flags+10,'\x40') -- weapon settings cannot cancel a thrown contact charge
+    s.events.contacts={s.collide(c)};s.controller.step(600)
+    assert(not s.controller.disabled and #s.effects==1)
+end)
+check('mixed manual/contact charges do not turn a single collision into batch detonation',function()
+    local s=fixture();s.throw(0,'MANUAL');local manual=s.add(1);s.controller.step(200)
+    s.throw(700,'CONTACT');local contact=s.add(2)
+    s.events.contacts={s.collide(manual),s.collide(contact)};s.controller.step(1000)
+    assert(not s.controller.disabled and #s.effects==1 and s.effects[1]==2)
+end)
+check('charges present before contact-mode throw are never armed retroactively',function()
+    local s=fixture();local old=s.add(1);s.throw(100);local new=s.add(2)
+    s.events.contacts={s.collide(old),s.collide(new)};s.controller.step(300)
+    assert(#s.effects==1 and s.effects[1]==2)
+end)
+check('failed or expired throw does not arm a later unrelated charge',function()
+    local s=fixture();s.mode('CONTACT');s.controller.prepare(0);local c=s.add(1)
+    s.events.contacts={s.collide(c)};s.controller.step(300);assert(#s.effects==0)
+    s=fixture();s.throw(0);s.controller.step(3000);c=s.add(2)
+    s.events.contacts={s.collide(c)};s.controller.step(3100);assert(#s.effects==0)
+end)
+check('ambiguous simultaneous new charges fail without guessing ownership by position',function()
+    local s=fixture();s.throw(0);local c=s.add(1);s.add(2)
+    s.events.contacts={s.collide(c)};s.controller.step(200)
+    assert(s.controller.disabled and #s.effects==0)
+end)
+for _,change in ipairs({'world','weapon','authority','unit','registry'})do
+    check(change..' replacement revokes the projectile capability',function()
+        local s=fixture();s.throw(0);local c=s.add(1);s.controller.step(200)
+        if change=='world' then s.events.root=s.root+100
+        elseif change=='weapon' then s.put(s.waddr+16,'\1')
+        elseif change=='authority' then s.put(c.address+20,'\0')
+        elseif change=='unit' then s.u32(c.address+12,c.unit+1)
+        else s.ptr(s.xregistry,s.waddr)end
+        s.events.contacts={s.collide(c)};s.controller.step(600);assert(#s.effects==0)
+    end)
+end
+for _,failure in ipairs({'code','log','read','same'})do
+    check(failure..' failure prevents the explosion call',function()
+        local s=fixture();s.throw(0);local c=s.add(1);s.controller.step(200)
+        s.events.contacts={s.collide(c)}
+        if failure=='code' then s.bad_code=true
+        elseif failure=='log' then s.log_failure=true
+        elseif failure=='read' then s.api.read=function()return nil end
+        else local orig=s.backend.tracked;s.backend.tracked=function(...)
+            local v=orig(...);v.same=function()return false end;return v end end
+        s.controller.step(600);assert(s.controller.disabled and #s.effects==0)
+    end)
+end
+check('native detonation already requested is not requested again by collision',function()
+    local s=fixture();s.throw(0);local c=s.add(1,{requested=true})
+    s.events.contacts={s.collide(c)};s.controller.step(600)
+    assert(not s.controller.disabled and #s.effects==0)
+end)
+check('entity generation reuse removes old arming state',function()
+    local s=fixture();s.throw(0);local c=s.add(1);s.controller.step(200)
+    s.charges={};s.rebuild();s.controller.step(300)
+    c=s.add(1,{unit=0x500001});s.events.contacts={s.collide(c)};s.controller.step(600)
+    assert(#s.effects==0)
+end)
+check('tracked reader handles many existing owned charges within a bounded snapshot',function()
+    local s=fixture();for i=1,40 do s.add(i)end
+    local cap=s.selected();assert(#cap.charges==40 and cap.same())
+    s.u32(s.state+0x1c,1);local fresh=s.tracked(cap.lease);assert(#fresh.charges==40 and fresh.same())
+end)
+check('original impact and remote-call ABI forwarded unchanged',function()
+    local ffi=require('ffi');local calls={};local nativeffi=ffi
+    package.loaded.ffi=setmetatable({os='Windows',cast=function(kind,value)
+        if kind:find('(*)',1,true)then return function(...)
+            calls[#calls+1]={kind=kind,address=value,args={...}}
+        end end
+        return nativeffi.cast(kind,value)
+    end},{__index=ffi})
+    local n=dofile('src/ContactActions.lua')(0x10000,{contact_explode=0x200,contact_remote_owner=0x300})
+    n.explode({manager=0x20000,id=17,invalid_source=0x7fff});n.remote(0x30000,29)
+    package.loaded.ffi=ffi
+    assert(calls[1].kind=='void (*)(void *, uint32_t, uint32_t, void *)')
+    assert(calls[1].address==0x10200 and calls[1].args[2]==17 and calls[1].args[3]==0x7fff and calls[1].args[4]==nil)
+    assert(calls[2].address==0x10300 and calls[2].args[2]==29)
+end)

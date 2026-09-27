@@ -1,0 +1,398 @@
+-- HD2-Addon: mods/etxp/c4_boundary_probe
+local R,D
+@@CATALOG@@
+@@CONTACT_CATALOG@@
+@@MODULE:NativeResolver@@
+@@MODULE:AvatarFlags@@
+@@MODULE:PoseObserver@@
+@@MODULE:CollisionEvents@@
+@@MODULE:ContactReader@@
+@@MODULE:ContactActions@@
+@@MODULE:ContactController@@
+@@MODULE:ModeLabels@@
+@@MODULE:ModeLabelWindows@@
+@@MODULE:NativeUiGuard@@
+@@MODULE:VehiclePrepare@@
+@@MODULE:AvatarScope@@
+@@MODULE:GameplayGuard@@
+@@MODULE:RollingLog@@
+@@MODULE:ContextReader@@
+@@MODULE:WindowsRead@@
+@@MODULE:FireGateWindows@@
+@@MODULE:PassengerWindows@@
+@@MODULE:WeaponFireGate@@
+@@MODULE:ReloadReader@@
+@@MODULE:ActionReader@@
+@@MODULE:PassengerHold@@
+@@MODULE:ActionBackend@@
+@@MODULE:NativeActions@@
+@@MODULE:ActionController@@
+@@MODULE:PassengerReloadRecovery@@
+@@MODULE:AutoReload@@
+@@MODULE:WindowFocus@@
+local ActionLayout=NativeCatalog
+-- C4 action routing is exclusively provided by MBM. Native context guards apply.
+@@MODULE:MBMBindings@@
+@@MODULE:MBMProfile@@
+@@MODULE:AimInputState@@
+@@MODULE:AimInputGate@@
+local existing = rawget(_G, 'HD2C4BoundaryProbe')
+if existing then return existing end
+local M = {version='@@VERSION@@', capture=true, tick=0, elapsed_ms=0,
+           status='starting', records=0, bytes=0, disabled=false}
+rawset(_G, 'HD2C4BoundaryProbe', M)
+local loader = rawget(_G, 'CowboyBingusModLoader')
+local engine = rawget(_G, 'stingray')
+local previous_update = rawget(_G, 'update')
+if type(loader) ~= 'table' or loader.api ~= 1 or type(loader.version) ~= 'number'
+    or loader.version < 16 or type(loader.open_log) ~= 'function'
+    or type(engine) ~= 'table' or type(previous_update) ~= 'function' then
+    M.status = 'unsupported_loader_engine_or_update'; M.disabled = true
+    print('[C4BoundaryProbe] '..M.status)
+    return M
+end
+
+local function quote(s)
+    return '"'..s:gsub('[%z\1-\31\\"]', function(c)
+        if c == '\\' then return '\\\\' end
+        if c == '"' then return '\\"' end
+        return string.format('\\u%04x', string.byte(c))
+    end)..'"'
+end
+local function json(v)
+    local kind = type(v)
+    if kind == 'nil' then return 'null' end
+    if kind == 'boolean' then return v and 'true' or 'false' end
+    if kind == 'number' then
+        if v ~= v or v == math.huge or v == -math.huge then return 'null' end
+        return string.format('%.15g', v)
+    end
+    if kind == 'string' then return quote(v) end
+    assert(kind == 'table', 'non_json_value')
+    local numeric, maximum, count, named = false, 0, 0, 0
+    for k in pairs(v) do
+        if type(k) == 'number' then
+            assert(k >= 1 and k % 1 == 0, 'invalid_array_key')
+            numeric = true; maximum = math.max(maximum, k); count = count + 1
+        else assert(type(k) == 'string', 'non_string_key'); named = named + 1 end
+    end
+    if numeric then
+        assert(named == 0 and count == maximum, 'sparse_or_mixed_json_table')
+        local parts = {}
+        for i = 1, maximum do assert(v[i] ~= nil, 'sparse_json_array'); parts[i] = json(v[i]) end
+        return '['..table.concat(parts, ',')..']'
+    end
+    local keys, parts = {}, {}
+    for k in pairs(v) do keys[#keys+1] = k end
+    table.sort(keys)
+    for _, k in ipairs(keys) do parts[#parts+1] = quote(k)..':'..json(v[k]) end
+    return '{'..table.concat(parts, ',')..'}'
+end
+
+local file,actions,focus,gate,gameplay_guard,pose_observer,bindings,action_backend,aim_gate,fire_input_gate
+local auto_reload,contact_controller,mode_labels
+local binding_available=false
+local last_controls_released=true
+local last_controls_allowed=true
+local function close()
+    if file then pcall(file.flush, file); pcall(file.close, file); file = nil end
+end
+local function emit(kind, extra)
+    if not file or M.disabled then return false end
+    local row = {schema=1, record_type=kind, evidence_kind='RUNTIME_OBSERVATION',
+        timestamp_utc=os.date('!%Y-%m-%dT%H:%M:%SZ'), tick=M.tick,
+        tick_kind='lua_update_callback_count', elapsed_ms=M.elapsed_ms,
+        clock_kind='sum_of_valid_update_dt', phase=M.phase or 'initialization',
+        current_weapon='UNKNOWN', current_fire_mode='UNKNOWN', input='NONE',
+        requested_action='NONE', executed_action='NONE', pending_action='NONE',
+        action_lock='NOT_IMPLEMENTED', action_result='OBSERVATION_ONLY'}
+    if actions then for k,v in pairs(actions.fields(M.elapsed_ms)) do row[k]=v end end
+    if gate then for k,v in pairs(gate.fields()) do row[k]=v end end
+    if gameplay_guard then for k,v in pairs(gameplay_guard.fields()) do row[k]=v end end
+    if bindings then for k,v in pairs(bindings.fields()) do row[k]=v end end
+    if aim_gate then for k,v in pairs(aim_gate.fields()) do row[k]=v end end
+    if fire_input_gate then for k,v in pairs(fire_input_gate.fields()) do row[k]=v end end
+    if auto_reload then for k,v in pairs(auto_reload.fields()) do row[k]=v end end
+    if action_backend then
+        row.passenger_hold_active=action_backend.passenger.lease~=nil
+        row.passenger_hold_status=action_backend.passenger.status
+    end
+    row.capture_enabled=M.capture
+    row.input_suspended=not last_controls_allowed
+    for k, v in pairs(extra or {}) do row[k] = v end
+    if aim_gate then row.native_aim_behavior=aim_gate.fields().native_aim_behavior end
+    local line = json(row)..'\n'
+    assert(#line<1024*1024,'log_record_limit')
+    assert(file:write(line), 'log_write_failed')
+    M.records=M.records+1; M.bytes=M.bytes+#line
+    if kind=='action_call' or kind=='reload_call' or kind=='contact_detonate_call'
+        or kind=='airborne_manual_call' or kind=='mode_labels_call' or (kind=='fire_gate' and extra and extra.fire_gate_status=='acquire')
+        or (kind=='aim_gate' and extra and extra.aim_gate_status=='acquire')
+        or (kind=='fire_input' and extra and extra.fire_input_status=='acquire')
+        or (kind=='passenger_hold' and extra and extra.passenger_hold_status=='acquire') then
+        assert(file:flush(),'pre_mutation_log_flush_failed')
+    end
+    return true
+end
+
+local function fail(reason)
+    if contact_controller then contact_controller.stop() end
+    if mode_labels then pcall(mode_labels.stop) end
+    if aim_gate then pcall(aim_gate.stop) end
+    if fire_input_gate then pcall(fire_input_gate.stop) end
+    if action_backend then
+        local ok,restored,why=pcall(action_backend.close)
+        if not ok or not restored then reason=tostring(reason)..'; passenger restore pending: '..tostring(why or restored) end
+    end
+    if gate then
+        local ok,restored,why=pcall(gate.stop)
+        if not ok or not restored then reason=tostring(reason)..'; restore pending: '..tostring(why or restored) end
+    end
+    pcall(emit, 'probe_error', {reason=tostring(reason)})
+    M.disabled=true; M.capture=false; M.status=tostring(reason); close()
+    print('[C4BoundaryProbe] disabled: '..M.status)
+end
+
+local function open_log()
+    local base = loader.log_directory
+    if not base then
+        local local_app_data = os.getenv('LOCALAPPDATA')
+        assert(local_app_data and local_app_data ~= '', 'log_directory_unknown')
+        base=local_app_data..'/CowboyBingus/Helldivers2/Logs'
+    end
+    local prefix='C4DualInput_'..os.date('!%Y%m%dT%H%M%SZ')
+    for i=1,100 do
+        local name=prefix..'_'..string.format('%03d',i)..'.log'
+        -- open_log uses mode w; check existence before choosing a session name.
+        local prior=io.open(base..'/'..name:gsub('%.log$','_part1.log'),'rb')
+        if prior then prior:close() else
+            local stem=name:gsub('%.log$','')
+            file=RollingLog.new(loader.open_log,json,stem,function()
+                return {schema=1,evidence_kind='RUNTIME_OBSERVATION',version=M.version,
+                    timestamp_utc=os.date('!%Y-%m-%dT%H:%M:%SZ'),tick=M.tick,
+                    capture_enabled=M.capture,native_compatibility='validated_code_signatures',
+                    startup_layout_verified=M.layout_verified or false}
+            end)
+            M.log_name=stem..'_part*.log'
+            return
+        end
+    end
+    error('session_name_limit')
+end
+
+local function relevant(path)
+    path=path:lower()
+    for _, word in ipairs({'mouse','keyboard','input','player','weapon','action',
+                          'deploy','detonat','fire','aim','ability','controller',
+                          'physics','collision','contact','actor','unit.'}) do
+        if path:find(word,1,true) then return true end
+    end
+    return false
+end
+local function catalog()
+    local visited, emitted=0,0
+    local truncated=false
+    local function walk(t, prefix, depth)
+        for k,v in next,t do
+            visited=visited+1
+            if visited>8192 or emitted>=1024 then truncated=true; return end
+            if type(k)=='string' and k~='__index' and k~='_G' then
+                local path=prefix..'.'..k
+                if relevant(path) then
+                    emit('api', {path=path, raw_type=type(v), callable_verified=false})
+                    emitted=emitted+1
+                end
+                if depth>0 and type(v)=='table' then walk(v,path,depth-1) end
+                if truncated then return end
+            end
+        end
+    end
+    walk(engine,'stingray',1)
+    -- Other globals are inspected by name/type only. No candidate is called.
+    for k,v in next,_G do
+        visited=visited+1
+        if visited>8192 or emitted>=1024 then truncated=true; break end
+        if type(k)=='string' and k~='stingray' and relevant(k) then
+            emit('api', {path='_G.'..k, raw_type=type(v), callable_verified=false})
+            emitted=emitted+1
+            if type(v)=='table' then walk(v,'_G.'..k,0) end
+        end
+        if truncated then break end
+    end
+    emit('catalog_complete', {visited=visited, emitted=emitted, truncated=truncated,
+        scope='stingray two levels plus named relevant globals; absence is not proof of no API'})
+end
+
+-- Sample MBM activation, then recheck native UI/identity after the engine update.
+local frame_request=nil
+local function suspend_actions()
+    frame_request=nil
+    if aim_gate then aim_gate.sync(false,M.elapsed_ms) end
+    if fire_input_gate then fire_input_gate.sync(false,M.elapsed_ms) end
+    bindings.cancel()
+    if auto_reload then auto_reload.suspend(M.elapsed_ms) end
+    local ok,why=action_backend.passenger.stop('controls_suspended');assert(ok,why)
+    actions.step(false,M.elapsed_ms,{allowed=false})
+end
+local function tick(dt)
+    M.phase='before_original_update';M.tick=M.tick+1;frame_request=nil
+    if type(dt)=='number' and dt>=0 and dt<math.huge then M.elapsed_ms=M.elapsed_ms+dt*1000 end
+    if contact_controller then contact_controller.step(M.elapsed_ms) end
+    if mode_labels then mode_labels.sync(contact_controller and not contact_controller.disabled) end
+    local input=bindings.sample(M.elapsed_ms)
+    binding_available=input.available;last_controls_released=input.released
+    last_controls_allowed=gameplay_guard.sample(focus(),false,input.released) and input.available
+    action_backend.maintain(last_controls_allowed and not actions.fault,M.elapsed_ms)
+    local owned=gate.sync(last_controls_allowed,input.released)
+    aim_gate.sync(owned and last_controls_allowed,M.elapsed_ms)
+    fire_input_gate.sync(owned and last_controls_allowed,M.elapsed_ms)
+    local identity=owned and (gate.identity..':mbm:'..bindings.epoch) or nil
+    local request=bindings.route(identity,last_controls_allowed,input)
+    if owned and last_controls_allowed then
+        request.identity=gate.identity;frame_request=request
+    else suspend_actions() end
+    if file and M.tick%60==0 then assert(file:flush(),'log_flush_failed') end
+end
+local function after_update()
+    M.phase='after_original_update'
+    if contact_controller then contact_controller.step(M.elapsed_ms) end
+    last_controls_allowed=gameplay_guard.sample(focus(),false,last_controls_released)
+        and binding_available and not M.disabled
+    action_backend.maintain(last_controls_allowed and not actions.fault,M.elapsed_ms)
+    pose_observer(M.elapsed_ms)
+    local owned=gate.sync(last_controls_allowed,last_controls_released)
+    aim_gate.sync(owned and last_controls_allowed,M.elapsed_ms)
+    fire_input_gate.sync(owned and last_controls_allowed,M.elapsed_ms)
+    local request=frame_request;frame_request=nil
+    if not owned or not last_controls_allowed or not request or request.identity~=gate.identity then
+        suspend_actions();return
+    end
+    if request.detonate then auto_reload.cancel('player_detonation') end
+    actions.step(true,M.elapsed_ms,request)
+    if actions.fault then action_backend.maintain(false,M.elapsed_ms) end
+    auto_reload.step(not actions.fault,M.elapsed_ms,
+        (actions.pending and actions.pending.action=='DETONATE') or request.detonate)
+end
+
+local ok,why=pcall(function()
+    open_log()
+    emit('session', {version=M.version, loader_api=loader.api, loader_version=loader.version,
+        native_compatibility='signature_resolution_required', action_execution_enabled=false, input_provider='MBM_ONLY',
+        activation='AUTOMATIC_LOCAL_C4',
+        mbm_api=1,mbm_slots='automatic',mbm_actions='deploy+detonate',mbm_original_controls='REMOVED'})
+    local api=PassengerWindows(FireGateWindows(WindowsRead()))
+    local backend=ActionBackend.new(api,ActionReader,ContextReader,ActionLayout,NativeActions,emit)
+    action_backend=backend
+    auto_reload=AutoReload.new(backend,emit)
+    focus=WindowFocus()
+    local contact_ok,contact_error=pcall(function()
+        local game=assert(api.module('game.dll'))
+        local compat=NativeResolver.resolve(api,game,ContactCatalog)
+        local events=CollisionEvents.new(api,game,compat.symbols)
+        local native=ContactActions(game,compat.symbols)
+        local cb={events=events.snapshot,explode=native.explode}
+        function cb.verify()backend.verify();compat.verify();events.verify()end
+        function cb.selected()
+            compat.verify()
+            local world=engine.Application.main_world()
+            local _,_,s=ContactReader.selected(api,game,ContextReader,compat.symbols)
+            if s then
+                assert(world and engine.Application.main_world()==world,'contact_world_changed')
+                s.lease.world=world
+            end
+            return s
+        end
+        function cb.tracked(lease,stream)
+            if engine.Application.main_world()~=lease.world then return {expired=true,charges={}} end
+            return ContactReader.tracked(api,game,ContextReader,compat.symbols,lease,stream)
+        end
+        contact_controller=ContactController.new(cb,emit)
+        mode_labels=ModeLabels.new(api,game,ContextReader,compat.symbols,compat.verify,ModeLabelWindows(api),emit)
+        M.mode_labels=mode_labels -- retain pinned text through any restore failure
+        -- Invoke the same remote callback as native Detonate phase 15 when
+        -- the thrown charge has left the hand but Deploy is still active.
+        function backend.airborne_manual(cap)
+            if contact_controller.disabled or not cap.deploy_released then return false end
+            local s=cb.selected();if not s or #s.charges==0 then return false end
+            assert(s.lease.weapon_id==cap.weapon_id,'airborne_weapon_changed')
+            cb.verify();assert(cap.same() and s.same(),'airborne_context_changed')
+            assert(emit('airborne_manual_call',{requested_action='DETONATE',action_result='CALL_BEGIN'}))
+            assert(cap.same() and s.same(),'airborne_context_changed_before_call')
+            native.remote(s.remote,cap.weapon_id)
+            return true
+        end
+        emit('contact_ready',{contact_detonation_enabled=true,native_nodes=compat.node_count,
+            selector_0='MANUAL',selector_1='CONTACT',scope='OWNED_CHARGE_PER_THROW'})
+    end)
+    if not contact_ok then
+        if contact_controller then contact_controller.stop();contact_controller.disabled=true end
+        emit('contact_unavailable',{contact_detonation_enabled=false,reason=tostring(contact_error)})
+    end
+    pcall(catalog)
+    local function action_emit(kind,fields)
+        local accepted=emit(kind,fields)
+        if accepted and kind=='action_call' and fields.requested_action=='DEPLOY' then
+            if contact_controller then contact_controller.prepare(M.elapsed_ms) end
+        end
+        if accepted and kind=='action_started' and fields.requested_action=='DEPLOY' then
+            if contact_controller then contact_controller.commit(M.elapsed_ms) end
+            auto_reload.arm(M.elapsed_ms)
+        end
+        return accepted
+    end
+    actions=ActionController.new(backend,action_emit,{deploy_input='etxp.c4_quick_actions.deploy',detonate_input='etxp.c4_quick_actions.detonate'})
+    gate=WeaponFireGate.new(api,assert(api.module('game.dll')),ContextReader,emit,backend.verify)
+    bindings=MBMBindings.new(function() return rawget(_G,'ModBindingsMenu') end,emit)
+    aim_gate=AimInputGate.new(api,assert(api.module('game.dll')),ContextReader,backend,MBMProfile.new(loader),emit)
+    fire_input_gate=AimInputGate.new(api,assert(api.module('game.dll')),ContextReader,backend,nil,emit,
+        {action=D.input_fire_action,code=D.input_fire_code,index=9,tag='fire_input',fire=true})
+    gameplay_guard=GameplayGuard.new(engine,emit,NativeUiGuard.new(api,assert(api.module('game.dll')),ContextReader))
+    pose_observer=PoseObserver.new(api,assert(api.module('game.dll')),ContextReader,emit)
+    M.layout_verified=true
+    emit('layout_verified',{native_compatibility='validated_code_signatures',
+        resolved_native_nodes=backend.compatibility.node_count,
+        scanned_code_bytes=backend.compatibility.scan_bytes,fire_route_bit=D.fire_bit,
+        action_execution_enabled=true,direct_mode_writes=false,input_provider='MBM_ONLY'})
+    emit('capture',{enabled=true,reason='automatic_activation',activation='AUTOMATIC_LOCAL_C4'})
+    assert(file:flush(),'log_flush_failed')
+end)
+if not ok then fail(why); return M end
+M.status='ready'
+local function after(called,...)
+    if not called then
+        fail('original_update_error: '..tostring((...)))
+        error((...),0)
+    end
+    if not M.disabled then
+        local ok,why=pcall(after_update)
+        if not ok then fail(why) end
+    else
+        -- Retry restoration after transient read/write failure, even disabled.
+        if action_backend then pcall(action_backend.close) end
+        if gate and gate.lease then pcall(gate.stop) end
+        if aim_gate then pcall(aim_gate.stop) end
+        if fire_input_gate then pcall(fire_input_gate.stop) end
+        if mode_labels then pcall(mode_labels.stop) end
+    end
+    return ...
+end
+update=function(dt,...)
+    if not M.disabled then
+        local success,err=pcall(tick,dt)
+        if not success then fail(err) end
+    end
+    return after(pcall(previous_update,dt,...))
+end
+local previous_shutdown=rawget(_G,'shutdown')
+shutdown=function(...)
+    if contact_controller then contact_controller.stop() end
+    if mode_labels then pcall(mode_labels.stop) end
+    if aim_gate then pcall(aim_gate.stop) end
+    if fire_input_gate then pcall(fire_input_gate.stop) end
+    if action_backend then pcall(action_backend.close) end
+    if gate then pcall(gate.stop) end
+    pcall(emit,'shutdown'); close(); M.disabled=true; M.capture=false; M.status='closed'
+    if previous_shutdown then return previous_shutdown(...) end
+end
+print('[HD2 C4 Quick Actions @@VERSION@@] MBM-only throw and detonate. Log: '..M.log_name)
+return M

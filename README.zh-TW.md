@@ -1,57 +1,39 @@
-![HD2 C4 Quick Actions — C4 實機畫面封面](assets/cover.png)
-
-# HD2 C4 Quick Actions
+# HD2 C4 Quick Actions 1.1
 
 [English](README.md)
 
-讓《絕地戰兵 2》的 C4 **投擲與引爆分開操作**，支援滑鼠與手柄，拿出 C4 即自動啟用。
+在 Helldivers 2 中，用獨立按鍵投擲與引爆 C4。透過 Mod Bindings Menu 設定按鍵與觸發方式，支援鍵盤、滑鼠、Xbox 與 PlayStation 手柄，不需要按 F6 啟用。
 
-| 輸入裝置 | 投擲 C4 | 引爆 C4 |
-| --- | --- | --- |
-| 滑鼠 | 右鍵 | 左鍵 |
-| Xbox 手柄 | LT | RT |
-| PlayStation 手柄 | L2 | R2 |
+## 1.1 更新內容
 
-拿出 C4，先放開滑鼠左右鍵與兩個扳機，即可使用。**不需要按 F6。** R 維持原版補彈流程，補彈完成後可繼續操作；切回其他武器時恢復原本開火操作。
+- **手動／接觸引爆**：在原本的 C4 武器設定選單切換。接觸模式碰撞後自動引爆，飛行途中仍可手動引爆。
+- **自訂操作**：投擲與引爆分別設定，支援放開投擲，不再區分 Standard／Reversed 安裝包。
+- **趴下與飛撲**：趴下、飛撲及離地過渡時可以投擲和引爆。
+- **載具乘客**：支援 FRV 與坦克乘客座位，自動探身並維持到完整投擲動作結束。
+- **自動裝填**：投擲後及打空補給後自動裝填；其他操作可中斷，並處理車內裝填被打斷後的下車恢復。
+- **流暢操作**：抑制綁定鍵重疊的原生瞄準／開火輸入，避免打斷奔跑。放開投擲時，按住期間保留瞄準。
+- **避免誤觸**：介面、地圖、武器設定與布娃娃狀態不接受新的投擲／引爆；切換模式不會消耗手中的 C4。
 
-## 安裝
+載具功能適用於乘客座位，不包含駕駛位。已投出的接觸 C4 保留原模式，在切槍或開啟地圖後仍會依碰撞引爆。
 
-1. 退出遊戲。
-2. 安裝 [Bingus Shared Loader](https://github.com/CowboyBingus/BingusSharedLoader) **v15+ / API 1**，已安裝者保留原有版本。
-3. 將 [HD2-C4-Quick-Actions-v0.6.0.zip](dist/HD2-C4-Quick-Actions-v0.6.0.zip) 匯入 Mod Manager，啟用本模組與 Loader，再部署。
-4. 取代先前 C4 實驗版本（EXP01～EXP06），同時只啟用一個 C4 版本。
+## 需求與安裝
 
-`dist/` 內的 ZIP 是安裝包；GitHub 的 Source code ZIP 則是開發資料。Loader 需另外安裝。移除時，由 Mod Manager 停用本模組並重新部署。
+- Bingus Shared Loader **v17+／API 1**。
+- 官方 Mod Bindings Menu **v2+／API 1**。
+- **HD2 Mod Manager 1.3** 或 **HD2 Arsenal**，共用同一個 V1 manifest ZIP。
 
-## 操作細節
+停用舊版 C4 Quick Actions，匯入 `HD2-C4-Quick-Actions-1.1.zip`，選擇 **Installation → C4 Quick Actions — MBM controls** 後部署。在 MODS 按鍵頁設定 **Throw C4** 與 **Detonate C4**。詳見[安裝說明](docs/INSTALL.txt)。
 
-- 投擲、引爆各自對應固定按鍵，不受目前 C4 射擊模式影響。
-- 長按不連發；同時按投擲與引爆時，引爆優先。
-- 補彈時間、動畫與原版動作限制保留，不新增補彈預觸發。
-- R／選單鍵、失焦或顯示游標時暫停動作；回到操作狀態並放開按鍵後自動恢復。
-- 暫停會取消尚未執行的 pending，避免回來後突然觸發。
-- 扳機達 55% 行程視為按下，25% 以下釋放；重新接管時需回到 10% 以下。
-- 原版 Aim 保留，滑鼠與手柄共用動作鎖。
+此次倉庫更新只提供 1.1 原始碼與文件，沒有建立 GitHub Release 或加入 1.1 安裝 ZIP。原有 `dist/HD2-C4-Quick-Actions-v0.6.0.zip` 是歷史檔案，不是目前版本。開發者可依[建置說明](docs/BUILDING.md)自行產生 1.1。
 
-## 相容範圍與驗證
+## 開發與文件
 
-**已測遊戲 build：`24826606`。** 模組會核對遊戲模組雜湊與原生函式指紋，其他 build 需重新驗證。
+- [建置及離線測試](docs/BUILDING.md)
+- [程式架構](docs/ARCHITECTURE.md)與[驗證範圍](docs/VALIDATION.md)
+- [完整中文介紹](docs/release-1.1/MOD-DESCRIPTION.zh-TW.md)／[English description](docs/release-1.1/MOD-DESCRIPTION.en.md)
+- [更新紀錄](CHANGELOG.md)與[貢獻指南](CONTRIBUTING.md)
+- [舊版公開原始碼與研究資料](legacy/0.6.0/README-HISTORY.md)
 
-使用者已回報滑鼠、Xbox 及自動版本正常。最新一輪記錄 **31 次投擲、52 次引爆**，全部觀察到原生動作完成，沒有 action fault 或功能停用事件。
+本模組不以遊戲版本號或整個檔案雜湊鎖定版本，而是核對實際使用的內部函式與資料結構。若遊戲更新改動相關結構，仍可能需要更新模組。離線測試不代表已完成遊戲實測。
 
-PS profile 已有離線測試，**尚無 PS 硬體實測**。相容性取決於遊戲暴露的手柄介面，不代表所有型號、USB／藍牙組合都已測過。多人、完整移動／受擊中斷與所有選單尚未全面驗收；沒有游標的 UI 仍需個別確認。詳見 [驗證紀錄](docs/VALIDATION.md)。
-
-## 開源內容
-
-完整 Lua 程式、組裝與打包腳本、測試、原生版型核對資料、歷史研究筆記及去識別化日誌均收錄於本專案，採 [MIT 授權](LICENSE)。第三方依賴另列於 [THIRD_PARTY.md](THIRD_PARTY.md)。
-
-```bash
-python -B scripts/check_automatic.py
-python -B scripts/build.py --loader /path/to/BingusSharedLoader
-```
-
-需要 Python 3.10+ 與 LuaJIT；詳見 [建置方法](docs/BUILDING.md)、[架構說明](docs/ARCHITECTURE.md)、[研究索引](research/README.md)。
-
-公開安裝包沿用已測成功的 EXP06 Lua 內容。內部 `EXP06`、`C4DualInput` 與 `c4_boundary_probe` 名稱保留以延續升級與日誌比對，Mod Manager 顯示名稱為 **HD2 C4 Quick Actions**。
-
-研究、程式、測試與文件有 AI 協助；文件會區分 mock 檢查、實機記錄與使用者回報。
+本專案自行撰寫的程式碼與文件採 [MIT 授權](LICENSE)。第三方依賴與遊戲素材保留原權利，詳見[第三方說明](THIRD_PARTY.md)。

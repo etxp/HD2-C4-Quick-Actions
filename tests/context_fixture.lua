@@ -1,6 +1,8 @@
+local R=dofile('private/tests/mock_symbols.lua')
+local D=dofile('private/tests/mock_fields.lua')
 -- Shared synthetic memory fixture; no game process access.
 local ffi=require('ffi')
-local reader=dofile('src/context_reader.lua')
+local reader=dofile('private/tests/modules/context_reader.lua')(R,D)
 local function bytes(h) return h:gsub('..',function(x) return string.char(tonumber(x,16)) end) end
 local function word(n) return ffi.string(ffi.new('uint32_t[1]',n),4) end
 local function pointer(n) return ffi.string(ffi.new('uint64_t[1]',n),8) end
@@ -29,15 +31,15 @@ local function fixture()
     s.player=entity('4d1c334d294dfa97',s.aid,s.unit)
     s.weapon=entity('51f50d6321f52f3d',s.wid,0xabc)
     s.other=entity('1111111122222222',s.otherid,0xdef)
-    for rva,value in pairs({[0x276c3d0]=s.mode,[0x276c190]=s.pm,[0x276f0c0]=s.owner,
-        [0x276ca30]=s.avatar,[0x276c468]=s.inv,[0x276c9f0]=s.wd}) do s.ptr(s.game+rva,value) end
+    for rva,value in pairs({[R.global_mode]=s.mode,[R.global_player]=s.pm,[R.global_owner]=s.owner,
+        [R.global_avatar]=s.avatar,[R.global_inventory]=s.inv,[R.global_weapon_data]=s.wd}) do s.ptr(s.game+rva,value) end
     s.zero(s.mode,0x44);s.u32(s.mode+8,1);s.u32(s.mode+0x40,3)
     s.u32(s.pm+0x84,2);s.u32(s.pm+0x88,2);s.ptr(s.pm+0xe8,0x40000000)
     s.put(0x40000000,s.player);s.u32(s.pm+0x3a8,s.unit)
-    s.map(s.owner+0xf21a88,0x41000000,{{s.unit,3}})
-    s.map(s.owner+0xf19a70,0x42000000,{{s.wid,5},{s.otherid,6},{s.aid,3}})
-    s.eaddr=s.owner+0xf31ad8+3*24;s.waddr=s.owner+0xf31ad8+5*24
-    s.put(s.eaddr,s.player);s.put(s.waddr,s.weapon);s.put(s.owner+0xf31ad8+6*24,s.other)
+    s.map(s.owner+0xf22ec8,0x41000000,{{s.unit,3}})
+    s.map(s.owner+0xf1aeb0,0x42000000,{{s.wid,5},{s.otherid,6},{s.aid,3}})
+    s.eaddr=s.owner+0xf32f18+3*24;s.waddr=s.owner+0xf32f18+5*24
+    s.put(s.eaddr,s.player);s.put(s.waddr,s.weapon);s.put(s.owner+0xf32f18+6*24,s.other)
     s.map(s.avatar+0xf8,0x43000000,{{s.aid,1}});s.u32(s.avatar+0x6c,2)
     s.ptr(s.avatar+0x110+8,0x44000000);s.put(0x44000000,s.player)
     s.map(s.inv+0x28,0x45000000,{{s.aid,2}});s.u32(s.inv+0x14,3)
@@ -46,14 +48,14 @@ local function fixture()
     s.u32(s.state,s.otherid);s.u32(s.state+8,s.wid);s.u32(s.state+0x1c,3)
     s.map(s.wd+0x30,0x48000000,{{s.wid,1}});s.u32(s.wd+0x1c,2)
     s.ptr(s.wd+0x48,0x49000000);s.ptr(0x49000000+8,s.waddr)
-    s.ptr(s.wd+0x58,0x4a000000);s.zero(0x4a000000+0x3e0+0x340,16)
-    s.u32(0x4a000000+0x3e0+0x340,11);s.u32(0x4a000000+0x3e0+0x344,10)
+    s.ptr(s.wd+0x58,0x4a000000);s.zero(0x4a000000+0x3f0+0x350,16)
+    s.u32(0x4a000000+0x3f0+0x350,11);s.u32(0x4a000000+0x3f0+0x354,10)
     s.ptr(s.wd+0x60,0x4b000000);s.zero(0x4b000000+12,12);s.u32(0x4b000000+16,0x900)
     s.ptr(s.wd+0x50,0x4c000000);s.zero(0x4c000000+2,2)
-    s.templates=0x4d000000;s.ptr(s.owner+0xf11888,s.templates);s.zero(s.templates,256+0x58)
-    s.put(s.templates+13*16,bytes('51f50d6321f52f3d'):reverse()..word(0)..word(0))
-    s.u32(s.templates+256,333);s.u32(s.templates+260,334)
-    s.u32(s.templates+256+40,666);s.u32(s.templates+260+40,667)
+    s.templates=0x4d000000;s.ptr(s.owner+0xf12cd0,s.templates);s.zero(s.templates,288+0x58)
+    s.put(s.templates+11*16,bytes('51f50d6321f52f3d'):reverse()..word(0)..word(0))
+    s.u32(s.templates+288,333);s.u32(s.templates+292,334)
+    s.u32(s.templates+288+40,666);s.u32(s.templates+292+40,667)
     s.api={}
     function s.api.read(at,n)
         s.read_calls=s.read_calls+1

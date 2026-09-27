@@ -9,3 +9,12 @@ local-evidence/
 Thumbs.db
 .idea/
 .vscode/
+/private/
+/vendor/
+/dependencies/
+/media/
+/dist/*
+/evidence/checks.json
+/evidence/package.json
+/evidence/package-checks.json
+*.luac

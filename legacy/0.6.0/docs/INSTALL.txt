@@ -1,0 +1,37 @@
+HD2 C4 Quick Actions v0.6.0
+Tested game build: 24826606
+Requires Bingus Shared Loader v15+ / API 1 (installed separately).
+
+INSTALL
+Close the game. Import HD2-C4-Quick-Actions-v0.6.0.zip into your mod manager,
+enable this mod and Bingus Shared Loader, then deploy.
+Replace earlier C4 EXP01-EXP06 packages; keep only one C4 version enabled.
+To remove, disable this mod and redeploy with your mod manager.
+
+CONTROLS
+Mouse: right button deploys, left button detonates.
+Xbox: LT deploys, RT detonates. PlayStation: L2 deploys, R2 detonates.
+Equip C4 and release both buttons/triggers first. No F6 activation is needed.
+Reload with the game's normal controls; wait for native reload completion.
+After a menu or focus pause, release controls before the next action.
+F7 is an optional diagnostic marker.
+
+SCOPE
+Mouse and Xbox have user-confirmed basic gameplay tests. PlayStation hardware
+is not yet verified. Native reload timing, animation, Aim and eligibility remain.
+Multiplayer, movement interruptions and every cursorless UI are not fully tested.
+The runtime verifies build-specific module and native code signatures.
+
+LOGS
+The loader writes C4DualInput_<session>_part1.log through part4.log under
+%LOCALAPPDATA%/CowboyBingus/Helldivers2/Logs, with four rotating 4 MiB parts.
+Logs keep the internal runtime version 0.6.0-exp06 for upgrade continuity.
+
+繁體中文
+退出遊戲，由 Mod Manager 匯入本 ZIP，啟用模組與 Loader 後部署。
+取代舊 C4 版本；滑鼠右鍵／LT／L2 投擲，左鍵／RT／R2 引爆。
+拿出 C4、放開按鍵後自動啟用，不用 F6。R 補彈完成後可直接繼續。
+開關選單或切回遊戲後，先放開滑鼠左右鍵與扳機，再按新的一次。
+PS 硬體、多人、完整移動與全部選單仍待驗證。
+
+Project-authored code and documentation: MIT License. See LICENSE.txt.

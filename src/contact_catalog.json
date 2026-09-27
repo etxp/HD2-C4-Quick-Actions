@@ -1,0 +1,878 @@
+{
+  "nodes": [
+    {
+      "name": "contact_remote_lifecycle",
+      "hex": "40534883ec20488bd985d27512baeb1ce7ffe859f10f0032c04883c4205bc383fa0f75f34885db7415f6411401740f8b5108488b0d2fb32602e822096bffba8e6c2526488bcbe805680e00ba27d8f64c41b88e6c2526488bcbe8c25f0e00b0014883c4205bc3",
+      "mask": "ffffffffffffffffffffffffffffffffffffff00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000ff00000000ffffffffffffffffff00000000ffffffffffffffffffffffffffffff00000000ffffffffffffffff",
+      "refs": [
+        {
+          "at": 19,
+          "end": 23,
+          "kind": "call",
+          "region": "code"
+        },
+        {
+          "at": 53,
+          "end": 57,
+          "kind": "rip",
+          "region": "writable",
+          "symbol": "global_contact_remote"
+        },
+        {
+          "at": 58,
+          "end": 62,
+          "kind": "call",
+          "region": "code",
+          "symbol": "contact_remote_owner"
+        },
+        {
+          "at": 71,
+          "end": 75,
+          "kind": "call",
+          "region": "code"
+        },
+        {
+          "at": 90,
+          "end": 94,
+          "kind": "call",
+          "region": "code"
+        }
+      ]
+    },
+    {
+      "name": "contact_remote_owner",
+      "hex": "488bc4488948085741544881ec880000003b152d7ed1028bfa4c8be10f845c040000488958e8488968e0488970d84c8968d04533ed3b15f57dd10274574c8b058cafbb02418bcd458b4828458b5030440fafd7418d71ff4585c974384d8b5820418b582c0f1f40000f1f8400000000008bc6428d14114823d0418b04d33bc30f84860100003bc70f8486010000ffc1413bc972dc488d0da97dd1028b298bd5e8fc07b300488b4c24204885c0418bdd480f45c8899c24b8000000418b44241048894c2420418bcd898c24a800000085c00f84bd0000008b35687dd1024c897424604c897c24580f297424400f57f666904d8b6424388bc3498b04c448894424288b58083bde7458488b8424a0000000418bcd448b4028448b5830458bd3440fafd3458d78ff4585c0742e4c8b4820448b702c418bc7428d14114823d0418b04d1413bc60f843d0100003bc30f843d010000ffc1413bc872da8b8c24a80000008b9c24b80000004c8ba424a0000000ffc3899c24b8000000418b4424103bd80f826cffffff0f287424404c8b7c24584c8b742460488b742470488b6c24783bc80f83cc0200003b3d857cd1020f84c00200004c8b0d18aebb02418b5128458b4130440fafc78d5aff85d20f84a20200004d8b5120458b592c660f1f8400000000008bc3438d0c284823c8418b04ca413bc30f84250200003bc70f842102000041ffc5443bea72dae9660200003bc70f8581feffff41837cd304ff0f8475feffff458b5030418d71ff440fafd7418bcd4585c974290f1f4000660f1f8400000000008bc6428d14114823d0418b04d33bc3742a3bc7742affc1413bc972e4b8ffffffff8bc8488d1449498b48404883c10448c1e2044803cae920feffff3bc775dd418b44d304ebdb3bc30f85cafeffff418b44d10483f8ff0f84bcfeffff498b0cc4f64114010f84aefeffff418bcd440fafdb458d50ff6666660f1f840000000000418bc2428d14194823d0418b04d1413bc60f847c0000003bc30f8478000000ffc1413bc872da89b424b00000008bc63bc70f8561feffff3b1d337bd1020f8455feffff4c8b3d2ea6bb02418bcd458b4740458b4f48440fafcb458d70ff4585c00f8432feffff4d8b5738458b5f446690418bc6428d14094823d0418b04d2413bc3744c3bc37450ffc1413bc872e2e905feffff3bc3758f418b44d10483f8ff0f8481ffffff8bc8488b8424a0000000488b40488b14c8488d8c24b0000000e82dda86008b8424b0000000e960ffffff3bc30f85c1fdffff41837cd204ff0f84b5fdffff488b4c2428e85303daff488bc8e83b1816000f2fc68bd3498bcf76340f28d0e829211600488b0d6aa5bb02448bc58bd3e8582416008b8c24a80000008b355f7ad102ffc1898c24a8000000e96cfdffff4c8b4c2420448bc5e8901d16008b8c24a80000008b35377ad102ffc1898c24a8000000e944fdffff3bc77552418b44ca0483f8ff74488bc8498b4138488b0cc8f641140174388bcfe810d8860041b901000000c7442428010000004c8d442428c744242c0400000048c7c2feffffff4889442430b9371ca0afe8cf214700488b9c24800000004c8b6c24684881c488000000415c5fc3",
+      "mask": "ffffffffffffffffffffffffffffffffffffff00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000ffffffffff00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000ffffffffff00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000ffffffffffffffffff00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000ffffffffffffffffff00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000ffffffffffffffff00000000ffffffffffffffffffffffffffffffffffffffffffffffffffff00000000ffffffff00000000ffffffffffffffffffffffffffff00000000ffffff00000000ffffffffffff00000000ffffffffffffffffff00000000ffffffffffffffffffff00000000ffffffffffffffffff00000000ffffffffffffffffff00000000ffffffffffffffffffff00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000ffffffffffffffffffffffffffffffffffffffffffffffff",
+      "refs": [
+        {
+          "at": 19,
+          "end": 23,
+          "kind": "rip",
+          "region": "writable",
+          "symbol": "global_contact_invalid_source"
+        },
+        {
+          "at": 55,
+          "end": 59,
+          "kind": "rip",
+          "region": "writable"
+        },
+        {
+          "at": 64,
+          "end": 68,
+          "kind": "rip",
+          "region": "writable"
+        },
+        {
+          "at": 151,
+          "end": 155,
+          "kind": "rip",
+          "region": "writable",
+          "symbol": "global_contact_invalid_source"
+        },
+        {
+          "at": 160,
+          "end": 164,
+          "kind": "call",
+          "region": "code"
+        },
+        {
+          "at": 216,
+          "end": 220,
+          "kind": "rip",
+          "region": "writable",
+          "symbol": "global_contact_invalid_source"
+        },
+        {
+          "at": 423,
+          "end": 427,
+          "kind": "rip",
+          "region": "writable"
+        },
+        {
+          "at": 436,
+          "end": 440,
+          "kind": "rip",
+          "region": "writable"
+        },
+        {
+          "at": 519,
+          "end": 523,
+          "kind": "jump",
+          "region": "code",
+          "relative": 1137
+        },
+        {
+          "at": 631,
+          "end": 635,
+          "kind": "jump",
+          "region": "code",
+          "relative": 155
+        },
+        {
+          "at": 761,
+          "end": 765,
+          "kind": "rip",
+          "region": "writable"
+        },
+        {
+          "at": 774,
+          "end": 778,
+          "kind": "rip",
+          "region": "writable",
+          "symbol": "global_contact_explosive"
+        },
+        {
+          "at": 847,
+          "end": 851,
+          "kind": "jump",
+          "region": "code",
+          "relative": 344
+        },
+        {
+          "at": 895,
+          "end": 899,
+          "kind": "call",
+          "region": "code",
+          "symbol": "contact_owner_reference"
+        },
+        {
+          "at": 907,
+          "end": 911,
+          "kind": "jump",
+          "region": "code",
+          "relative": 751
+        },
+        {
+          "at": 937,
+          "end": 941,
+          "kind": "call",
+          "region": "code"
+        },
+        {
+          "at": 945,
+          "end": 949,
+          "kind": "call",
+          "region": "code"
+        },
+        {
+          "at": 963,
+          "end": 967,
+          "kind": "call",
+          "region": "code"
+        },
+        {
+          "at": 970,
+          "end": 974,
+          "kind": "rip",
+          "region": "writable",
+          "symbol": "global_contact_explosive"
+        },
+        {
+          "at": 980,
+          "end": 984,
+          "kind": "call",
+          "region": "code"
+        },
+        {
+          "at": 993,
+          "end": 997,
+          "kind": "rip",
+          "region": "writable",
+          "symbol": "global_contact_invalid_source"
+        },
+        {
+          "at": 1007,
+          "end": 1011,
+          "kind": "jump",
+          "region": "code",
+          "relative": 351
+        },
+        {
+          "at": 1020,
+          "end": 1024,
+          "kind": "call",
+          "region": "code",
+          "symbol": "contact_explode"
+        },
+        {
+          "at": 1033,
+          "end": 1037,
+          "kind": "rip",
+          "region": "writable",
+          "symbol": "global_contact_invalid_source"
+        },
+        {
+          "at": 1047,
+          "end": 1051,
+          "kind": "jump",
+          "region": "code",
+          "relative": 351
+        },
+        {
+          "at": 1084,
+          "end": 1088,
+          "kind": "call",
+          "region": "code"
+        },
+        {
+          "at": 1133,
+          "end": 1137,
+          "kind": "call",
+          "region": "code"
+        }
+      ]
+    },
+    {
+      "name": "contact_owner_reference",
+      "hex": "4883ec084c8b1ded234902448bc24c8bc981faff7f000075108b05ada94a028901488bc14883c408c3458b93d02ef20033d248895c2410418b9bd82ef20048896c2418410fafd8418d6aff488974242048893c244585d27436498bbbc82ef200418bb3d42ef200660f1f8400000000008bc58d0c1a4823c8488d04cf8b0ccf3bce740e413bc87409ffc2413bd272e133c0488b3c24488b742420488b6c2418488b5c2410443900751f8b4004488d0440488d80e4651e00498d04c38b00418901498bc14883c408c3488d05fda84a028b00418901498bc14883c408c3",
+      "mask": "ffffffffffffff00000000ffffffffffffffffffffffffffffffff00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000ffffffffffffffffffffffffff",
+      "refs": [
+        {
+          "at": 7,
+          "end": 11,
+          "kind": "rip",
+          "region": "writable",
+          "symbol": "global_contact_owner"
+        },
+        {
+          "at": 27,
+          "end": 31,
+          "kind": "rip",
+          "region": "writable"
+        },
+        {
+          "at": 203,
+          "end": 207,
+          "kind": "rip",
+          "region": "writable"
+        }
+      ]
+    },
+    {
+      "name": "contact_sticky_registry",
+      "hex": "48895c2408574883ec208bd933ff488b0d3b10b1023979107634660f1f440000488b4140488d14bf391c90751a488b4138448bc3488b14f88b5208e8700b0000488b0d0910b102ffc73b791072d2488b5c24304883c4205fc3",
+      "mask": "ffffffffffffffffffffffffffffffffff00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000ffffff00000000ffffffffffffffffffffffffffffffffffff",
+      "refs": [
+        {
+          "at": 17,
+          "end": 21,
+          "kind": "rip",
+          "region": "writable",
+          "symbol": "global_contact_sticky"
+        },
+        {
+          "at": 60,
+          "end": 64,
+          "kind": "call",
+          "region": "code"
+        },
+        {
+          "at": 67,
+          "end": 71,
+          "kind": "rip",
+          "region": "writable",
+          "symbol": "global_contact_sticky"
+        }
+      ]
+    },
+    {
+      "name": "contact_sticky_state",
+      "hex": "48895c2418574883ec208b42083b0581e0c602488b3d460db1024c897424384c8bf27507bbffffffffeb4b448b4f2833d2448b5730440fafd04889742430418d71ff4585c974254c8b5f208b5f2c66908bce468d04124c23c1438b0cc33bcb74463bc87446ffc2413bd172e4bbffffffff488b742430498b0ee88257cffff30f1005da1cbb014c8b742438f30f1048480f2fc1761df30f590d230abb010f5ac1e80b218f01eb133bc875c1438b5cc304ebbff20f10052e24bb01488b47488bcb488b5c2440f20f5ac0f30f1144c8044883c4205fc3",
+      "mask": "ffffffffffffffffffffffffffffff00000000ffffff00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000ffffffff00000000ffffffffffffffffffffffffffffffffffffff00000000ffffffff00000000ffffffffffffffffffffffffffffffffff00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "refs": [
+        {
+          "at": 15,
+          "end": 19,
+          "kind": "rip",
+          "region": "writable",
+          "symbol": "global_contact_invalid_source"
+        },
+        {
+          "at": 22,
+          "end": 26,
+          "kind": "rip",
+          "region": "writable",
+          "symbol": "global_contact_sticky"
+        },
+        {
+          "at": 122,
+          "end": 126,
+          "kind": "call",
+          "region": "code"
+        },
+        {
+          "at": 130,
+          "end": 134,
+          "kind": "rip",
+          "region": "readonly",
+          "hex": "00003443"
+        },
+        {
+          "at": 153,
+          "end": 157,
+          "kind": "rip",
+          "region": "readonly",
+          "hex": "35fa8e3c"
+        },
+        {
+          "at": 161,
+          "end": 165,
+          "kind": "call",
+          "region": "code"
+        },
+        {
+          "at": 182,
+          "end": 186,
+          "kind": "rip",
+          "region": "readonly",
+          "hex": "000000000000f0bf"
+        }
+      ]
+    },
+    {
+      "name": "contact_collision_path",
+      "hex": "488bc4488958084889701048897818554154415541564157488d68b94881ec00010000440f294898488b059143f7014833c4488945cf3b1594bfdb02458bf08bda4c8bf90f843b040000448b41384533ed448b4940418bd5440fafcb418d78ff4585c00f841c0400004c8b5130448b593c0f1f40006666660f1f8400000000008bc7428d0c0a4823c8418b04ca413bc374103bc37414ffc2413bd072e3e9e30300003bc30f85db030000418b44ca0483f8ff0f84cd030000448be0498b47484a8b0ce0f64114010f84b8030000488b0574e9c502418bcd448b4020448b4828440fafcb418d78ff4585c00f84950300004c8b5018448b58240f1f8400000000008bc7428d14094823d0418b04d2413bc374103bc37414ffc1413bc872e3e9630300003bc30f855b03000041837cd204ff0f844f0300008bd3e823d5ddff84c00f8540030000488b059ce5c5028b7d6f8bcf488b5018ffd285c0740c488b0586e5c5028bcfff5078498b4748496bf42c4a8b3ce0496bc478488975a74889442450498b47504889459f4885ff740b488b0fe8ab4fe4ff4c8be88bd3488d4c2460e8cc1a9100488d4d87418bd6e8801b9100498b5760488d4d838b541620e88f1d910041807d5c000f848d00000041807d5d00740c8b45833945870f84a6020000448b05febddb024533c98b5708488b0de5e8c502e838612000458b45404585c07423f30f100517efcf0141b9010000008b5708488b0dd7e7c502f30f11442420e8cc301000418b554485d27416488b0585e4c5028b4c24604c8b481841ff917003000041b8ffffffff498bd78bcbe87e494400b001e92e0200008b7d87450f57c98b057ebddb028b75833bf874383bf07434488b442450488b4d9ff30f10440804410f2fc1761f3bfe0f84f7010000448bc6488d542460e80518ecff3b7c24600f84e0010000418b85640100004c8b6d77413945140f85cb0100008b7d6f458bc6488b0de9e9c502448bcf8bd3e82fea140084c00f84ac010000498b4750488b5424500f29b424f00000000f29bc24e0000000440f298424d0000000f30f107c1050f30f1074104c0f28c7f3440f104410540f28d6f30f59d6410f28c8f30f59c7f3410f59c8f30f58d0f30f58d1410f2ed17a02744d0f57c00f2ec277090f57c0f30f51c2eb0d0f28c2e81651a401488b542450f30f100de1e5cf010f2fc87722f30f5ef0f30f5ef8f3440f5ec0f30f11742450f30f117c2454f3440f11442458eb1148c744245000000000c7442458000000008b442458448bcef3410f104524418b4d18f20f104c2450f3410f10552cf3410f105d20f30f1145c7f3410f104530f30f114597f3410f1045288945b78b4597894c2448488b0dd3e8c502894424588b45c7894597488d45af897c24400f14c244897424384889442430488d4424504889442428488d458ff20f11442450f3410f10451c4889442420488b459f0f14c3f20f114daff20f11458f448b04028bd3e8a9ee1400440f288424d00000000f28bc24e00000000f28b424f000000084c00f85eafdffff498b4760ba35d48f65488b4da7c6440102014883c102498b47484d8b47604c03c14a8b0ce08b4910e80b17910032c0488b4dcf4833cce88d069c014c8d9c2400010000498b5b30498b7338498b7b40450f284bc0498be3415f415e415d415c5dc3",
+      "mask": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000ffffffffffffffffff00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000ffffffffffffffffffffffffffffffffffffffffffffff00000000ffffffffffffffffffffff00000000ffffffffffffffffffffffffffffffffffff00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000ffffffffffffffffffffff00000000ffffffffffffffff00000000ffffffffffffffffffffffffff00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000ffffffffffffffffff00000000ff00000000ffffffffffffffffffffffffff00000000ffffffffffffffffffffffff00000000ffffffffffffff00000000ffffffffffffffffffffff00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000ffffff00000000ffffffffffffffffff00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000ffffffffffff00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000ffffffffffffffffff00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000ffffffffffffffffffff00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "refs": [
+        {
+          "at": 43,
+          "end": 47,
+          "kind": "rip",
+          "region": "writable"
+        },
+        {
+          "at": 56,
+          "end": 60,
+          "kind": "rip",
+          "region": "writable"
+        },
+        {
+          "at": 158,
+          "end": 162,
+          "kind": "jump",
+          "region": "code",
+          "relative": 1157
+        },
+        {
+          "at": 208,
+          "end": 212,
+          "kind": "rip",
+          "region": "writable"
+        },
+        {
+          "at": 286,
+          "end": 290,
+          "kind": "jump",
+          "region": "code",
+          "relative": 1157
+        },
+        {
+          "at": 313,
+          "end": 317,
+          "kind": "call",
+          "region": "code"
+        },
+        {
+          "at": 328,
+          "end": 332,
+          "kind": "rip",
+          "region": "writable"
+        },
+        {
+          "at": 350,
+          "end": 354,
+          "kind": "rip",
+          "region": "writable"
+        },
+        {
+          "at": 401,
+          "end": 405,
+          "kind": "call",
+          "region": "code"
+        },
+        {
+          "at": 416,
+          "end": 420,
+          "kind": "call",
+          "region": "code",
+          "symbol": "contact_entity_unit"
+        },
+        {
+          "at": 428,
+          "end": 432,
+          "kind": "call",
+          "region": "code"
+        },
+        {
+          "at": 445,
+          "end": 449,
+          "kind": "call",
+          "region": "code",
+          "symbol": "contact_owner_reference"
+        },
+        {
+          "at": 482,
+          "end": 486,
+          "kind": "rip",
+          "region": "writable",
+          "symbol": "global_contact_invalid_source"
+        },
+        {
+          "at": 495,
+          "end": 499,
+          "kind": "rip",
+          "region": "writable",
+          "symbol": "global_contact_explosive"
+        },
+        {
+          "at": 500,
+          "end": 504,
+          "kind": "call",
+          "region": "code",
+          "symbol": "contact_explode"
+        },
+        {
+          "at": 517,
+          "end": 521,
+          "kind": "rip",
+          "region": "readonly",
+          "hex": "0000803f"
+        },
+        {
+          "at": 533,
+          "end": 537,
+          "kind": "rip",
+          "region": "writable"
+        },
+        {
+          "at": 544,
+          "end": 548,
+          "kind": "call",
+          "region": "code"
+        },
+        {
+          "at": 559,
+          "end": 563,
+          "kind": "rip",
+          "region": "writable"
+        },
+        {
+          "at": 590,
+          "end": 594,
+          "kind": "call",
+          "region": "code"
+        },
+        {
+          "at": 597,
+          "end": 601,
+          "kind": "jump",
+          "region": "code",
+          "relative": 1159
+        },
+        {
+          "at": 610,
+          "end": 614,
+          "kind": "rip",
+          "region": "writable",
+          "symbol": "global_contact_invalid_source"
+        },
+        {
+          "at": 663,
+          "end": 667,
+          "kind": "call",
+          "region": "code"
+        },
+        {
+          "at": 707,
+          "end": 711,
+          "kind": "rip",
+          "region": "writable",
+          "symbol": "global_contact_sticky"
+        },
+        {
+          "at": 717,
+          "end": 721,
+          "kind": "call",
+          "region": "code"
+        },
+        {
+          "at": 842,
+          "end": 846,
+          "kind": "call",
+          "region": "code"
+        },
+        {
+          "at": 855,
+          "end": 859,
+          "kind": "rip",
+          "region": "readonly",
+          "hex": "17b7d138"
+        },
+        {
+          "at": 985,
+          "end": 989,
+          "kind": "rip",
+          "region": "writable",
+          "symbol": "global_contact_sticky"
+        },
+        {
+          "at": 1075,
+          "end": 1079,
+          "kind": "call",
+          "region": "code"
+        },
+        {
+          "at": 1153,
+          "end": 1157,
+          "kind": "call",
+          "region": "code"
+        },
+        {
+          "at": 1167,
+          "end": 1171,
+          "kind": "call",
+          "region": "code"
+        }
+      ]
+    },
+    {
+      "name": "contact_world_root",
+      "hex": "4c8bdc554156498dab58f9ffff4881ec98070000488b05f56fb8014833c4488985d00500004c8b351413870249895b08498bce4989731849897b204d8963e84d896be04d897bd8410f2973c8410f297bb80f28f9450f2943a8450f294b98f30f117c2464f3410f11be50110000450f295388e8a9f4ffff",
+      "mask": "ffffffffffffffffffffffffffffffffffffffffffffff00000000ffffffffffffffffffffffffff00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000",
+      "refs": [
+        {
+          "at": 23,
+          "end": 27,
+          "kind": "rip",
+          "region": "writable"
+        },
+        {
+          "at": 40,
+          "end": 44,
+          "kind": "rip",
+          "region": "writable",
+          "symbol": "global_contact_world"
+        },
+        {
+          "at": 115,
+          "end": 119,
+          "kind": "call",
+          "region": "code"
+        }
+      ]
+    },
+    {
+      "name": "contact_event_dispatch",
+      "hex": "488b0597f88602418b8ef0100000488b5038ffd24c8b05b3f88602488d542464488bc84889442448488bd841ff5020488b0d98f886024c8d4598488d5424644c8b4928488bcb41ffd185c00f84bb0300000f1f4400008b45a03dbacfc77d0f84500300003dbbcfc77d745d3dfd9e1f9e0f8574030000488b5d98833b020f8462030000488b0514f886028b4b044c8b808800000041ffd085c00f8446030000488b05f8f786028b4b084c8b808800000041ffd085c00f842a030000488bd3e8a3a9daffe91d0300004c8b6d98418b4d0885c975088b",
+      "mask": "ffffff00000000ffffffffffffffffffffffffffffffff00000000ffffffffffffffffffffffffffffffffffffffffffffff00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000ffffffffffffffffffffffffffffffffffffffffffffffff00000000ffffffffffffffffffffffffffffffffffffffffffffffffff00000000ff00000000ffffffffffffffffffffffffff",
+      "refs": [
+        {
+          "at": 3,
+          "end": 7,
+          "kind": "rip",
+          "region": "writable",
+          "symbol": "global_contact_physics_api"
+        },
+        {
+          "at": 23,
+          "end": 27,
+          "kind": "rip",
+          "region": "writable",
+          "symbol": "global_contact_events_api"
+        },
+        {
+          "at": 50,
+          "end": 54,
+          "kind": "rip",
+          "region": "writable",
+          "symbol": "global_contact_events_api"
+        },
+        {
+          "at": 134,
+          "end": 138,
+          "kind": "rip",
+          "region": "writable",
+          "symbol": "global_contact_physics_api"
+        },
+        {
+          "at": 162,
+          "end": 166,
+          "kind": "rip",
+          "region": "writable",
+          "symbol": "global_contact_physics_api"
+        },
+        {
+          "at": 191,
+          "end": 195,
+          "kind": "call",
+          "region": "code"
+        },
+        {
+          "at": 196,
+          "end": 200,
+          "kind": "jump",
+          "region": "code"
+        }
+      ]
+    },
+    {
+      "name": "contact_explode",
+      "hex": "4c894c2420535641574883ec403b158d5cbb02418bf08bda4c8bf90f8423030000448b4140448b514848896c24604c897424304533f6440fafd3418d68ff418bd64585c00f84f00200004c8b593848897c24688b794466660f1f8400000000008bc5428d0c124823c8418b04cb4d8d0ccb3bc774103bc37414ffc2413bd072e0e9b00200003bc30f85a8020000418b4104bfffffffff3bc70f84970200004c89642470448be04889442420498b47504a8b0ce0f64114010f84730200004c8b15248da502418bd64c896c2438458b8258400100458b9a60400100440fafdb458d68ff4585c00f84d40000004d8ba250400100418baa5c4001000f1f8000000000418bc5428d0c1a4823c8418b04cc4d8d0ccc3bc574103bc37414ffc2413bd072dfe9940000003bc30f858c000000413979040f8482000000458b9a60400100458d68ff440fafdb418bd64585c0746b90418bc5428d0c1a4823c8418b04cc4d8d0ccc3bc5740d3bc3740dffc2413bd072dfeb473bc37543418b41043bc7743b8bc88bd0498b827840010048c1e10444393401742644893401498b82684001004d8b82784001004c03c1488b0cd0ba53978b788b4910e8a6b670004c8b6424203b35075bbb024c8b6c243874338bce496bec38e899b97000498b4f68ba910b32d889442904498b47504d8b47684983c0044c03c54a8b0ce08b4910e861b67000488b5424784885d2742d498b4768496bcc384889540108ba1aa74b364d8b4768498b47504983c0084c03c14a8b0ce08b4910e82ab67000498b4768ba29c4d81f496bcc38c6440101014d8b4768498b475049ffc04c03c14a8b0ce08b4910e8feb570003b1d385abb020f84c20000004c8b05cb8ba502418bd6458b5028458b5830440fafdb458d7aff4585d20f849f000000498b7020418b682c0f1f8000000000418bc7428d0c1a4823c88b04ce4c8d0cce3bc5740d3bc3740dffc2413bd272e0eb6e3bc3756a413979047464458b4828458b5030440fafd3418d69ff4585c974394c8bde418b702c0f1f8400000000008bc5438d0c164823c8418b04cb498d14cb3bc6740e3bc3740e41ffc6453bf172dfeb073bc375038b7a048bc7488d0c40498b40404803c98b54c804e890b9f5ff4c8b642470488b7c2468488b6c24604c8b7424304883c440415f5e5bc3",
+      "mask": "ffffffffffffffffffffffffffffff00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000ffffffffffffff00000000ffffffffffffffffffffffffffff00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000ffff00000000ffffffffffffffffff00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "refs": [
+        {
+          "at": 15,
+          "end": 19,
+          "kind": "rip",
+          "region": "writable"
+        },
+        {
+          "at": 129,
+          "end": 133,
+          "kind": "jump",
+          "region": "code",
+          "relative": 821
+        },
+        {
+          "at": 192,
+          "end": 196,
+          "kind": "rip",
+          "region": "writable"
+        },
+        {
+          "at": 290,
+          "end": 294,
+          "kind": "jump",
+          "region": "code",
+          "relative": 442
+        },
+        {
+          "at": 438,
+          "end": 442,
+          "kind": "call",
+          "region": "code"
+        },
+        {
+          "at": 449,
+          "end": 453,
+          "kind": "rip",
+          "region": "writable"
+        },
+        {
+          "at": 467,
+          "end": 471,
+          "kind": "call",
+          "region": "code"
+        },
+        {
+          "at": 507,
+          "end": 511,
+          "kind": "call",
+          "region": "code"
+        },
+        {
+          "at": 562,
+          "end": 566,
+          "kind": "call",
+          "region": "code"
+        },
+        {
+          "at": 606,
+          "end": 610,
+          "kind": "call",
+          "region": "code"
+        },
+        {
+          "at": 612,
+          "end": 616,
+          "kind": "rip",
+          "region": "writable"
+        },
+        {
+          "at": 625,
+          "end": 629,
+          "kind": "rip",
+          "region": "writable"
+        },
+        {
+          "at": 812,
+          "end": 816,
+          "kind": "call",
+          "region": "code"
+        }
+      ]
+    },
+    {
+      "name": "contact_entity_unit",
+      "hex": "4053488b1dcf2649024533c93b159aac4a024c8bd17508448909488bc15bc3448b9bb8aef100458bc148896c2410488974241848897c24208bbbc0aef1000faffa4c89742428458d73ff4585db7432488bb3b0aef1008babbcaef1000f1f4000418bc6418d0c384823c8488d04ce8b0cce3bcd740f3bca740b41ffc0453bc372df498bc14c8b742428488b7c2420488b742418488b6c24103910750f8b4004488d0c40448b8ccb242ff30045890a498bc25bc3",
+      "mask": "ffffffffff00000000ffffffffff00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "refs": [
+        {
+          "at": 5,
+          "end": 9,
+          "kind": "rip",
+          "region": "writable",
+          "symbol": "global_contact_owner"
+        },
+        {
+          "at": 14,
+          "end": 18,
+          "kind": "rip",
+          "region": "writable"
+        }
+      ]
+    },
+    {
+      "name": "contact_mode_config",
+      "hex": "4885c9746c488b05ccdcf502448bc14c8b90d02cf10048b88fe3388ee3388ee348f7e148c1ea048d04d203c0442bc04533c90f1f400066660f1f840000000000418bc048c1e0044903c2488b10483bd174224885d2741a418bc0418d50014533c041ffc183f811440f45c24183f91272cf33c0c34885c074f88b4808486bc1584805200100004903c2c3",
+      "mask": "ffffffffffffffff00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "refs": [
+        {
+          "at": 8,
+          "end": 12,
+          "kind": "rip",
+          "region": "writable",
+          "symbol": "global_contact_owner"
+        }
+      ]
+    },
+    {
+      "name": "contact_label_case",
+      "hex": "498bcee88d4ecefe8bce83e101488d0c898b54c810eb1b",
+      "mask": "ffffffff00000000ffffffffffffffffffffffffffffff",
+      "refs": [
+        {
+          "at": 4,
+          "end": 8,
+          "kind": "call",
+          "region": "code",
+          "symbol": "contact_mode_config"
+        }
+      ]
+    },
+    {
+      "name": "contact_label_switch",
+      "hex": "418d45ff83f80b0f87160200004898488d0da86d7dfe8b8481d49582014803c1ffe0",
+      "mask": "ffffffffffffffffffffffffffffffffffff00000000ffffff00000000ffffffffff",
+      "refs": [
+        {
+          "at": 18,
+          "end": 22,
+          "kind": "rip",
+          "region": "base"
+        }
+      ],
+      "tables": [
+        {
+          "operand": 25,
+          "entries": [
+            34,
+            68,
+            151,
+            306,
+            109,
+            82,
+            75,
+            306,
+            466,
+            489,
+            269,
+            512
+          ]
+        }
+      ]
+    },
+    {
+      "name": "contact_label_manual_cache",
+      "hex": "81f9a521c48b0f85e8190000488d058d608202c3",
+      "mask": "ffffffffffffffffffffffffffffff00000000ff",
+      "refs": [
+        {
+          "at": 15,
+          "end": 19,
+          "kind": "rip",
+          "region": "writable",
+          "symbol": "global_contact_manual_label"
+        }
+      ]
+    },
+    {
+      "name": "contact_label_contact_cache",
+      "hex": "81f9d002f7ac744481f91bbe20ad743481f9c6d962ad742481f951d197ad741481f93431b0ad0f8556110000488d0573488202c3488d059b478202c3488d051b5a8202c3488d0583428202c3488d051b588202c3",
+      "mask": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000ffffffff00000000ffffffff00000000ffffffff00000000ffffffff00000000ff",
+      "refs": [
+        {
+          "at": 47,
+          "end": 51,
+          "kind": "rip",
+          "region": "writable"
+        },
+        {
+          "at": 55,
+          "end": 59,
+          "kind": "rip",
+          "region": "writable"
+        },
+        {
+          "at": 63,
+          "end": 67,
+          "kind": "rip",
+          "region": "writable"
+        },
+        {
+          "at": 71,
+          "end": 75,
+          "kind": "rip",
+          "region": "writable"
+        },
+        {
+          "at": 79,
+          "end": 83,
+          "kind": "rip",
+          "region": "writable",
+          "symbol": "global_contact_contact_label"
+        }
+      ]
+    },
+    {
+      "name": "contact_label_format_cache",
+      "hex": "8bcb4c89ac2498000000e851fe7fff448ba424b80000004c8be84885c00f848f0000004c8b084d85c90f84830000004585e4757e4885f6753e",
+      "mask": "ffffffffffffffffffffff00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "refs": [
+        {
+          "at": 11,
+          "end": 15,
+          "kind": "call",
+          "region": "code"
+        }
+      ]
+    },
+    {
+      "name": "contact_label_format_cache_alt",
+      "hex": "8bcb4c89bc2468030000e83b0380ff4c8bf84885c00f849e0000004c8b084d85c90f849200000083bc24e8030000000f85840000004885f67536",
+      "mask": "ffffffffffffffffffffff00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "refs": [
+        {
+          "at": 11,
+          "end": 15,
+          "kind": "call",
+          "region": "code"
+        }
+      ]
+    }
+  ],
+  "required_globals": [
+    "global_contact_remote",
+    "global_contact_sticky",
+    "global_contact_explosive",
+    "global_contact_owner",
+    "global_contact_world",
+    "global_contact_physics_api",
+    "global_contact_events_api",
+    "global_contact_invalid_source",
+    "global_contact_manual_label",
+    "global_contact_contact_label"
+  ],
+  "fields": {}
+}

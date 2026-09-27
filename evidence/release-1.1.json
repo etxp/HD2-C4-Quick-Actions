@@ -1,0 +1,47 @@
+{
+  "version": "1.1",
+  "release_type": "stable",
+  "artifact": "dist/HD2-C4-Quick-Actions-1.1.zip",
+  "sha256": "801c21ccf2655cd6031b08f369cfaf0b13e394c12b6ed23a42b4d09b608d569e",
+  "accepted_gameplay_baseline": "1.1-dev.18",
+  "user_accepted_baseline": true,
+  "gameplay_source_unchanged": true,
+  "patch_comparison": {
+    "Core/9ba626afa44a3aa3.patch_0": {
+      "before_sha256": "971b9d6d78306c48f17c56a3505e5aeb048398c2fd54d4a8d69ce356980ba8bf",
+      "after_sha256": "f8fc9426b9136d38ea00b8e3344739470cc66910012dfcbd98450dd3287f0ea7",
+      "comparison": "only mod version string changed"
+    },
+    "Core/9ba626afa44a3aa3.patch_0.gpu_resources": {
+      "before_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "after_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "comparison": "identical"
+    },
+    "Core/9ba626afa44a3aa3.patch_0.stream": {
+      "before_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "after_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "comparison": "identical"
+    },
+    "Core/9ba626afa44a3aa3.patch_1": {
+      "before_sha256": "5867b02f107cee05567ae9ff94bc79c1a3bf0bfaca18922392edd7b80235b778",
+      "after_sha256": "551c925af2dbb3383251ad01eb125ba90d6f6960f9d270a89bc3c443072ea851",
+      "comparison": "only mod version string changed"
+    },
+    "Core/9ba626afa44a3aa3.patch_1.gpu_resources": {
+      "before_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "after_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "comparison": "identical"
+    },
+    "Core/9ba626afa44a3aa3.patch_1.stream": {
+      "before_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "after_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "comparison": "identical"
+    }
+  },
+  "version_only_payload_changes": true,
+  "offline_checks": 435,
+  "hd2mm_v1_schema_passed": true,
+  "arsenal_converter_deploy_redeploy_remove_passed": true,
+  "exact_release_live_retested": false,
+  "published_to_external_sites": false
+}
