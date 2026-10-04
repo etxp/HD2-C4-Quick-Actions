@@ -1,107 +1,75 @@
 HD2 C4 Quick Actions
-Version 1.1
+Version 1.13
 
 ENGLISH
 
-Throw and detonate C4 with separate, customizable actions. Supports keyboard,
-mouse, Xbox and PlayStation controllers through Mod Bindings Menu.
+Release 1.13. Features and controls are those of 1.12; the addon now needs far
+fewer memory reads and less bookkeeping per frame to perform the same checks.
+Measured in the game: about 0.14 ms per frame with C4 in hand, about 0.05 ms
+with any other weapon.
+
+Separate, customizable C4 throw and detonate actions for keyboard, mouse,
+Xbox and PlayStation controllers through Mod Bindings Menu.
 
 Requirements
-- Bingus Shared Loader v17+ / API 1.
-  The loader's internal version value must be at least 16.
-- Official Mod Bindings Menu v2 / API 1, menu version 2 or newer.
+- Bingus Shared Loader v17+ / API 1 (internal version 16 or newer).
+- Official Mod Bindings Menu v2+ / API 1.
 
 Installation — HD2 Mod Manager 1.3 or HD2 Arsenal
-1. Exit the game. Install/enable both dependencies above.
-2. Disable or remove the previous C4 Quick Actions package, including old
-   Standard/Reversed editions. Enable only one C4 Quick Actions version.
-3. Import HD2-C4-Quick-Actions-1.1.zip into either manager.
-4. Select Installation > C4 Quick Actions — MBM controls, then deploy.
-   Install the entire Core option; both patch archives and their sidecars belong
-   to this mod and are deployed together by the manager.
-5. Start the game. On the MODS bindings tab, configure Throw C4 and Detonate C4.
-   Existing bindings from the MBM edition are retained. No F6 activation needed.
+1. Exit the game and enable the dependencies above.
+2. Replace your old C4 Quick Actions package with this ZIP.
+   Keep only one C4 Quick Actions package enabled.
+3. Deploy and restart. No installation options need to be selected.
+4. Configure Throw C4 and Detonate C4 in the MODS bindings menu.
+   Existing MBM bindings are retained; no F6 activation is required.
 
-Both managers use this same ZIP. Do not unpack it into another enclosing folder.
-To uninstall, disable/remove this package in your manager and redeploy.
+Both managers use the same ZIP. To uninstall, disable/remove it and redeploy.
+This release does not write C4 diagnostic logs or expose diagnostic options.
+Existing logs from older versions are not deleted.
 
-Controls and modes
-Set the two actions and their activation types in Mod Bindings Menu. There are
-no fixed left/right mouse or controller trigger assignments.
-
-Select C4 and use its existing weapon-settings menu to choose:
-- MANUAL / 手動引爆: throw with Throw C4, detonate with Detonate C4.
-- CONTACT / 接觸引爆: a thrown C4 automatically detonates on physical contact.
-  Detonate C4 remains available before contact, including during flight.
-
-Check the selected mode before throwing; the game may remember your previous
-selection. Each charge keeps the mode selected when its throw began. Changing
-modes does not arm previously placed Manual charges. Manual detonation retains
-the game's normal behavior of detonating your deployed charges in either mode.
-Already thrown Contact charges continue to react to collisions after a weapon
-switch or while a menu/map is open.
-
-Other features
-- Throw and detonate while prone or diving.
-- Passenger throwing and detonation in FRV and tanks. Press the throw action to
-  lean out automatically; the passenger stays out through the full throw.
-- Automatic reload after throwing and when resupplied after running empty.
-  Other player actions, interfaces and weapon changes can interrupt reload.
-- Throw/detonate bindings do not trigger vanilla shoulder aim. The exception is
-  holding a release-to-throw binding, which retains normal aiming.
-- UI, tactical map, weapon-settings menu and ragdoll states block new actions.
-  Switching detonation modes in the weapon menu does not consume the held C4.
-
-Troubleshooting
-If the actions are missing, check that both dependencies and the Core option
-are enabled and deployed, then restart the game. Log files are located at:
-%LOCALAPPDATA%/CowboyBingus/Helldivers2/Logs/C4DualInput_*
+Modes and features
+- Choose Manual or Contact in the C4 weapon-settings menu. Contact charges
+  detonate on physical contact; manual detonation still works during flight.
+- Each charge retains the mode selected when thrown. Previously thrown Contact
+  charges keep working after switching weapons or opening an interface.
+- Throw and detonate while prone or diving, and from FRV/tank passenger seats.
+  Passengers stay leaned out for the complete throw before returning inside.
+- Automatically reload after throwing or receiving supplies when empty.
+  Other player actions can interrupt reload.
+- Mod actions suppress vanilla shoulder aim, except while holding a
+  release-to-throw binding.
+- Interfaces, tactical map and ragdoll states block new throw/detonate actions.
 
 
 繁體中文
 
-HD2 C4 Quick Actions 1.1
-使用獨立的「投擲 C4」與「引爆 C4」操作，可透過 Mod Bindings Menu 自訂
-鍵盤、滑鼠、Xbox 與 PlayStation 手柄的按鍵和觸發方式。
+正式版 1.13。功能與操作同 1.12；完成同樣檢查所需的記憶體讀取與每幀簿記大幅減少。
+遊戲內實測：手持 C4 每幀約 0.14 ms，手持其他武器約 0.05 ms。
+
+HD2 C4 Quick Actions 1.13
+透過 Mod Bindings Menu 自訂獨立的投擲和引爆操作，
+支援鍵盤、滑鼠、Xbox 與 PlayStation 手柄。
 
 需求
-- Bingus Shared Loader v17+／API 1（載入器內部版本值須為 16 以上）。
-- 官方 Mod Bindings Menu v2／API 1，選單版本 2 以上。
+- Bingus Shared Loader v17+／API 1（內部版本值 16 以上）。
+- 官方 Mod Bindings Menu v2+／API 1。
 
 安裝：HD2 Mod Manager 1.3 或 HD2 Arsenal
-1. 退出遊戲，安裝並啟用上述兩個依賴模組。
-2. 停用或移除舊版 C4 Quick Actions，包括舊 Standard／Reversed 版本。
-   同時只啟用一個 C4 Quick Actions 版本。
-3. 將 HD2-C4-Quick-Actions-1.1.zip 匯入任一管理器。
-4. 選擇「Installation / 安裝」下的「C4 Quick Actions — MBM controls」，
-   然後部署。Core 選項中的兩組 patch 及附檔都需要安裝，管理器會一併處理。
-5. 啟動遊戲，在 MODS 按鍵頁設定 Throw C4 與 Detonate C4。
-   原本 MBM 版本的綁定會沿用，不需要按 F6 啟用。
+1. 退出遊戲，啟用上述依賴模組。
+2. 用本 ZIP 替換舊版 C4 Quick Actions，
+   同時只啟用一個 C4 Quick Actions。
+3. 部署並重新啟動遊戲，不需要選擇任何安裝選項。
+4. 在 MODS 按鍵頁設定 Throw C4 和 Detonate C4。
+   原有 MBM 綁定會保留，不需要按 F6 啟用。
 
-兩個管理器使用同一個 ZIP，不要再多包一層資料夾。
-移除時，在管理器停用或刪除此模組後重新部署。
+兩個管理器使用同一個 ZIP。移除時停用／刪除本模組並重新部署。
+本版不寫入 C4 診斷日誌，選單沒有診斷選項；舊版留下的日誌不會刪除。
 
-操作與引爆模式
-按鍵及觸發方式完全由 Mod Bindings Menu 設定，沒有固定的滑鼠左右鍵
-或手柄扳機配置。選用 C4，在遊戲原本的武器設定選單切換：
-- 手動引爆：用投擲鍵丟出，再用引爆鍵引爆。
-- 接觸引爆：投出的 C4 碰到物體後自動引爆；碰撞前仍可在空中手動引爆。
-
-第一次投擲前請確認選定模式，遊戲可能保留上次的選項。
-每顆 C4 記住開始投擲時的模式，切換不會改變先前放好的手動 C4。
-兩種模式下的手動引爆都沿用遊戲原本引爆自有炸彈的行為。
-已投出的接觸 C4 在切槍、開啟介面或地圖後，仍會依碰撞自動引爆。
-
-其他功能
-- 趴下、飛撲時可以投擲與引爆。
-- 支援 FRV 與坦克乘客座位。按投擲鍵自動探身，完整投擲動作結束後再收回。
-- 投擲後及打空補給後自動裝填；其他操作、介面與切槍可中斷裝填。
-- 投擲／引爆鍵不會觸發原本的越肩瞄準；使用「放開投擲」時，按住期間
-  仍保留正常瞄準。
-- 介面、戰術地圖、武器設定選單及布娃娃狀態不接受新的投擲／引爆輸入。
-  在武器設定選單切換引爆模式不會消耗手中的 C4。
-
-疑難排解
-若按鍵列表沒有出現本模組，請確認兩個依賴與 Core 選項已啟用並部署，
-再重新啟動遊戲。紀錄檔位於：
-%LOCALAPPDATA%/CowboyBingus/Helldivers2/Logs/C4DualInput_*
+模式與功能
+- 在 C4 武器設定選單選擇手動或接觸引爆。接觸炸彈碰到物體時引爆，
+  飛行途中仍可手動引爆。
+- 每顆炸彈保留投出時的模式；已投出的接觸炸彈在切槍或開啟介面後仍有效。
+- 趴下、飛撲及 FRV／坦克乘客位可投擲和引爆，完整投擲後才返回車內。
+- 投擲後或打空後取得補給時自動裝填，其他操作可中斷裝填。
+- 操作不觸發原生越肩瞄準；按住放開時投擲的綁定時保留瞄準。
+- 操作介面、查看地圖與布娃娃狀態會阻擋新的投擲／引爆操作。

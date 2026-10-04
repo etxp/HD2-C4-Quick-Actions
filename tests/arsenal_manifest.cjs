@@ -31,16 +31,9 @@ vm.runInContext(source + '\nmodule.exports.probe = extractFromManifest;', contex
     settings = {setAllOptionsActive: all, setModsActive: enabled};
     const out = await context.module.exports.probe(manifest, '/isolated/c4', 'c4', settings);
     assert.equal(out.enabled, enabled);
-    assert.equal(out.options.length, 1);
-    const option = out.options[0];
-    assert.equal(option.enabled, true);
-    assert.deepEqual(JSON.parse(JSON.stringify(option.include)), []);
-    assert.equal(option.suboptions.length, 1);
-    const selected = option.suboptions.filter(s => s.enabled);
-    assert.equal(selected.length, 1, 'Exactly one mapping must be selected');
-    assert.deepEqual(JSON.parse(JSON.stringify(selected[0].include)), ['Core']);
+    assert.equal(out.options.length, 0, 'Public release must have no diagnostic choices');
     convertedOptions = JSON.parse(JSON.stringify(out.options));
-    cases.push({setAllOptionsActive: all, setModsActive: enabled, selected: 'Core'});
+    cases.push({setAllOptionsActive: all, setModsActive: enabled, selected: 'None; whole public package'});
   }
   console.log(JSON.stringify({passed: true, cases, converted_options: convertedOptions,
     source_sha256: crypto.createHash('sha256').update(source).digest('hex')}, null, 2));

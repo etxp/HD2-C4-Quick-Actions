@@ -52,24 +52,20 @@ async function one(priority) {
     modsList: priority ? [own, loader] : [loader, own], modsLibrary: [], setTopPriority: priority};
   const baseline = await deploy(spec, 'baseline');
   const cases = [];
-  for (const choice of ['core', 'core']) {
-    const mod = spec.modsList.find(m => m.uuid === own.uuid);
-    mod.enabled = true; mod.changed = true;
-    mod.options[0].suboptions.forEach((s, i) => {s.enabled = i === 0;});
-    const actual = await deploy(spec, choice);
-    const expected = {...baseline};
-    for (const [file, hash] of Object.entries(config.payloads[choice]))
-      expected[file.replace(/\.patch_(\d+)/, (_, index) => '.patch_' + (Number(index) + 1))] = hash;
-    assert.deepEqual(actual, expected, 'Only selected mapping plus loader may be deployed');
-    const repeated = await deploy(spec, choice + '-repeat');
-    assert.deepEqual(repeated, actual, 'Repeat deployment must be stable');
-    cases.push({choice, exact_files: actual, redeployment: 'PASS'});
-  }
-  spec.modsList.find(m => m.uuid === own.uuid).options[0].enabled = false;
-  assert.deepEqual(await deploy(spec, 'parent-option-off'), baseline);
+  const mod = spec.modsList.find(m => m.uuid === own.uuid);
+  mod.enabled = true; mod.changed = true;
+  assert.deepEqual(mod.options, [], 'No installation choices for public release');
+  const actual = await deploy(spec, 'public');
+  const expected = {...baseline};
+  for (const [file, hash] of Object.entries(config.payloads))
+    expected[file.replace(/\.patch_(\d+)/, (_, index) => '.patch_' + (Number(index) + 1))] = hash;
+  assert.deepEqual(actual, expected, 'Full public package plus loader must be deployed');
+  const repeated = await deploy(spec, 'public-repeat');
+  assert.deepEqual(repeated, actual, 'Repeat deployment must be stable');
+  cases.push({choice: 'no options', exact_files: actual, redeployment: 'PASS'});
   spec.modsList.find(m => m.uuid === own.uuid).enabled = false;
   assert.deepEqual(await deploy(spec, 'disabled'), baseline);
-  return {setTopPriority: priority, cases, option_disabled: 'PASS', removal: 'PASS'};
+  return {setTopPriority: priority, cases, options: 'ABSENT', removal: 'PASS'};
 }
 (async () => {
   const report = {result: 'PASS', cases: [await one(false), await one(true)],

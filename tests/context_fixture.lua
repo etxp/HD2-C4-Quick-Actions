@@ -10,7 +10,14 @@ local function fixture()
     local s={memory={},read_calls=0,game=0x10000000,owner=0x20000000,avatar=0x30000000,
         pm=0x31000000,mode=0x32000000,inv=0x33000000,wd=0x34000000,
         aid=0x8100000f,wid=0x9100001f,otherid=0x91000020,unit=0x12345}
-    function s.put(at,b) for i=1,#b do s.memory[at+i-1]=b:sub(i,i) end end
+    -- pages: every 4 KiB page holding fixture bytes. With s.fill set, an
+    -- unwritten byte on such a page reads like real committed memory instead
+    -- of failing; the default sparse mode keeps byte-granular failures.
+    s.pages={}
+    function s.put(at,b)
+        for i=1,#b do s.memory[at+i-1]=b:sub(i,i) end
+        for page=math.floor(at/4096),math.floor((at+#b-1)/4096) do s.pages[page]=true end
+    end
     function s.zero(at,n) s.put(at,string.rep('\0',n)) end
     function s.u32(at,n) s.put(at,word(n)) end
     function s.ptr(at,n) s.put(at,pointer(n)) end
@@ -60,8 +67,15 @@ local function fixture()
     function s.api.read(at,n)
         s.read_calls=s.read_calls+1
         if s.intercept then local v,used=s.intercept(at,n);if used then return v end end
-        local a={}
-        for i=0,n-1 do if not s.memory[at+i] then return nil end;a[#a+1]=s.memory[at+i] end
+        local a,fill={},s.fill
+        for i=0,n-1 do
+            local b=s.memory[at+i]
+            if not b then
+                b=fill and fill(at+i)
+                if not b then return nil end
+            end
+            a[i+1]=b
+        end
         return table.concat(a)
     end
     function s.api.pointer(b)

@@ -36,7 +36,24 @@ local function matches(data,at,p)
     end
     return true
 end
-function M.resolve(api,game,catalog)
+-- Initialization-only buffers shared by catalogs for this API/module instance.
+-- No disk cache, fixed addresses or game-build admission rule.
+function M.new_scan(api,game)
+    local buffers={}
+    local self={read_bytes=0,shared_bytes=0,released=false}
+    function self.section(reader,module,rva,n,read)
+        assert(not self.released and reader==api and module==game,'compat_scan_identity')
+        local key=rva..':'..n
+        if buffers[key] then self.shared_bytes=self.shared_bytes+n;return buffers[key] end
+        assert(self.read_bytes+n<=64*1024*1024,'compat_shared_scan_budget')
+        local bytes=read(rva,n)
+        buffers[key]=bytes;self.read_bytes=self.read_bytes+n
+        return bytes
+    end
+    function self.release()buffers=nil;self.released=true end
+    return self
+end
+function M.resolve(api,game,catalog,scan)
     local function read(rva,n)
         assert(rva>=0 and n>0 and rva+n<=0x10000000,'compat_read_bounds')
         local parts={}
@@ -68,7 +85,7 @@ function M.resolve(api,game,catalog)
             -- Scan ordinary, non-writable machine-code sections only.
             if executable and not writable and bit.band(flags,0x60)==0x20 then
                 total=total+size;assert(total<=64*1024*1024,'compat_scan_budget')
-                code[#code+1]={section=s,data=read(rva,size)}
+                code[#code+1]={section=s,data=scan and scan.section(api,game,rva,size,read) or read(rva,size)}
             end
         end
     end
@@ -81,14 +98,22 @@ function M.resolve(api,game,catalog)
         return 'outside'
     end
     local symbols,guards,observed={},{},{}
+    local node_guards,nodes,nodes_at={},{},{}
     local vehicle_tables,seat_guards={},{}
     local function symbol(name,value)
         assert(not symbols[name] or symbols[name]==value,'compat_reference_conflict:'..name)
         symbols[name]=value
     end
-    local function guard(at,n,label)
+    local function guard(at,n,label,node)
         assert(region(at,n)~='outside' or at==0,'compat_guard_bounds:'..label)
-        local bytes=read(at,n);guards[#guards+1]={at=at,bytes=bytes,label=label};return bytes
+        local bytes=read(at,n)
+        local g={at=at,bytes=bytes,label=label};guards[#guards+1]=g
+        if node then
+            local owned=node_guards[node]
+            if not owned then owned={};node_guards[node]=owned end
+            owned[#owned+1]=g
+        end
+        return bytes
     end
     -- Resolve every independent symbol before checking cross-references.
     for _,s in ipairs(catalog.nodes) do
@@ -113,7 +138,9 @@ function M.resolve(api,game,catalog)
             end
             assert(#hits==1,'compat_signature_missing:'..s.name)
         end
-        symbol(s.name,hits[1]);observed[s.name]=guard(hits[1],#p.raw,s.name)
+        symbol(s.name,hits[1]);observed[s.name]=guard(hits[1],#p.raw,s.name,s.name)
+        nodes[s.name]=s;nodes_at[hits[1]]=s.name
+        assert(matches(observed[s.name],1,p),'compat_signature_changed_during_scan:'..s.name)
     end
     code=nil -- discard the scan buffers after resolving
     for _,s in ipairs(catalog.nodes) do
@@ -128,16 +155,16 @@ function M.resolve(api,game,catalog)
                 'compat_reference_region:'..s.name)
             if r.symbol then symbol(r.symbol,target) end
             if r.relative then assert(target==at+r.relative,'compat_internal_branch:'..s.name) end
-            if r.hex then assert(guard(target,#r.hex/2,s.name..':literal')==unhex(r.hex),'compat_literal_changed:'..s.name) end
+            if r.hex then assert(guard(target,#r.hex/2,s.name..':literal',s.name)==unhex(r.hex),'compat_literal_changed:'..s.name) end
             -- Absolute pointer tables are relocated by the OS at startup.
             -- Verify their section and retain this process's bytes for later
             -- mutation checks, never compare with a prior process's address.
-            if r.guard_bytes then guard(target,r.guard_bytes,s.name..':runtime_pointer') end
+            if r.guard_bytes then guard(target,r.guard_bytes,s.name..':runtime_pointer',s.name) end
         end
         for _,t in ipairs(s.tables or {}) do
             local target=u32(bytes,t.operand)
             assert(region(target,#t.entries*4)=='code','compat_switch_table_region:'..s.name)
-            local entries=guard(target,#t.entries*4,s.name..':switch_table')
+            local entries=guard(target,#t.entries*4,s.name..':switch_table',s.name)
             for i,relative in ipairs(t.entries) do
                 assert(u32(entries,(i-1)*4)==at+relative,'compat_switch_table_changed:'..s.name)
             end
@@ -149,9 +176,9 @@ function M.resolve(api,game,catalog)
             for _,t in ipairs(a.targets) do
                 local entry_at=table_at+(t.id-1)*4
                 assert(region(entry_at,4)=='code','compat_ability_table_region')
-                local case_at=u32(guard(entry_at,4,'ability_case_entry'),0)
+                local case_at=u32(guard(entry_at,4,'ability_case_entry',s.name),0)
                 assert(region(case_at,#a.case_hex/2)=='code','compat_ability_case_region')
-                local body=guard(case_at,#a.case_hex/2,'ability_case_'..t.id)
+                local body=guard(case_at,#a.case_hex/2,'ability_case_'..t.id,s.name)
                 assert(matches(body,1,compile{name='ability_case',hex=a.case_hex,mask=a.case_mask}),
                     'compat_ability_case_changed:'..t.id)
                 assert(case_at+a.call_end+i32(body,a.call_offset)==symbols[t.symbol],
@@ -165,12 +192,12 @@ function M.resolve(api,game,catalog)
             assert(capacity<=128,'compat_vehicle_switch_encoding')
             local table_at=u32(bytes,d.table_offset)
             assert(region(table_at,capacity*4)=='code','compat_vehicle_table')
-            local entries=guard(table_at,capacity*4,'vehicle_case_entries')
+            local entries=guard(table_at,capacity*4,'vehicle_case_entries',s.name)
             local pattern=compile{name='vehicle_case',hex=d.case_hex,mask=d.case_mask}
             for config=1,capacity do
                 local case_at=u32(entries,(config-1)*4)
                 assert(region(case_at,#pattern.raw)=='code','compat_vehicle_case_target')
-                local body=guard(case_at,#pattern.raw,'vehicle_case_'..config)
+                local body=guard(case_at,#pattern.raw,'vehicle_case_'..config,s.name)
                 assert(matches(body,1,pattern),'compat_vehicle_case')
                 local tables={}
                 for _,key in ipairs({'out','in'}) do
@@ -184,10 +211,63 @@ function M.resolve(api,game,catalog)
     end
     for _,name in ipairs(catalog.required_globals) do assert(symbols[name],'compat_global_missing:'..name) end
     local self={symbols=symbols,fields=catalog.fields,node_count=#catalog.nodes,scan_bytes=total}
-    function self.verify()
-        for _,g in ipairs(guards) do
-            assert(read(g.at,#g.bytes)==g.bytes,'compat_live_code_changed:'..g.label)
+    -- Every guarded code/data byte is compared on each verification. Guards
+    -- on one page share one read; a difference is then reported by the
+    -- original per-guard comparison with its exact label.
+    local function verifier(list)
+        local absolute,clusters={},nil
+        return function()
+            if not clusters or clusters.count~=#list then
+                for i=#absolute+1,#list do absolute[i]={at=game+list[i].at,bytes=list[i].bytes} end
+                clusters=GuardSpans.plan(absolute)
+            end
+            if GuardSpans.same(api,clusters,true,false) then return end
+            for _,g in ipairs(list) do
+                assert(read(g.at,#g.bytes)==g.bytes,'compat_live_code_changed:'..g.label)
+            end
         end
+    end
+    self.verify=verifier(guards)
+    -- Read-only native queries need their complete reachable immutable code
+    -- and data, not unrelated action/vehicle routines. Build this closure once
+    -- from the already resolved catalog. Unknown dispatch remains conservative:
+    -- a scoped request falls back to the original full verifier.
+    local verifiers={}
+    function self.verifier_for(name)
+        assert(nodes[name],'compat_scope_missing:'..tostring(name))
+        if verifiers[name] then return verifiers[name] end
+        local selected,visited={},{}
+        local function visit(key)
+            if visited[key] then return true end
+            visited[key]=true
+            local node=nodes[key]
+            if not node or node.abilities or node.vehicle_dispatch then return false end
+            local at,body=symbols[key],observed[key]
+            for _,g in ipairs(node_guards[key]) do selected[#selected+1]=g end
+            for _,ref in ipairs(node.refs or {}) do
+                if ref.region=='code' then
+                    local target=at+ref['end']+i32(body,ref.at)
+                    if not (ref.relative and target>=at and target<at+#body) then
+                        local dependency=nodes_at[target]
+                        if not dependency or not visit(dependency) then return false end
+                    end
+                end
+            end
+            for _,t in ipairs(node.tables or {}) do
+                for _,relative in ipairs(t.entries) do
+                    if relative<0 or relative>=#body then
+                        local dependency=nodes_at[at+relative]
+                        if not dependency or not visit(dependency) then return false end
+                    end
+                end
+            end
+            return true
+        end
+        if not visit(name) then verifiers[name]=self.verify
+        else
+            verifiers[name]=verifier(selected)
+        end
+        return verifiers[name]
     end
     function self.vehicle_lean_available(config,seat)
         local tables=vehicle_tables[config]

@@ -1,13 +1,15 @@
-# Architecture — 1.1
+# Architecture — 1.13
 
-- `entry.lua.in` assembles the addon lifecycle, update integration and cleanup. `assemble.py` embeds project modules and creates a separately loaded catalog resource.
+- `entry.lua.in` assembles the addon lifecycle, update integration and cleanup. `assemble.py` embeds project modules and creates explicitly required catalog and diagnostic-configuration resources.
 - `MBMBindings` and `MBMProfile` integrate official Mod Bindings Menu v2. Physical mouse/controller polling and old Standard/Reversed routes are not used.
 - `GameplayGuard`, `NativeUiGuard`, `AvatarScope` and the context/action readers validate selected C4, player ownership, state and interfaces before new actions.
 - `NativeResolver` locates masked code signatures and related structures at runtime. It verifies identity and code before calls; no game-build allowlist or whole-module hash gate is used.
 - `ActionController` and `ActionBackend` request original native throw/detonate operations. `PassengerHold` retains lean-out through the full throw; `AutoReload` and `PassengerReloadRecovery` handle interruptible reload opportunities.
 - `AimInputGate` suppresses overlapping native input paths while preserving release-to-throw aiming. `WeaponFireGate` manages scoped C4 fire-route data and restores owned state.
-- `CollisionEvents` reads bounded collision snapshots without advancing the engine iterator. `ContactReader` verifies charge ownership and identity; `ContactController` preserves each charge's selected mode and requests contact detonation once. Manual detonation remains available during flight.
+- `CollisionEvents` reads bounded collision snapshots without advancing the engine iterator. `ContactReader` verifies charge ownership and identity; `ContactController` tracks Contact charges and requests contact detonation once; Manual-only throws do not start collision polling. Manual detonation remains available during flight.
 - `ModeLabels` changes the existing C4 selector labels using verified writable data and restores only still-owned entries. No executable code pages are patched or allocated.
+- `GuardSpans` compares recorded guard bytes with one read per touched 4 KiB page. `SnapshotCache` keeps a verified observation until one of its guards changes: the first use in each before/after phase rereads every guard, later read-only uses in that phase share it, and native mutations force a reread. `ReadMemo` holds page spans for one uninterrupted phase so a changed snapshot is rebuilt without reading them twice. Capability checks before native calls and data writes always reread memory. See `OPTIMIZATION.md`.
+- With diagnostics off, `GameplayGuard` takes the same decision from the same engine calls and UI reads without building its descriptive row, and `AutoReload` takes its complete observation every 100 ms while nothing is pending, spare ammunition is present and the chamber, reserve and supply records it rereads on every update are unchanged.
 - `RollingLog` bounds diagnostics. Context changes revoke pending actions; cleanup releases held input and attempts restoration of owned data.
 
 Runtime guard/catalog details are implementation compatibility checks, not a promise of compatibility with every future game update. Native signature catalogs are included to make the runtime and synthetic tests reproducible. Full game binaries, capture dumps and external mod sources are excluded.

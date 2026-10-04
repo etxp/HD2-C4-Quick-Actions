@@ -1,7 +1,9 @@
--- HD2-Addon: mods/etxp/c4_boundary_probe
+-- HD2-Addon: mods/etxp/c4_quick_actions
 local R,D
 @@CATALOG@@
 @@CONTACT_CATALOG@@
+@@MODULE:GuardSpans@@
+@@MODULE:ReadMemo@@
 @@MODULE:NativeResolver@@
 @@MODULE:AvatarFlags@@
 @@MODULE:PoseObserver@@
@@ -17,6 +19,8 @@ local R,D
 @@MODULE:GameplayGuard@@
 @@MODULE:RollingLog@@
 @@MODULE:ContextReader@@
+@@MODULE:RoutingReader@@
+@@MODULE:PointerValue@@
 @@MODULE:WindowsRead@@
 @@MODULE:FireGateWindows@@
 @@MODULE:PassengerWindows@@
@@ -24,6 +28,7 @@ local R,D
 @@MODULE:ReloadReader@@
 @@MODULE:ActionReader@@
 @@MODULE:PassengerHold@@
+@@MODULE:SnapshotCache@@
 @@MODULE:ActionBackend@@
 @@MODULE:NativeActions@@
 @@MODULE:ActionController@@
@@ -38,7 +43,10 @@ local ActionLayout=NativeCatalog
 @@MODULE:AimInputGate@@
 local existing = rawget(_G, 'HD2C4BoundaryProbe')
 if existing then return existing end
-local M = {version='@@VERSION@@', capture=true, tick=0, elapsed_ms=0,
+local diagnostics='@@DIAGNOSTICS@@'
+assert(diagnostics=='off' or diagnostics=='summary' or diagnostics=='verbose','invalid_diagnostics_mode')
+ContextReader.diagnostics=diagnostics~='off'
+local M = {version='@@VERSION@@', capture=diagnostics~='off', diagnostics=diagnostics, tick=0, elapsed_ms=0,
            status='starting', records=0, bytes=0, disabled=false}
 rawset(_G, 'HD2C4BoundaryProbe', M)
 local loader = rawget(_G, 'CowboyBingusModLoader')
@@ -48,7 +56,7 @@ if type(loader) ~= 'table' or loader.api ~= 1 or type(loader.version) ~= 'number
     or loader.version < 16 or type(loader.open_log) ~= 'function'
     or type(engine) ~= 'table' or type(previous_update) ~= 'function' then
     M.status = 'unsupported_loader_engine_or_update'; M.disabled = true
-    print('[C4BoundaryProbe] '..M.status)
+    print('[HD2 C4 Quick Actions] '..M.status)
     return M
 end
 
@@ -97,8 +105,31 @@ local last_controls_allowed=true
 local function close()
     if file then pcall(file.flush, file); pcall(file.close, file); file = nil end
 end
+local counts={}
+local summary_kinds={session=true,layout_verified=true,contact_ready=true,contact_unavailable=true,
+    probe_error=true,shutdown=true,summary=true,action_fault=true,mode_labels_unavailable=true,
+    contact_fault=true}
+local next_summary=30000
 local function emit(kind, extra)
-    if not file or M.disabled then return false end
+    if M.disabled then return false end
+    -- Accepted events still reach gameplay callbacks even when not written.
+    if diagnostics=='off' then return true end
+    counts[kind]=(counts[kind] or 0)+1
+    if diagnostics=='summary' and not summary_kinds[kind] then return true end
+    if not file then return false end
+    if diagnostics=='summary' then
+        local row={record_type=kind,tick=M.tick,elapsed_ms=M.elapsed_ms}
+        for k,v in pairs(extra or {}) do row[k]=v end
+        if kind=='summary' or kind=='shutdown' then row.event_counts=counts end
+        local line=json(row)..'\n'
+        assert(#line<32768,'summary_record_limit')
+        assert(file:write(line),'log_write_failed')
+        M.records=M.records+1;M.bytes=M.bytes+#line
+        if kind=='probe_error' or kind=='shutdown' or kind=='summary' then
+            assert(file:flush(),'log_flush_failed')
+        end
+        return true
+    end
     local row = {schema=1, record_type=kind, evidence_kind='RUNTIME_OBSERVATION',
         timestamp_utc=os.date('!%Y-%m-%dT%H:%M:%SZ'), tick=M.tick,
         tick_kind='lua_update_callback_count', elapsed_ms=M.elapsed_ms,
@@ -150,36 +181,22 @@ local function fail(reason)
     end
     pcall(emit, 'probe_error', {reason=tostring(reason)})
     M.disabled=true; M.capture=false; M.status=tostring(reason); close()
-    print('[C4BoundaryProbe] disabled: '..M.status)
+    print('[HD2 C4 Quick Actions] disabled: '..M.status)
 end
 
 local function open_log()
-    local base = loader.log_directory
-    if not base then
-        local local_app_data = os.getenv('LOCALAPPDATA')
-        assert(local_app_data and local_app_data ~= '', 'log_directory_unknown')
-        base=local_app_data..'/CowboyBingus/Helldivers2/Logs'
-    end
-    local prefix='C4DualInput_'..os.date('!%Y%m%dT%H%M%SZ')
-    for i=1,100 do
-        local name=prefix..'_'..string.format('%03d',i)..'.log'
-        -- open_log uses mode w; check existence before choosing a session name.
-        local prior=io.open(base..'/'..name:gsub('%.log$','_part1.log'),'rb')
-        if prior then prior:close() else
-            local stem=name:gsub('%.log$','')
-            file=RollingLog.new(loader.open_log,json,stem,function()
-                return {schema=1,evidence_kind='RUNTIME_OBSERVATION',version=M.version,
-                    timestamp_utc=os.date('!%Y-%m-%dT%H:%M:%SZ'),tick=M.tick,
-                    capture_enabled=M.capture,native_compatibility='validated_code_signatures',
-                    startup_layout_verified=M.layout_verified or false}
-            end)
-            M.log_name=stem..'_part*.log'
-            return
-        end
-    end
-    error('session_name_limit')
+    if diagnostics=='off' then M.log_name='disabled';return end
+    -- Fixed names bound storage across game launches, not just within one session.
+    local stem='C4QuickActions_'..diagnostics
+    local session_id=os.date('!%Y%m%dT%H%M%SZ')
+    file=RollingLog.new(loader.open_log,json,stem,function()
+        return {schema=2,version=M.version,diagnostics=diagnostics,
+            timestamp_utc=os.date('!%Y-%m-%dT%H:%M:%SZ'),tick=M.tick,
+            native_compatibility='validated_code_signatures',
+            startup_state=M.layout_verified and 'verified' or 'initializing'}
+    end,{max_bytes=diagnostics=='summary' and 65536 or 1048576,slots=4,session_id=session_id})
+    M.log_name=stem..'_part*.log'
 end
-
 local function relevant(path)
     path=path:lower()
     for _, word in ipairs({'mouse','keyboard','input','player','weapon','action',
@@ -235,6 +252,7 @@ local function suspend_actions()
     actions.step(false,M.elapsed_ms,{allowed=false})
 end
 local function tick(dt)
+    action_backend.begin_phase('before')
     M.phase='before_original_update';M.tick=M.tick+1;frame_request=nil
     if type(dt)=='number' and dt>=0 and dt<math.huge then M.elapsed_ms=M.elapsed_ms+dt*1000 end
     if contact_controller then contact_controller.step(M.elapsed_ms) end
@@ -251,15 +269,20 @@ local function tick(dt)
     if owned and last_controls_allowed then
         request.identity=gate.identity;frame_request=request
     else suspend_actions() end
-    if file and M.tick%60==0 then assert(file:flush(),'log_flush_failed') end
+    if diagnostics=='summary' and M.elapsed_ms>=next_summary then
+        emit('summary');next_summary=M.elapsed_ms+30000
+    elseif diagnostics=='verbose' and file and M.tick%60==0 then
+        assert(file:flush(),'log_flush_failed')
+    end
 end
 local function after_update()
+    action_backend.begin_phase('after',auto_reload.due(M.elapsed_ms))
     M.phase='after_original_update'
     if contact_controller then contact_controller.step(M.elapsed_ms) end
     last_controls_allowed=gameplay_guard.sample(focus(),false,last_controls_released)
         and binding_available and not M.disabled
     action_backend.maintain(last_controls_allowed and not actions.fault,M.elapsed_ms)
-    pose_observer(M.elapsed_ms)
+    if diagnostics=='verbose' then pose_observer(M.elapsed_ms) end
     local owned=gate.sync(last_controls_allowed,last_controls_released)
     aim_gate.sync(owned and last_controls_allowed,M.elapsed_ms)
     fire_input_gate.sync(owned and last_controls_allowed,M.elapsed_ms)
@@ -269,11 +292,23 @@ local function after_update()
     end
     if request.detonate then auto_reload.cancel('player_detonation') end
     actions.step(true,M.elapsed_ms,request)
-    if actions.fault then action_backend.maintain(false,M.elapsed_ms) end
-    auto_reload.step(not actions.fault,M.elapsed_ms,
+    local rejected_context=false
+    if actions.fault then
+        action_backend.maintain(false,M.elapsed_ms)
+        -- Faulted actions suspend automatic reload, so its usual full context
+        -- observation below will not run. Preserve input restoration here too.
+        local _,_,cap=action_backend.snapshot()
+        rejected_context=cap==nil
+    end
+    local reload_context=auto_reload.step(not actions.fault,M.elapsed_ms,
         (actions.pending and actions.pending.action=='DETONATE') or request.detonate)
+    if rejected_context or reload_context==false then
+        aim_gate.sync(false,M.elapsed_ms)
+        fire_input_gate.sync(false,M.elapsed_ms)
+    end
 end
 
+local startup_scan
 local ok,why=pcall(function()
     open_log()
     emit('session', {version=M.version, loader_api=loader.api, loader_version=loader.version,
@@ -281,33 +316,47 @@ local ok,why=pcall(function()
         activation='AUTOMATIC_LOCAL_C4',
         mbm_api=1,mbm_slots='automatic',mbm_actions='deploy+detonate',mbm_original_controls='REMOVED'})
     local api=PassengerWindows(FireGateWindows(WindowsRead()))
-    local backend=ActionBackend.new(api,ActionReader,ContextReader,ActionLayout,NativeActions,emit)
+    ReadMemo(api)
+    startup_scan=NativeResolver.new_scan(api,assert(api.module('game.dll')))
+    local backend=ActionBackend.new(api,ActionReader,ContextReader,ActionLayout,NativeActions,emit,startup_scan)
     action_backend=backend
-    auto_reload=AutoReload.new(backend,emit)
+    -- Off only: diagnostic builds keep per-update reload observation and logs.
+    auto_reload=AutoReload.new(backend,emit,{diagnostics=diagnostics~='off',
+        idle_interval_ms=diagnostics=='off' and @@RELOAD_IDLE_MS@@ or 0})
     focus=WindowFocus()
     local contact_ok,contact_error=pcall(function()
         local game=assert(api.module('game.dll'))
-        local compat=NativeResolver.resolve(api,game,ContactCatalog)
-        local events=CollisionEvents.new(api,game,compat.symbols)
+        local compat=NativeResolver.resolve(api,game,ContactCatalog,startup_scan)
+        local events=CollisionEvents.new(api,game,compat.symbols,{metadata=diagnostics=='verbose'})
         local native=ContactActions(game,compat.symbols)
-        local cb={events=events.snapshot,explode=native.explode}
+        local cb={events=events.snapshot}
+        function cb.explode(cap)
+            backend.invalidate()
+            return native.explode(cap)
+        end
         function cb.verify()backend.verify();compat.verify();events.verify()end
-        function cb.selected()
+        function cb.selected(prepare_only)
             compat.verify()
             local world=engine.Application.main_world()
-            local _,_,s=ContactReader.selected(api,game,ContextReader,compat.symbols)
+            local _,_,s=ContactReader.selected(api,game,ContextReader,compat.symbols,prepare_only)
             if s then
                 assert(world and engine.Application.main_world()==world,'contact_world_changed')
                 s.lease.world=world
             end
             return s
         end
-        function cb.tracked(lease,stream)
+        function cb.tracked(lease,stream,wanted)
             if engine.Application.main_world()~=lease.world then return {expired=true,charges={}} end
-            return ContactReader.tracked(api,game,ContextReader,compat.symbols,lease,stream)
+            return ContactReader.tracked(api,game,ContextReader,compat.symbols,lease,stream,wanted)
         end
         contact_controller=ContactController.new(cb,emit)
-        mode_labels=ModeLabels.new(api,game,ContextReader,compat.symbols,compat.verify,ModeLabelWindows(api),emit)
+        local label_writer=ModeLabelWindows(api)
+        local exchange=label_writer.exchange
+        function label_writer.exchange(...)
+            backend.invalidate()
+            return exchange(...)
+        end
+        mode_labels=ModeLabels.new(api,game,ContextReader,compat.symbols,compat.verify,label_writer,emit,backend.routing_snapshot)
         M.mode_labels=mode_labels -- retain pinned text through any restore failure
         -- Invoke the same remote callback as native Detonate phase 15 when
         -- the thrown charge has left the hand but Deploy is still active.
@@ -318,6 +367,7 @@ local ok,why=pcall(function()
             cb.verify();assert(cap.same() and s.same(),'airborne_context_changed')
             assert(emit('airborne_manual_call',{requested_action='DETONATE',action_result='CALL_BEGIN'}))
             assert(cap.same() and s.same(),'airborne_context_changed_before_call')
+            backend.invalidate()
             native.remote(s.remote,cap.weapon_id)
             return true
         end
@@ -328,7 +378,7 @@ local ok,why=pcall(function()
         if contact_controller then contact_controller.stop();contact_controller.disabled=true end
         emit('contact_unavailable',{contact_detonation_enabled=false,reason=tostring(contact_error)})
     end
-    pcall(catalog)
+    if diagnostics=='verbose' then pcall(catalog) end
     local function action_emit(kind,fields)
         local accepted=emit(kind,fields)
         if accepted and kind=='action_call' and fields.requested_action=='DEPLOY' then
@@ -340,22 +390,26 @@ local ok,why=pcall(function()
         end
         return accepted
     end
-    actions=ActionController.new(backend,action_emit,{deploy_input='etxp.c4_quick_actions.deploy',detonate_input='etxp.c4_quick_actions.detonate'})
-    gate=WeaponFireGate.new(api,assert(api.module('game.dll')),ContextReader,emit,backend.verify)
+    actions=ActionController.new(backend,action_emit,{deploy_input='etxp.c4_quick_actions.deploy',detonate_input='etxp.c4_quick_actions.detonate',diagnostics=diagnostics~='off'})
+    gate=WeaponFireGate.new(api,assert(api.module('game.dll')),ContextReader,emit,backend.verify,backend.routing_snapshot)
     bindings=MBMBindings.new(function() return rawget(_G,'ModBindingsMenu') end,emit)
-    aim_gate=AimInputGate.new(api,assert(api.module('game.dll')),ContextReader,backend,MBMProfile.new(loader),emit)
+    local input_group=AimInputState.group()
+    aim_gate=AimInputGate.new(api,assert(api.module('game.dll')),ContextReader,backend,MBMProfile.new(loader),emit,nil,input_group)
     fire_input_gate=AimInputGate.new(api,assert(api.module('game.dll')),ContextReader,backend,nil,emit,
-        {action=D.input_fire_action,code=D.input_fire_code,index=9,tag='fire_input',fire=true})
-    gameplay_guard=GameplayGuard.new(engine,emit,NativeUiGuard.new(api,assert(api.module('game.dll')),ContextReader))
+        {action=D.input_fire_action,code=D.input_fire_code,index=9,tag='fire_input',fire=true},input_group)
+    gameplay_guard=GameplayGuard.new(engine,emit,NativeUiGuard.new(api,assert(api.module('game.dll')),ContextReader,backend.routing_snapshot),
+        {diagnostics=diagnostics~='off'})
     pose_observer=PoseObserver.new(api,assert(api.module('game.dll')),ContextReader,emit)
     M.layout_verified=true
     emit('layout_verified',{native_compatibility='validated_code_signatures',
         resolved_native_nodes=backend.compatibility.node_count,
         scanned_code_bytes=backend.compatibility.scan_bytes,fire_route_bit=D.fire_bit,
+        startup_code_read_bytes=startup_scan.read_bytes,startup_code_reused_bytes=startup_scan.shared_bytes,
         action_execution_enabled=true,direct_mode_writes=false,input_provider='MBM_ONLY'})
-    emit('capture',{enabled=true,reason='automatic_activation',activation='AUTOMATIC_LOCAL_C4'})
-    assert(file:flush(),'log_flush_failed')
+    emit('capture',{enabled=M.capture,diagnostics=diagnostics,reason='automatic_activation',activation='AUTOMATIC_LOCAL_C4'})
+    if file then assert(file:flush(),'log_flush_failed') end
 end)
+if startup_scan then startup_scan.release();startup_scan=nil end
 if not ok then fail(why); return M end
 M.status='ready'
 local function after(called,...)
@@ -365,6 +419,7 @@ local function after(called,...)
     end
     if not M.disabled then
         local ok,why=pcall(after_update)
+        action_backend.end_phase()
         if not ok then fail(why) end
     else
         -- Retry restoration after transient read/write failure, even disabled.
@@ -379,6 +434,7 @@ end
 update=function(dt,...)
     if not M.disabled then
         local success,err=pcall(tick,dt)
+        action_backend.end_phase()
         if not success then fail(err) end
     end
     return after(pcall(previous_update,dt,...))

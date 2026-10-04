@@ -9,9 +9,12 @@ local function unhex(h)return (h:gsub('..',function(x)return string.char(tonumbe
 local NEXT=unhex('448b0a488bc1443b09720333c0c3498bc9480348088b410441894008488d41084989008b01418d490803c8b801000000890ac3')
 local BEGIN=unhex('c70200000000c3')
 M.contact_type=0x9e1f9efd
-function M.decode(bytes)
+-- Keep metadata construction out of the production lean loop. The complete
+-- record path uses one table literal, as in the original full decoder; adding
+-- fields to an already allocated lean table costs more in this workload.
+local function decode_full(bytes)
     assert(#bytes<=262144,'event_byte_budget')
-    local contacts,types={},{};local at,count=0,0
+    local contacts,types={},{};local at,count,n=0,0,0
     while at<#bytes do
         assert(at+8<=#bytes,'event_truncated_header')
         local size,kind=u32(bytes,at),u32(bytes,at+4)
@@ -21,14 +24,85 @@ function M.decode(bytes)
         if kind==M.contact_type then
             assert(size>=0x34 and size<=256,'event_contact_size')
             local p=bytes:sub(at+9,at+8+size)
-            contacts[#contacts+1]={kind=u32(p,0),actor_a=u32(p,4),actor_b=u32(p,8),
+            n=n+1
+            contacts[n]={kind=u32(p,0),actor_a=u32(p,4),actor_b=u32(p,8),
                 unit_a=u32(p,12),unit_b=u32(p,16),raw=p}
         end
         at=at+8+size
     end
     return {contacts=contacts,types=types,records=count,bytes=#bytes}
 end
-function M.new(api,game,symbols)
+local function decode_full_filtered(bytes,units)
+    assert(#bytes<=262144,'event_byte_budget')
+    local contacts,types={},{};local at,count,n=0,0,0
+    while at<#bytes do
+        assert(at+8<=#bytes,'event_truncated_header')
+        local size,kind=u32(bytes,at),u32(bytes,at+4)
+        assert(at+8+size<=#bytes,'event_truncated_payload')
+        count=count+1;assert(count<=4096,'event_record_budget')
+        local key=string.format('%08x',kind);types[key]=(types[key] or 0)+1
+        if kind==M.contact_type then
+            assert(size>=0x34 and size<=256,'event_contact_size')
+            local p=at+8
+            local a,b=u32(bytes,p+12),u32(bytes,p+16)
+            if units[a] or units[b] then
+                n=n+1
+                contacts[n]={kind=u32(bytes,p),actor_a=u32(bytes,p+4),actor_b=u32(bytes,p+8),
+                    unit_a=a,unit_b=b,raw=bytes:sub(p+1,p+size)}
+            end
+        end
+        at=at+8+size
+    end
+    return {contacts=contacts,types=types,records=count,bytes=#bytes}
+end
+local function decode_lean(bytes)
+    assert(#bytes<=262144,'event_byte_budget')
+    local contacts={};local at,count,n=0,0,0
+    while at<#bytes do
+        assert(at+8<=#bytes,'event_truncated_header')
+        local size,kind=u32(bytes,at),u32(bytes,at+4)
+        assert(at+8+size<=#bytes,'event_truncated_payload')
+        count=count+1;assert(count<=4096,'event_record_budget')
+        if kind==M.contact_type then
+            assert(size>=0x34 and size<=256,'event_contact_size')
+            local p=at+8
+            n=n+1
+            contacts[n]={kind=u32(bytes,p),unit_a=u32(bytes,p+12),unit_b=u32(bytes,p+16)}
+        end
+        at=at+8+size
+    end
+    return {contacts=contacts,types={},records=count,bytes=#bytes}
+end
+local function decode_lean_filtered(bytes,units)
+    assert(#bytes<=262144,'event_byte_budget')
+    local contacts={};local at,count,n=0,0,0
+    while at<#bytes do
+        assert(at+8<=#bytes,'event_truncated_header')
+        local size,kind=u32(bytes,at),u32(bytes,at+4)
+        assert(at+8+size<=#bytes,'event_truncated_payload')
+        count=count+1;assert(count<=4096,'event_record_budget')
+        if kind==M.contact_type then
+            assert(size>=0x34 and size<=256,'event_contact_size')
+            local p=at+8
+            local a,b=u32(bytes,p+12),u32(bytes,p+16)
+            if units[a] or units[b] then
+                n=n+1
+                contacts[n]={kind=u32(bytes,p),unit_a=a,unit_b=b}
+            end
+        end
+        at=at+8+size
+    end
+    return {contacts=contacts,types={},records=count,bytes=#bytes}
+end
+function M.decode(bytes,metadata,units)
+    if metadata==false then
+        if units then return decode_lean_filtered(bytes,units) end
+        return decode_lean(bytes)
+    end
+    if units then return decode_full_filtered(bytes,units) end
+    return decode_full(bytes)
+end
+function M.new(api,game,symbols,options)
     local function read(at,n)
         assert(type(at)=='number' and at>=65536 and at+n<0x800000000000,'event_address')
         local b=assert(api.read(at,n),'event_read_unavailable');assert(#b==n,'event_short_read');return b
@@ -54,7 +128,7 @@ function M.new(api,game,symbols)
         assert(read(getter,#code)==code and read(begin,#BEGIN)==BEGIN and
             read(next_event,#NEXT)==NEXT,'event_code_changed')
     end
-    function self.snapshot()
+    function self.snapshot(units)
         self.verify()
         local root=ptr(game+assert(symbols.global_contact_world))
         local index_bytes=read(root+0x10f0,4);local index=u32(index_bytes,0)
@@ -76,7 +150,8 @@ function M.new(api,game,symbols)
             read(root+0x10f0,4)~=index_bytes or ptr(game+symbols.global_contact_world)~=root then
             return nil,'event_stream_changed_during_read'
         end
-        local result=M.decode(bytes);result.world_index=index;result.root=root;result.stream=stream
+        local result=M.decode(bytes,not options or options.metadata~=false,units)
+        result.world_index=index;result.root=root;result.stream=stream
         return result
     end
     self.verify()

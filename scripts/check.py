@@ -19,18 +19,38 @@ def main():
                 [sys.executable, 'tests/test_lua_packaging.py'],
                 ['luajit', '-b', str(entry), str(entry.with_suffix('.luac'))],
                 ['luajit', '-b', 'private/build/c4_catalog.lua', 'private/build/c4_catalog.luac'],
+                # Every gameplay case, in Off and Verbose, against both the
+                # historical byte-granular fixture and page-granular memory.
                 ['luajit', 'tests/test_runtime.lua'],
+                ['luajit', 'tests/test_runtime.lua', 'off'],
+                ['luajit', 'tests/test_runtime.lua', 'verbose', 'pages'],
+                ['luajit', 'tests/test_runtime.lua', 'off', 'pages'],
                 ['luajit', 'tests/test_flight_observer.lua'],
                 ['luajit', 'tests/test_contact_probe.lua'],
                 ['luajit', 'tests/test_collision_events.lua'],
                 ['luajit', 'tests/test_contact_actions.lua'],
                 ['luajit', 'tests/test_mode_labels.lua'],
-                ['luajit', 'tests/test_airborne_manual.lua']]
+                ['luajit', 'tests/test_airborne_manual.lua'],
+                ['luajit', 'tests/test_optimization.lua'],
+                ['luajit', 'tests/test_guard_spans.lua'],
+                ['luajit', 'tests/test_snapshot_cache.lua'],
+                ['luajit', 'tests/test_snapshot_equivalence.lua'],
+                ['luajit', 'tests/test_ui_guard.lua'],
+                ['luajit', 'tests/test_guard_quiet.lua'],
+                ['luajit', 'tests/test_reload_interval.lua'],
+                ['luajit', 'tests/test_routing_observation.lua'],
+                ['luajit', 'tests/test_context_scopes.lua'],
+                ['luajit', 'tests/test_hex_bytes.lua'],
+                ['luajit', 'tests/test_pointer_values.lua'],
+                ['luajit', 'tests/test_quiet_context.lua'],
+                ['luajit', 'tests/test_scoped_verification.lua'],
+                ['luajit', 'tests/test_binding_hints.lua'],
+                ['luajit', 'tests/test_idle_work.lua']]
     if args.with_native_capture:
         commands += [[sys.executable, 'scripts/prepare_capture.py'],
                      ['luajit', 'tests/test_capture.lua']]
     for command in commands:
-        result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=60)
+        result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=180)
         runs.append(dict(command=command, exit_code=result.returncode, stdout=result.stdout, stderr=result.stderr))
         print(('PASS' if result.returncode == 0 else 'FAIL'), ' '.join(command))
         if result.returncode:

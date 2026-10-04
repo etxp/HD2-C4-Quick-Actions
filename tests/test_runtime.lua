@@ -2,7 +2,21 @@ local scenario=dofile('tests/gamepad_entry_fixture.lua')
 local R=dofile('private/tests/mock_symbols.lua')
 local D=dofile('private/tests/mock_fields.lua')
 local bit=require('bit')
-local function check(name,fn) fn();print('PASS '..name) end
+local diagnostics=arg[1] or 'verbose'
+assert(diagnostics=='off' or diagnostics=='verbose')
+-- 'pages' reruns every case against page-granular memory, where guards on
+-- one page are revalidated by a single read.
+assert(arg[2]==nil or arg[2]=='pages')
+_G.C4FixturePages=arg[2]=='pages'
+local diagnostic_only={
+    ['pre-call log flush failure blocks an auto reload']=true,
+    ['backpack replenishment is logged at its actual transition']=true,
+    ['reload decision logs carry the fresh active flag rather than cached action fields']=true,
+    ['Aim inhibition restores on log']=true}
+local function check(name,fn)
+    if diagnostics=='off' and diagnostic_only[name] then print('SKIP Off diagnostic-only: '..name);return end
+    fn();print('PASS '..name)
+end
 local function fresh(missing,extra)
     local values={deploy=false,detonate=false}
     local registered={}
@@ -12,7 +26,9 @@ local function fresh(missing,extra)
             assert(label=='Throw C4' or label=='Detonate C4')
             registered[id]=true;return true
         end,is_down=function(id)return values[id:match('%.([^%.]+)$')] end} or nil
-    local options={entry='private/build/c4_quick_actions.lua',window=true,native_ui=true,pad_profile='xbox'}
+    -- C4_TEST_BUILD selects another assembled build, such as the diagnostic one.
+    local options={entry=(os.getenv('C4_TEST_BUILD') or 'private/build')..'/c4_quick_actions.'..diagnostics..'.lua',
+        window=true,native_ui=true,pad_profile='xbox'}
     for k,v in pairs(extra or {}) do options[k]=v end
     local s=scenario(options)
     s.values=values;s.registered=registered
@@ -241,7 +257,8 @@ check('native seat transition takes ownership and is never overwritten by cleanu
     local s=throwing();s.u32(s.seat_row+0x18,3);s.u32(s.seat_row+0x20,17)
     local next_state=s.api.read(s.seat_row,64);s.tick()
     assert(s.api.read(s.seat_row,64)==next_state and #s.passenger_writes==1)
-    assert(s.lines[#s.lines]:find('relation_changed_by_engine',1,true) or not s.module.disabled)
+    assert(not s.module.disabled or diagnostics~='off' and
+        s.lines[#s.lines]:find('relation_changed_by_engine',1,true))
 end)
 check('world replacement prevents restoration into obsolete entity storage',function()
     local s=throwing();s.ptr(s.game+R.global_vehicle,s.allocate());s.tick()
@@ -263,63 +280,7 @@ check('changed native code revokes admission before native calls or passenger wr
     assert(#s.calls==0 and #s.passenger_writes==0)
 end)
 
-local function reload_setup(s,path)
-    local ffi=require('ffi')
-    -- Same component as the existing exclusion flags, as in the real capture.
-    s.reload_manager=s.exclusions
-    s.map(s.reload_manager+0x20,s.allocate(),{{s.wid,1}})
-    local registry=s.allocate();s.ptr(s.reload_manager+0x38,registry);s.ptr(registry+8,s.waddr)
-    s.map(s.reload_manager+0x60,s.allocate(),{})
-    local templates=s.allocate();s.ptr(s.owner+D.reload_templates,templates)
-    s.zero(templates,D.reload_capacity*16+D.reload_stride)
-    -- Exact uint64 resource modulo 498, independently computed in Python.
-    s.put(templates+227*16,s.weapon:sub(1,8));s.u32(templates+227*16+8,0)
-    s.reload_config=templates+D.reload_capacity*16;s.reload_id=0xb0b
-    s.u32(s.reload_config,0x101) -- live config permits the normal C4 reload path
-    s.u32(s.reload_config+4,s.reload_id)
-    -- Match the live C4 profile: selected magazine and local reserve stay zero;
-    -- spare charges live in the equipped backpack, while the generic supply
-    -- relation points to the avatar (which has no resource counter).
-    s.u32(s.rounds_state+4,0);s.u32(s.rounds_state+16,55)
-    s.reload_supply=s.allocate();s.ptr(s.game+R.global_reload_supply,s.reload_supply)
-    s.map(s.reload_supply+0x18,s.allocate(),{{s.wid,1}})
-    local supply_rows=s.allocate();s.ptr(s.reload_supply+0x38,supply_rows)
-    s.supply_row=supply_rows+D.reload_supply_stride;s.u32(s.supply_row,0xdef)
-    s.map(s.owner+D.unit_entity_id_map,s.allocate(),{{0xdef,path=='supply' and s.otherid or s.aid}})
-    s.backpack_reload=s.allocate();s.ptr(s.game+R.global_backpack_reload,s.backpack_reload)
-    s.map(s.backpack_reload+0x18,s.allocate(),path=='supply' and {} or {{s.wid,1}})
-    s.u32(s.state+12,s.otherid)
-    if path=='supply' then s.put(s.reload_config+0x3c,'\1') end
-    s.map(s.counter+0x20,s.allocate(),{{s.otherid,1}})
-    local cr=s.allocate();s.ptr(s.counter+0x38,cr);s.ptr(cr+8,s.owner+D.entity_array+6*24)
-    s.spare_state=s.counter_state;s.u32(s.spare_state,6)
-    local owners=s.allocate();s.ptr(s.game+R.global_weapon_owner,owners)
-    s.map(owners+0x18,s.allocate(),{{s.wid,1}})
-    s.reload_owner_state=s.allocate();s.ptr(owners+0x38,s.reload_owner_state);s.u32(s.reload_owner_state+4,s.aid)
-    s.map(s.ability+0x18,s.allocate(),{{s.wid,1},{s.aid,2}})
-    local ar=assert(s.api.pointer(s.api.read(s.ability+0x30,8)));s.ptr(ar+16,s.eaddr)
-    s.avatar_ability_state=s.ability_state+0xe0;s.zero(s.avatar_ability_state,0xe0)
-    s.reload_calls=0;s.reload_queries=0;s.reload_allowed=true
-    function s.phase(n)
-        s.put(s.ability_state+8,ffi.string(ffi.new('float[1]',n/60),4))
-    end
-    function s.avatar_action(id,active,time)
-        s.u32(s.avatar_ability_state,id);s.put(s.avatar_ability_state+16,active and '\1' or '\0')
-        s.put(s.avatar_ability_state+8,ffi.string(ffi.new('float[1]',time or 0),4))
-    end
-    s.native.reload_eligible=function(manager,id,ignore_action,ignore_owned)
-        assert(manager==s.reload_manager and id==s.wid and ignore_action==false and ignore_owned==false)
-        s.reload_queries=s.reload_queries+1;return s.reload_allowed
-    end
-    s.native.reload=function(manager,id,force)
-        assert(manager==s.reload_manager and id==s.wid and force==false)
-        s.reload_calls=s.reload_calls+1
-        s.u32(s.avatar_ability_state,s.reload_id);s.put(s.avatar_ability_state+16,'\1')
-    end
-    s.tick()
-    local row,_,cap=s.snap();assert(cap and cap.reload,row and row.reload_context or 'no reload context')
-    return s
-end
+local reload_setup=dofile('tests/reload_fixture.lua')
 check('on-foot reload starts after native release phase, never from Lua elapsed time alone',function()
     local s=reload_setup(fresh());s.press('deploy');assert(s.reload_calls==0)
     s.tick(0.7);assert(s.reload_calls==0) -- native clock is deliberately still zero
@@ -915,7 +876,8 @@ for _,action in ipairs({'deploy','detonate'}) do
         s.u32(0x4b000000+16,0x100);s.press(action)
         assert(#s.calls==0 and s.api.read(s.rounds_state,24)==rounds and s.api.read(s.rounds_runtime,20)==runtime)
         assert(s.api.read(0x4b000000+16,4)=='\0\1\0\0')
-        assert(table.concat(s.lines):find('weapon_settings_open',1,true) and not s.module.disabled,s.module.status)
+        assert(not s.module.disabled,s.module.status)
+        if diagnostics~='off' then assert(table.concat(s.lines):find('weapon_settings_open',1,true))end
         s.pose_flags{};for _=1,6 do s.tick()end;assert(#s.calls==0)
         s.press('deploy');assert(#s.calls==4 and s.calls[1][2]==521)
     end)

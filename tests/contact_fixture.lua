@@ -56,10 +56,10 @@ return function()
         local u=type(c)=='table' and c.unit or c
         return {kind=kind or 0,unit_a=side=='b' and 0 or u,unit_b=side=='b' and u or 0,raw=string.rep('\0',64)}
     end
-    function s.selected()
-        local _,_,cap=reader.selected(s.api,s.game,base,s.symbols);return cap
+    function s.selected(prepare_only)
+        local _,_,cap=reader.selected(s.api,s.game,base,s.symbols,prepare_only);return cap
     end
-    function s.tracked(lease,events)return reader.tracked(s.api,s.game,base,s.symbols,lease,events)end
+    function s.tracked(lease,events,wanted)return reader.tracked(s.api,s.game,base,s.symbols,lease,events,wanted)end
     s.backend={selected=s.selected,tracked=s.tracked,events=function()return s.events end,
         verify=function()assert(not s.bad_code,'changed code')end,
         explode=function(cap)

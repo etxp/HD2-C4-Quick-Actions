@@ -12,7 +12,7 @@ function M.new(open,json,stem,metadata,options)
         self.segment=self.segment+1;self.slot=(self.segment-1)%slots+1
         local name=stem..'_part'..self.slot..'.log'
         self.file=assert(open(name),'log_open_failed');self.name=name;self.bytes=0
-        local row=metadata();row.record_type='log_segment';row.session_id=stem
+        local row=metadata();row.record_type='log_segment';row.session_id=options.session_id or stem
         row.segment=self.segment;row.slot=self.slot;row.retained_slots=slots
         local line=json(row)..'\n';assert(#line<max_bytes,'log_header_limit')
         assert(self.file:write(line),'log_write_failed');self.bytes=#line
@@ -38,4 +38,3 @@ function M.new(open,json,stem,metadata,options)
     return self
 end
 return M
-

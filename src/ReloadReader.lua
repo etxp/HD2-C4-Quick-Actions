@@ -55,8 +55,11 @@ function M.apply(e,row,cap,base)
         assert(ci<4096,'reload_supply_counter_index')
         assert(read(ptr(ptr(counters+0x38,true)+ci*8,true),24,true)==entity,
             'reload_supply_registry_mismatch')
-        local count=u32(read(ptr(counters+0x50,true)+ci*8,4,true),0)
+        local count_at=ptr(counters+0x50,true)+ci*8
+        local raw=read(count_at,4,true)
+        local count=u32(raw,0)
         assert(count<0x80000000,'reload_invalid_supply_count')
+        if cap.ammo_watch then cap.ammo_watch[#cap.ammo_watch+1]={at=count_at,bytes=raw} end
         return count
     end
     local supplied=0
@@ -93,13 +96,14 @@ function M.apply(e,row,cap,base)
     -- The native eligibility routine has a special mutating branch for 0xb17;
     -- it must never be used as a read-only query for that configuration.
     assert(ability>0 and ability<16384 and ability~=0xb17,'unsupported_reload_ability')
-    row.reload_context='verified';row.reload_config_hex=e.hex(config)
+    row.reload_context='verified'
+    if base.diagnostics then row.reload_config_hex=e.hex(config) end
     row.reload_ability_id=ability;row.avatar_ability_id=u32(avatar,0)
     row.avatar_ability_active=avatar:byte(17)==1
     local clock_ok,clock=pcall(base.f32,avatar,8)
     if clock_ok and clock>=0 and clock<3600 then row.avatar_ability_time=clock end
     cap.reload={manager=manager,ability=ability,avatar_active=row.avatar_ability_active,
         avatar_ability=row.avatar_ability_id,avatar_time=row.avatar_ability_time,ammo=row.reload_spare_ammo,
-        chamber_empty=row.rounds_chamber_token==0}
+        chamber_empty=row.rounds_chamber_token==0,watch=cap.ammo_watch}
 end
 return M

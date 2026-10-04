@@ -11,4 +11,4 @@ The MIT license covers project-authored code and documentation. It does not reli
 
 Native signature catalogs and structural constants are compatibility data used by the mod and fixtures, not replacement game code. Full game binaries, extracted asset collections and private native-memory captures are not included. The fixture's iterator signature is the same small contract already checked by the runtime.
 
-The existing `assets/` artwork and `dist/` binary predate this source-only update. Their provenance remains in `assets/ARTWORK.md`. Earlier research references and attribution are preserved in `legacy/0.6.0/THIRD_PARTY.md`. No new recordings, audio models, voice samples, external mod code or raw runtime logs are added by this update.
+The existing `assets/` artwork and `dist/` binary predate the source-only updates (1.1 and 1.13). Their provenance remains in `assets/ARTWORK.md`. Earlier research references and attribution are preserved in `legacy/0.6.0/THIRD_PARTY.md`. No new recordings, audio models, voice samples, external mod code or raw runtime logs are added by this update.

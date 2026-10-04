@@ -7,7 +7,9 @@ import re
 from lua_packaging import strip_comments
 
 ROOT = Path(__file__).resolve().parents[1]
-VERSION = '1.1'
+VERSION = '1.13'
+# Idle automatic-reload observation interval of the Off build, milliseconds.
+RELOAD_IDLE_MS = 100
 
 def delivery_catalog(original):
     """Canonicalize ignored pattern bytes; matching and runtime reads are unchanged.
@@ -43,6 +45,15 @@ def assemble():
     contact_catalog = delivery_catalog(json.loads((ROOT / 'src/contact_catalog.json').read_text()))
     text = text.replace('@@CONTACT_CATALOG@@', 'local ContactCatalog=Catalog.contact')
     text = text.replace('@@VERSION@@', VERSION)
+    # Test-only Off variant observing reload on every update, as 1.12 does.
+    strict = text.replace('@@RELOAD_IDLE_MS@@', '0').replace('@@DIAGNOSTICS@@', 'off')
+    text = text.replace('@@RELOAD_IDLE_MS@@', str(RELOAD_IDLE_MS))
+    variants={mode:text.replace('@@DIAGNOSTICS@@',mode) for mode in ('off','summary','verbose')}
+    variants['off.strict']=strict
+    text=text.replace("local diagnostics='@@DIAGNOSTICS@@'",
+        "local Config=require('mods/etxp/c4_quick_actions_config')\n"
+        "assert(Config.version=='"+VERSION+"','c4_config_version_mismatch')\n"
+        "local diagnostics=Config.diagnostics")
     assert '@@' not in text
     target = ROOT / 'private/build/c4_quick_actions.lua'
     target.parent.mkdir(parents=True, exist_ok=True)
@@ -50,15 +61,22 @@ def assemble():
         version=VERSION, native=catalog, contact=contact_catalog))+'\n')
     target.with_suffix('.annotated.lua').write_text(text)
     target.write_text(strip_comments(text))
+    for mode in ('off','summary','verbose'):
+        (target.parent/('c4_config.'+mode+'.lua')).write_text(
+            'return '+lua(dict(version=VERSION,diagnostics=mode))+'\n')
+    for mode,body in variants.items():
+        (target.parent/('c4_quick_actions.'+mode+'.lua')).write_text(strip_comments(body))
     (target.parent / 'native_catalog.lua').write_text('return ' + lua(catalog) + '\n')
     (target.parent / 'contact_catalog.lua').write_text('return ' + lua(contact_catalog) + '\n')
     # Export the very same module bodies for the native-memory test fixtures.
     support = ROOT / 'private/tests/modules'
     support.mkdir(parents=True, exist_ok=True)
-    for name in ('ContextReader', 'ActionReader', 'AvatarScope'):
-        prefix = 'return function(R,D)\nlocal AvatarFlags=dofile("src/AvatarFlags.lua")\n'
-        if name == 'ActionReader':
+    for name in ('ContextReader', 'ActionReader', 'AvatarScope', 'RoutingReader'):
+        prefix = ('return function(R,D)\nlocal AvatarFlags=dofile("src/AvatarFlags.lua")\n'
+                  'local GuardSpans=dofile("src/GuardSpans.lua")\n')
+        if name in ('ActionReader','RoutingReader'):
             prefix += 'local AvatarScope=dofile("private/tests/modules/avatar_scope.lua")(R,D)\n'
+        if name == 'ActionReader':
             prefix += 'local ReloadReader=(function()\n'+(ROOT/'src/ReloadReader.lua').read_text()+'\nend)()\n'
         filename = re.sub(r'(?<!^)(?=[A-Z])', '_', name).lower()
         (support / (filename + '.lua')).write_text(prefix + (ROOT / 'src' / (name + '.lua')).read_text() + '\nend\n')

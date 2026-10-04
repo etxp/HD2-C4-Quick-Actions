@@ -1,6 +1,9 @@
 -- This module does not call native game functions or write game memory.
 local bit = require('bit')
 local M = {}
+-- Maintainers keep full descriptive rows by default. The Off runtime selects
+-- quiet rows while retaining every raw read, guard and gameplay field.
+M.diagnostics=true
 local INVALID = 0xffffffff
 local DETONATOR = '51f50d6321f52f3d'
 local CHARGE = '9b75217d8312dd67'
@@ -11,12 +14,25 @@ local function u32(b,o)
     return a+c*256+d*65536+e*16777216
 end
 local function resource(b)
-    local out={}
-    for i=8,1,-1 do out[#out+1]=string.format('%02x',b:byte(i)) end
-    return table.concat(out)
+    -- Two exact uint32 words preserve the uint64 resource ID without rounding
+    -- it through a double or formatting each of its eight bytes separately.
+    return bit.tohex(u32(b,4),8)..bit.tohex(u32(b,0),8)
 end
+local HEX={}
+for n=0,255 do HEX[n]=bit.tohex(n,2) end
 local function hex(b)
-    return (b:gsub('.',function(c) return string.format('%02x',c:byte()) end))
+    local out={};local count=0;local length=#b;local at=1
+    -- Diagnostic/descriptor bytes keep their original order. All arithmetic
+    -- is exact below 2^32; tohex also handles the signed bit-library boundary.
+    while at+3<=length do
+        local a,c,d,e=b:byte(at,at+3)
+        count=count+1;out[count]=bit.tohex(a*16777216+c*65536+d*256+e,8)
+        at=at+4
+    end
+    while at<=length do
+        count=count+1;out[count]=HEX[b:byte(at)];at=at+1
+    end
+    return table.concat(out)
 end
 local function product_low(a,b)
     -- Exact modulo 2^32 multiplication using 16-bit limbs (Lua uses doubles).
@@ -32,16 +48,24 @@ function M.f32(b,o)
 end
 M.product_low=product_low
 
-function M.snapshot(api,game,extend)
+local function walk(api,game,extend,scope,source)
     local guards,reads,bytes={},0,0
+    local guarded_bytes=0
     local extension_result
+    local ability_template
+    local avatar_flags
+    -- An unreadable address is an input that no guard records. A walk that
+    -- met one (or made an unguarded read) is never offered for reuse.
+    local reusable=true
     local function read(at,n,guard)
         assert(type(at)=='number' and at>=65536 and at+n<0x800000000000,'invalid_address')
         reads=reads+1;bytes=bytes+n
         assert(n>0 and n<=4096 and reads<=768 and bytes<=32768,'snapshot_budget')
-        local b=assert(api.read(at,n),'read_unavailable')
+        local b=source(at,n)
+        if not b or #b~=n then reusable=false end
+        assert(b,'read_unavailable')
         assert(#b==n,'short_read')
-        if guard then guards[#guards+1]={at=at,bytes=b} end
+        if guard then guards[#guards+1]={at=at,bytes=b};guarded_bytes=guarded_bytes+n else reusable=false end
         return b
     end
     local function ptr(at,guard)
@@ -69,20 +93,35 @@ function M.snapshot(api,game,extend)
         end
         error('map_probe_limit')
     end
-    local function checked()
-        for _,g in ipairs(guards) do
-            if read(g.at,#g.bytes)~=g.bytes then return false end
-        end
-        return true
-    end
+    -- Revalidate every guarded byte. Guards on one page share one read; the
+    -- construction budget above already bounds their number and size.
+    -- checked() rereads memory; checked(true) may share spans read earlier
+    -- in this same phase and is used only by the read-only snapshot cache.
+    local checked=GuardSpans.checker(api,guards,true)
     local row={current_weapon='UNKNOWN',current_fire_mode='UNKNOWN',
         action_result='OBSERVATION_ONLY',context_status='unresolved',
         c4_guard_candidate=false,layout_evidence='STATIC_DERIVATION_PENDING_LIVE_VALIDATION'}
     local function finish(reason)
         if not checked() then return nil,'context_changed_during_read' end
         if reason~='c4_context_observed' then row.c4_guard_candidate=false end
-        row.context_status=reason;row.memory_reads=reads;row.memory_bytes=bytes
-        return row,nil,extension_result
+        -- Diagnostic totals keep their meaning: every read plus every guard compared.
+        row.context_status=reason;row.memory_reads=reads+#guards;row.memory_bytes=bytes+guarded_bytes
+        -- The fourth value lets a cache prove this observation is still current.
+        return row,nil,extension_result,reusable and checked or nil
+    end
+    local function extension(e)
+        if not extend then return end
+        -- An extension can add guarded fields, but never expose a partial
+        -- capability after a failed read. finish() validates all its reads.
+        local ok,result=pcall(extend,e,row)
+        if ok then
+            extension_result=result;row.action_context_status='validated'
+        else
+            extension_result=nil;row.action_context_status='rejected'
+            row.action_diagnostic=tostring(result)
+            row.action_context_error=row.action_diagnostic:match(':%d+: (.*)$') or row.action_diagnostic
+            row.action_gate='ACTION_CONTEXT_REJECTED'
+        end
     end
     local mode=read(global(R.global_mode),0x44,true)
     if u32(mode,8)==0 or u32(mode,0x40)<1 or u32(mode,0x40)>7 then
@@ -114,6 +153,19 @@ function M.snapshot(api,game,extend)
         return finish('avatar_registry_mismatch')
     end
     row.local_entity_id=id;row.local_avatar_index=ai
+    if scope=='routing' then
+        -- UI flags also belong to ordinary-weapon and no-selected-weapon rows.
+        -- The routing extension can reuse these guarded bytes for input vetoes.
+        avatar_flags=read(avatar+0x53e880+ai*0x1238,24,true)
+        row.tactical_map_active=AvatarFlags.has(avatar_flags,D.tactical_map)
+        row.weapon_menu_active=AvatarFlags.has(avatar_flags,D.weapon_menu)
+    end
+    if scope=='avatar' then
+        extension{read=read,ptr=ptr,global=global,lookup=lookup,
+            checked=checked,u32=u32,hex=hex,resource=resource,entity=entity,
+            id=id,owner=owner,avatar=avatar,avatar_index=ai}
+        return finish('avatar_context_observed')
+    end
     local inventory=global(R.global_inventory)
     local ii=lookup(inventory+0x28,id,65536)
     local count=u32(read(inventory+0x14,4,true),0)
@@ -123,8 +175,10 @@ function M.snapshot(api,game,extend)
         return finish('inventory_owner_mismatch')
     end
     local state=read(ptr(inventory+0x50,true)+ii*48,48,true)
-    row.inventory_words={}
-    for i=0,11 do row.inventory_words[tostring(i*4)]=u32(state,i*4) end
+    row.inventory_words={['12']=u32(state,12)} -- equipped backpack for reload
+    if M.diagnostics then
+        for i=0,11 do row.inventory_words[tostring(i*4)]=u32(state,i*4) end
+    end
     local slot=u32(state,0x1c)
     row.selected_slot=slot
     local offsets={[1]=0,[2]=4,[3]=8,[4]=16,[5]=16,[6]=12}
@@ -145,6 +199,13 @@ function M.snapshot(api,game,extend)
     -- An equipped resource must be observed live during the weapon-switch test
     -- before this candidate guard is used to authorize any action.
     if not row.c4_guard_candidate then return finish('selected_weapon_observed') end
+    if scope=='selected' or scope=='routing' then
+        extension{read=read,ptr=ptr,global=global,lookup=lookup,
+            checked=checked,u32=u32,hex=hex,resource=resource,entity=entity,weapon=weapon,
+            id=id,weapon_id=weapon_id,owner=owner,avatar=avatar,avatar_index=ai,
+            avatar_flags=avatar_flags}
+        return finish('c4_context_observed')
+    end
 
     local wd=global(R.global_weapon_data)
     local di=lookup(wd+0x30,weapon_id,65536)
@@ -157,8 +218,10 @@ function M.snapshot(api,game,extend)
         local base=ptr(wd+0x58,true)+di*D.weapon_data_stride
         local types=read(base+D.weapon_types,16,true)
         local packed=read(ptr(wd+0x60,true)+di*12,12,true)
-        row.weapon_state_12=hex(packed)
-        row.weapon_state_flags=hex(read(ptr(wd+0x50,true)+di*2,2,true))
+        local flags=read(ptr(wd+0x50,true)+di*2,2,true)
+        if M.diagnostics then
+            row.weapon_state_12=hex(packed);row.weapon_state_flags=hex(flags)
+        end
         row.weapon_function_types={};row.weapon_function_values={}
         local shifts={[1]=4,[7]=0,[8]=2,[9]=6,[10]=8,[11]=10,[12]=14}
         for i=0,3 do
@@ -184,34 +247,45 @@ function M.snapshot(api,game,extend)
             local ti=u32(t,8)
             assert(ti<D.ability_capacity,'ability_template_index_limit')
             local config=read(templates+D.ability_capacity*16+ti*0x58,0x58,true)
-            row.ability_template_status='present';row.ability_template_hex=hex(config)
-            row.ability_descriptors={}
-            for i=0,1 do
-                local o=i*40
-                row.ability_descriptors[tostring(i)]={weapon_ability_id=u32(config,o),
-                    owner_ability_id=u32(config,o+4),other_ability_id=u32(config,o+8),
-                    flag_32=config:byte(o+33),flag_33=config:byte(o+34)}
+            row.ability_template_status='present';ability_template=config
+            if M.diagnostics then
+                row.ability_template_hex=hex(config);row.ability_descriptors={}
+                for i=0,1 do
+                    local o=i*40
+                    row.ability_descriptors[tostring(i)]={weapon_ability_id=u32(config,o),
+                        owner_ability_id=u32(config,o+4),other_ability_id=u32(config,o+8),
+                        flag_32=config:byte(o+33),flag_33=config:byte(o+34)}
+                end
             end
             break
         end
     end
     if extend then
-        -- Keep validated observations when the action-specific layout is
-        -- unsupported. Never return a callable capability from a failed read.
-        -- finish() still rechecks every successful read, including extensions.
-        local ok,result=pcall(extend,{read=read,ptr=ptr,global=global,lookup=lookup,
+        extension{read=read,ptr=ptr,global=global,lookup=lookup,
             checked=checked,u32=u32,hex=hex,resource=resource,entity=entity,weapon=weapon,
             id=id,weapon_id=weapon_id,owner=owner,avatar=avatar,avatar_index=ai,
-            weapon_data=wd,weapon_data_index=di},row)
-        if ok then
-            extension_result=result;row.action_context_status='validated'
-        else
-            extension_result=nil;row.action_context_status='rejected'
-            row.action_diagnostic=tostring(result)
-            row.action_context_error=row.action_diagnostic:match(':%d+: (.*)$') or row.action_diagnostic
-            row.action_gate='ACTION_CONTEXT_REJECTED'
-        end
+            weapon_data=wd,weapon_data_index=di,ability_template=ability_template}
     end
     return finish('c4_context_observed')
 end
+function M.snapshot(api,game,extend,scope)
+    assert(scope==nil or scope=='avatar' or scope=='selected' or scope=='routing','unsupported_snapshot_scope')
+    local peek=api.peek
+    if not peek or not api.memo_active() then return walk(api,game,extend,scope,api.read) end
+    -- Spans already read in this phase may serve the walk; finish() still
+    -- rereads every guard. A failure that involved such a span is never
+    -- reported: the walk is repeated once from memory alone.
+    local before=api.memo_hits()
+    local ok,row,reason,result,checked=pcall(walk,api,game,extend,scope,peek)
+    if api.memo_hits()==before or (ok and row and row.action_context_status~='rejected') then
+        if not ok then error(row,0) end
+        return row,reason,result,checked
+    end
+    api.memo_reset()
+    return walk(api,game,extend,scope,api.read)
+end
+-- Only readers that need these narrower observations use these entry points.
+-- ActionReader retains the full snapshot and all ammunition/ability checks.
+function M.avatar_snapshot(api,game,extend)return M.snapshot(api,game,extend,'avatar')end
+function M.selected_snapshot(api,game,extend)return M.snapshot(api,game,extend,'selected')end
 return M

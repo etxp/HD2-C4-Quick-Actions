@@ -2,7 +2,7 @@
 local M={}
 local bit=require('bit')
 
-function M.new(api,game,base,emit,verify)
+function M.new(api,game,base,emit,verify,observe)
     local NORMAL,MUTED=D.fire_normal,D.fire_muted
     local self={lease=nil,active=false,status='idle',identity=nil}
     local function publish(status,extra)
@@ -14,7 +14,13 @@ function M.new(api,game,base,emit,verify)
         assert(emit('fire_gate',fields),'fire_gate_log_unavailable')
     end
     local function current()
-        return base.snapshot(api,game,function(e,row)
+        if observe then
+            local row,why,cap=observe()
+            local plan=cap and cap.weapon_plan
+            if plan then assert(plan.flags==NORMAL or plan.flags==MUTED,'fire_gate_unsupported_flags')end
+            return row,why,plan
+        end
+        return base.selected_snapshot(api,game,function(e,row)
             local wm=e.global(R.global_weapon)
             local wi=assert(e.lookup(wm+0x28,e.weapon_id,65536),'fire_gate_component_missing')
             assert(wi<4096,'fire_gate_index_limit')
@@ -135,4 +141,3 @@ function M.new(api,game,base,emit,verify)
     return self
 end
 return M
-

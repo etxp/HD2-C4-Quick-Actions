@@ -14,9 +14,44 @@ assert(parsed.records==3 and #parsed.contacts==2 and parsed.contacts[1].unit_a==
 assert(parsed.contacts[2].kind==2 and parsed.types['7dc7cfba']==1)
 assert(#E.decode('').contacts==0)
 print('PASS only native collision event type is decoded; overlaps and empty streams do not imply contact')
+-- Filtering must never hide invalid records, including a malformed collision
+-- belonging to no tracked unit. Exercise every production/diagnostic path.
+for _,mode in ipairs({{true,nil},{true,{}},{false,nil},{false,{}},{false,{[100]=true}}})do
+    for _,bad in ipairs({
+        string.rep('\0',7),
+        pack(20,4)..pack(1,4)..'short',
+        record(E.contact_type,string.rep('\0',51)),
+        record(E.contact_type,string.rep('\0',257)),
+        string.rep(record(1,''),4097),
+        string.rep('\0',262145),
+        payload..'\0'
+    })do assert(not pcall(E.decode,bad,mode[1],mode[2]))end
+    assert(#E.decode('',mode[1],mode[2]).contacts==0)
+    print('PASS every decoder path rejects malformed, oversized and excess records before filtering')
+end
+local lean=E.decode(payload,false)
+assert(lean.records==parsed.records and lean.bytes==parsed.bytes and next(lean.types)==nil)
+assert(#lean.contacts==#parsed.contacts)
+for i,c in ipairs(lean.contacts)do
+    assert(c.kind==parsed.contacts[i].kind and c.unit_a==parsed.contacts[i].unit_a
+        and c.unit_b==parsed.contacts[i].unit_b)
+    assert(c.raw==nil and c.actor_a==nil and c.actor_b==nil)
+end
+print('PASS production event decoding preserves every collision without diagnostic payload copies')
+local subset_payload=record(7,'noise')..collision(0,300,400)..collision(1,500,600)..collision(2,700,800)
+local subset=E.decode(subset_payload,false,{[600]=true,[700]=true})
+assert(subset.records==4 and subset.bytes==#subset_payload and #subset.contacts==2)
+assert(subset.contacts[1].unit_b==600 and subset.contacts[1].kind==1)
+assert(subset.contacts[2].unit_a==700 and subset.contacts[2].kind==2)
+local none=E.decode(subset_payload,false,{})
+assert(none.records==4 and none.bytes==#subset_payload and #none.contacts==0)
+assert(#E.decode(subset_payload,false).contacts==3)
+print('PASS optional unit filters match both event sides without hiding total stream size or records')
 for _,bad in ipairs({payload:sub(1,-2),payload:sub(1,4),record(E.contact_type,string.rep('\0',51)),
     record(E.contact_type,string.rep('\0',257)),string.rep(record(1,''),4097),string.rep('x',262145)})do
     assert(not pcall(E.decode,bad))
+    assert(not pcall(E.decode,bad,false))
+    assert(not pcall(E.decode,bad,false,{}))
 end
 print('PASS truncated payloads, incompatible contact layouts and oversized streams rejected')
 local function fixture()
@@ -46,12 +81,17 @@ local function fixture()
     s.put(s.next,code)
     s.u32(s.root+0x10f0,2);s.ptr(s.worlds+2*0xb0,s.stream)
     s.u32(s.stream,#payload);s.u32(s.stream+4,8192);s.ptr(s.stream+8,s.buffer);s.put(s.buffer,payload)
-    function s.create()return E.new(s.api,s.game,s.symbols)end
+    function s.create(options)return E.new(s.api,s.game,s.symbols,options)end
     return s
 end
 local s=fixture();local live=s.create();local result=assert(live.snapshot())
 assert(result.records==3 and result.world_index==2 and result.contacts[1].unit_b==200)
 print('PASS iterator contract fixture validates runtime pointer/table traversal')
+local filtered=s.create({metadata=false})
+local matches=filtered.snapshot({[200]=true});local unmatched=filtered.snapshot({[900]=true})
+assert(matches.records==3 and #matches.contacts==2 and matches.contacts[1].raw==nil)
+assert(unmatched.records==3 and #unmatched.contacts==0 and unmatched.root==s.root)
+print('PASS live snapshot forwards requested units while preserving metadata options and native reads')
 s.u32(s.stream,0);s.ptr(s.stream+8,0)
 assert(live.snapshot().records==0)
 print('PASS empty stream never interprets stale buffer capacity or dereferences a null buffer')

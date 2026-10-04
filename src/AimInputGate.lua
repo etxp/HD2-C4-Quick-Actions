@@ -1,12 +1,17 @@
 -- Own the selected native input inhibition record while local C4 needs it.
 -- Never edit mapping records, camera/pose state or executable code.
 local M={}
-function M.new(api,game,base,backend,profile,emit,spec)
+function M.new(api,game,base,backend,profile,emit,spec,group)
     spec=spec or {action=D.input_aim_action,code=D.input_aim_code,index=8,tag="aim_gate"}
     local tag=spec.tag
     local behavior=spec.fire and "native_fire_input_behavior" or "native_aim_behavior"
     local self={lease=nil,status='starting'}
     local native=backend.input
+    local binding_hints={group=group}
+    local verify_mapping=backend.verify
+    if not spec.fire and backend.compatibility and backend.compatibility.verifier_for then
+        verify_mapping=backend.compatibility.verifier_for('fn_input_mapping')
+    end
     local function publish(status,reason)
         if self.status==status and self.reason==reason then return end
         self.status=status;self.reason=reason
@@ -15,7 +20,7 @@ function M.new(api,game,base,backend,profile,emit,spec)
             [tag..'_owned']=self.lease~=nil}),'aim_gate_log_unavailable')
     end
     local function read(codes)
-        return AimInputState.read(api,game,base,codes,native,spec)
+        return AimInputState.read(api,game,base,codes,native,spec,verify_mapping,binding_hints)
     end
     function self.stop()
         local lease=self.lease;if not lease then return true end
@@ -34,7 +39,7 @@ function M.new(api,game,base,backend,profile,emit,spec)
         if not enabled then
             local ok,why=self.stop();assert(ok,why);publish('inactive');return
         end
-        local row,_,cap=backend.snapshot()
+        local row,_,cap=(backend.input_snapshot or backend.snapshot)()
         if not cap or cap.interrupt then
             local ok,why=self.stop();assert(ok,why);publish('outside_c4');return
         end
@@ -42,7 +47,6 @@ function M.new(api,game,base,backend,profile,emit,spec)
         if not codes then
             local ok,why=self.stop();assert(ok,why);publish('unavailable','mbm_assignments_missing');return
         end
-        backend.verify()
         local p=read(codes)
         local suppress,reason=true,'mbm_owns_c4_fire'
         if not spec.fire then suppress,reason=AimInputState.policy(base,p) end
@@ -61,6 +65,15 @@ function M.new(api,game,base,backend,profile,emit,spec)
         if p.held then publish(spec.fire and 'waiting_for_fire_release' or 'waiting_for_aim_release');return end
         assert(p.mask or p.count<D.input_inhibit_capacity,'aim_inhibition_full')
         publish('acquire',reason)
+        -- Steady ownership needs only the input context. A new inhibition still
+        -- requires the full action capability and its unchanged C4 identity.
+        if backend.input_snapshot then
+            local _,_,full=backend.snapshot()
+            assert(full and full.identity==cap.identity and not full.interrupt,
+                'aim_acquire_action_context_changed')
+            cap=full
+        end
+        backend.verify()
         assert(cap.same() and p.same(),'aim_acquire_context_changed')
         self.lease={owner=p.owner,identity=cap.identity,pending=true}
         native.input_inhibit(p.owner,spec.action)

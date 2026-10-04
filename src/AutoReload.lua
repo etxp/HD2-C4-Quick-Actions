@@ -2,10 +2,30 @@
 -- Defer a new resupply opportunity through the action already in progress;
 -- never interrupt it or replay a request after a subsequent player operation.
 local M={}
-function M.new(backend,emit)
+function M.new(backend,emit,options)
+    local diagnostics=not options or options.diagnostics~=false
     local self={identity=nil,ammo=nil,intent=nil,status='idle',observation=nil,latest={}}
+    -- With nothing to wait for (no reload intent, no dismount ticket, no action
+    -- or ability in progress) and spare ammunition present, a complete
+    -- observation can only learn that an ammunition count changed or that the
+    -- context became unusable. The chamber, reserve and supply records are
+    -- reread on every update; while they are unchanged the complete observation
+    -- is taken every idle_interval ms instead of every update. Any throw,
+    -- intent, ticket, running ability, interruption, changed ammunition record
+    -- or an empty spare count restores per-update observation at once.
+    local idle_interval=options and options.idle_interval_ms or 0
+    local observe_at=-math.huge
+    local watch
     local recovery=PassengerReloadRecovery.new(emit)
+    local function settle(now,cap)
+        local r=cap.reload
+        if idle_interval>0 and not self.intent and not recovery.pending and r.ammo>0 and not cap.active
+            and not r.avatar_active and not cap.interrupt and not backend.passenger.lease and r.watch then
+            observe_at=now+idle_interval;watch=r.watch
+        else observe_at=-math.huge;watch=nil end
+    end
     local function observe(cap,now)
+        if not diagnostics then return end
         local r=cap.reload
         self.latest={reload_sample_at_ms=now,reload_spare_ammo=r.ammo,
             reload_chamber_empty=r.chamber_empty,avatar_ability_active=r.avatar_active,
@@ -25,9 +45,10 @@ function M.new(backend,emit)
     end
     function self.cancel(reason,reset)
         if self.intent then self.intent=nil;publish('cancelled',reason) end
-        if reset then self.identity=nil;self.ammo=nil;self.observation=nil end
+        if reset then self.identity=nil;self.ammo=nil;self.observation=nil;observe_at=-math.huge end
     end
     function self.arm(now)
+        observe_at=-math.huge
         local _,_,cap=backend.snapshot()
         if not cap or not cap.reload then return end
         observe(cap,now)
@@ -38,20 +59,35 @@ function M.new(backend,emit)
         publish('waiting_for_throw')
     end
     function self.suspend(now)
-        local ok,row,_,cap=pcall(backend.snapshot)
-        if ok then recovery.observe(row,cap,false,now,false) end
+        -- A suspended action has no reload work unless a passenger throw left
+        -- an actual recovery ticket. Keep observing that ticket across UI and
+        -- weapon changes; ordinary weapons/menus need no full C4 snapshot.
+        if recovery.pending then
+            local ok,row,_,cap=pcall(backend.snapshot)
+            if ok then recovery.observe(row,cap,false,now,false) end
+        end
         self.cancel('controls_suspended',true)
     end
-    function self.step(allowed,now,player_priority)
+    local observed
+    local function step(allowed,now,player_priority)
         if not allowed then self.suspend(now);return end
         local row,_,cap=backend.snapshot()
         local dismounted=recovery.observe(row,cap,true,now,player_priority)
-        if not cap or not cap.reload then self.cancel('context_unavailable',true);return end
+        if not cap or not cap.reload then
+            self.cancel('context_unavailable',true)
+            -- The input-only observer must not retain inhibition after the
+            -- full action context rejects ammunition/state/layout. Report this
+            -- already observed failure without an extra snapshot. A missing
+            -- reload component alone does not invalidate the action context.
+            if not cap then return false end
+            return
+        end
         local r=cap.reload
+        observed=cap
         observe(cap,now)
-        local observation=table.concat({cap.identity,tostring(r.ammo),
+        local observation=diagnostics and table.concat({cap.identity,tostring(r.ammo),
             tostring(row.reload_supply_source),tostring(row.reload_supply_entity_id)},':')
-        if observation~=self.observation then
+        if diagnostics and observation~=self.observation then
             self.observation=observation
             assert(emit('reload_ammo_observed',{reload_spare_ammo=r.ammo,
                 reload_supply_source=row.reload_supply_source,
@@ -138,6 +174,15 @@ function M.new(backend,emit)
         if accepted then
             self.intent=nil;publish('requested',p.source)
         else publish('waiting_for_native_eligibility') end
+    end
+    -- Whether this update takes a complete observation when stepped.
+    function self.due(now)return now>=observe_at end
+    function self.step(allowed,now,player_priority)
+        if allowed and not player_priority and now<observe_at and backend.unchanged(watch) then return end
+        observed=nil
+        local result=step(allowed,now,player_priority)
+        if observed then settle(now,observed) else observe_at=-math.huge;watch=nil end
+        return result
     end
     function self.fields()
         return {auto_reload_status=self.status,auto_reload_pending=self.intent~=nil,

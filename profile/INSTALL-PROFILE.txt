@@ -1,0 +1,62 @@
+HD2 C4 Quick Actions
+Version 1.13 profile (diagnostic test build)
+
+繁體中文
+
+這是 1.13 的診斷測試包，不是正式安裝包。遊戲內功能與 1.13 相同，
+另外每 30 秒把自身的耗時與讀取統計寫入一個紀錄檔，用來找出：
+- 快照為什麼在實機上常常失效（哪一筆讀取、哪個位元組在變）；
+- 不隨讀取次數變化的固定成本花在哪一段。
+- 手持 C4 時，另外唯讀記錄引擎判斷瞄準／開火用的幾個設定值與元件歸屬（最多 6 次）；
+  若遊戲版本與分析時不同，這部分會自動跳過。
+它只讀取記憶體，不呼叫額外的遊戲函式，也不寫入遊戲記憶體。
+量測本身有少量額外負擔，報表最後一行會列出。
+
+安裝（HD2 Mod Manager 1.3／HD2 Arsenal 使用同一 ZIP）
+1. 退出遊戲，用本 ZIP 取代目前的 C4 Quick Actions（同時只啟用一個）。
+2. 部署並重新啟動。需求與正式版相同：Bingus Shared Loader v17+、Mod Bindings Menu v2+。
+
+測試方式（每個狀態請維持 70 秒以上，讓至少一個完整的 30 秒視窗落在裡面）
+1. 母艦上隨意走動。
+2. 進任務後，拿普通武器站著不動。
+3. 拿普通武器跑動。
+4. 手持 C4，站著不動。
+5. 手持 C4，走路與衝刺。
+6. 投擲、引爆、等自動裝填，重複幾次。
+可以照常開著 Watchdog 並錄影，方便對照時間。
+
+紀錄檔
+Windows: %LOCALAPPDATA%\CowboyBingus\Helldivers2\Logs\C4QuickActionsProfile.log
+本機 Proton: ~/.local/share/Steam/steamapps/compatdata/553850/pfx/drive_c/users/steamuser/AppData/Local/CowboyBingus/Helldivers2/Logs/C4QuickActionsProfile.log
+內容只有計數、耗時、原始碼位置與少量記憶體位元組，沒有個人資料。最多寫 240 份報表。
+
+還原
+退出遊戲，改回 HD2-C4-Quick-Actions-1.13.zip，重新部署。
+
+ENGLISH
+
+Diagnostic test build of 1.13, not a release. Gameplay is the same as
+1.13. Every 30 seconds it writes its own timing and read statistics to a
+log, to find which guarded bytes make retained snapshots obsolete in the live
+game and where the cost that does not depend on the read count is spent. It
+reads memory only, calls no additional game function and writes no game memory.
+While a C4 is held it also records, at most six times and read-only, the
+configuration values and component membership the engine consults for Aim and
+Fire; this part is skipped when the game build differs from the analysed one. The measurement adds a small cost, reported on the
+last line of each report.
+
+Install with HD2 Mod Manager 1.3 or HD2 Arsenal in place of the current C4
+Quick Actions package (keep one enabled), deploy and restart. Requirements are
+unchanged: Bingus Shared Loader v17+ and Mod Bindings Menu v2+.
+
+Hold each state for at least 70 seconds so one whole 30-second window falls
+inside it: on the ship; in a mission with an ordinary weapon standing still;
+ordinary weapon moving; C4 in hand standing still; C4 in hand walking and
+sprinting; then several throw / detonate / automatic reload cycles.
+
+Log: %LOCALAPPDATA%\CowboyBingus\Helldivers2\Logs\C4QuickActionsProfile.log
+It contains counts, timings, source positions and a few memory bytes; no
+personal data. At most 240 reports are written.
+
+To restore, exit the game, switch back to HD2-C4-Quick-Actions-1.13.zip and
+redeploy.

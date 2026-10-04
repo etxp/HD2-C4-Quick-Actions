@@ -1,0 +1,526 @@
+{
+  "version": "1.13",
+  "variants": {
+    "release_1_12": "preserved formal 1.12 Off runtime (optimization/1.12 build; src identical to releases/1.12)",
+    "lean_1": "preserved 1.12-lean.1 Off runtime, the base of this build; profiled in the live game 2026-10-04",
+    "candidate": "this build; not run in the live game"
+  },
+  "method": {
+    "statistic": "median of three alternating-order trials, separate process per trial",
+    "updates": "300 warmup, 600 counted with a read meter, 300 unmetered warmup, 600 timed without the meter",
+    "configuration": "Off diagnostics, JIT enabled, identical scenario scripts and complete backpack reload fixture",
+    "linux_memory": "compiled C store; a page holding fixture data is readable as a whole",
+    "windows_memory": "standalone Wine host, local game Lua DLL, real ReadProcessMemory on its own invented pages",
+    "native_game_actions": "mocked",
+    "limitations": [
+      "Synthetic whole-update time including fixture work; neither game FPS nor live addon self time.",
+      "Page layout of the live process is not reproduced. Guards that share a page there decide the live read count.",
+      "The harness mocks the engine window API, Mod Bindings Menu and the focus query; the live fixed cost is higher.",
+      "c4_volatile is the every-update worst case; in the live profile of 1.12-lean.1 retained snapshots held outside actions.",
+      "The idle fixtures do not initialise the optional Contact catalog; mode-label maintenance is measured by its own test."
+    ]
+  },
+  "linux_c_memory": {
+    "no_mission": {
+      "release_1_12": {
+        "ms_per_update": 0.0272,
+        "reads_per_update": 24.0,
+        "bytes_per_update": 1216.0
+      },
+      "lean_1": {
+        "ms_per_update": 0.0082,
+        "reads_per_update": 10.0,
+        "bytes_per_update": 472.0
+      },
+      "candidate": {
+        "ms_per_update": 0.0067,
+        "reads_per_update": 10.0,
+        "bytes_per_update": 472.0
+      },
+      "candidate_vs_release_1_12_percent": {
+        "ms_per_update": -75.5,
+        "reads_per_update": -58.3,
+        "bytes_per_update": -61.2
+      },
+      "candidate_vs_lean_1_percent": {
+        "ms_per_update": -19.1,
+        "reads_per_update": 0.0,
+        "bytes_per_update": 0.0
+      }
+    },
+    "other_weapon": {
+      "release_1_12": {
+        "ms_per_update": 0.1679,
+        "reads_per_update": 196.0,
+        "bytes_per_update": 3536.0
+      },
+      "lean_1": {
+        "ms_per_update": 0.0234,
+        "reads_per_update": 40.0,
+        "bytes_per_update": 3656.0
+      },
+      "candidate": {
+        "ms_per_update": 0.0214,
+        "reads_per_update": 40.0,
+        "bytes_per_update": 3656.0
+      },
+      "candidate_vs_release_1_12_percent": {
+        "ms_per_update": -87.2,
+        "reads_per_update": -79.6,
+        "bytes_per_update": 3.4
+      },
+      "candidate_vs_lean_1_percent": {
+        "ms_per_update": -8.5,
+        "reads_per_update": 0.0,
+        "bytes_per_update": 0.0
+      }
+    },
+    "c4_idle": {
+      "release_1_12": {
+        "ms_per_update": 0.9311,
+        "reads_per_update": 1064.797,
+        "bytes_per_update": 17992.313
+      },
+      "lean_1": {
+        "ms_per_update": 0.0679,
+        "reads_per_update": 122.0,
+        "bytes_per_update": 22998.0
+      },
+      "candidate": {
+        "ms_per_update": 0.0544,
+        "reads_per_update": 92.25,
+        "bytes_per_update": 20211.7
+      },
+      "candidate_vs_release_1_12_percent": {
+        "ms_per_update": -94.2,
+        "reads_per_update": -91.3,
+        "bytes_per_update": 12.3
+      },
+      "candidate_vs_lean_1_percent": {
+        "ms_per_update": -19.9,
+        "reads_per_update": -24.4,
+        "bytes_per_update": -12.1
+      }
+    },
+    "c4_volatile": {
+      "release_1_12": {
+        "ms_per_update": 0.9333,
+        "reads_per_update": 1064.797,
+        "bytes_per_update": 17992.313
+      },
+      "lean_1": {
+        "ms_per_update": 0.2101,
+        "reads_per_update": 226.0,
+        "bytes_per_update": 30020.0
+      },
+      "candidate": {
+        "ms_per_update": 0.1127,
+        "reads_per_update": 129.1,
+        "bytes_per_update": 22781.4
+      },
+      "candidate_vs_release_1_12_percent": {
+        "ms_per_update": -87.9,
+        "reads_per_update": -87.9,
+        "bytes_per_update": 26.6
+      },
+      "candidate_vs_lean_1_percent": {
+        "ms_per_update": -46.4,
+        "reads_per_update": -42.9,
+        "bytes_per_update": -24.1
+      }
+    },
+    "crowded_bindings": {
+      "release_1_12": {
+        "ms_per_update": 0.9335,
+        "reads_per_update": 1064.797,
+        "bytes_per_update": 17992.313
+      },
+      "lean_1": {
+        "ms_per_update": 0.0706,
+        "reads_per_update": 126.0,
+        "bytes_per_update": 25734.0
+      },
+      "candidate": {
+        "ms_per_update": 0.0539,
+        "reads_per_update": 96.25,
+        "bytes_per_update": 22947.7
+      },
+      "candidate_vs_release_1_12_percent": {
+        "ms_per_update": -94.2,
+        "reads_per_update": -91.0,
+        "bytes_per_update": 27.5
+      },
+      "candidate_vs_lean_1_percent": {
+        "ms_per_update": -23.7,
+        "reads_per_update": -23.6,
+        "bytes_per_update": -10.8
+      }
+    },
+    "menu": {
+      "release_1_12": {
+        "ms_per_update": 0.0099,
+        "reads_per_update": 8.0,
+        "bytes_per_update": 608.0
+      },
+      "lean_1": {
+        "ms_per_update": 0.0058,
+        "reads_per_update": 6.0,
+        "bytes_per_update": 320.0
+      },
+      "candidate": {
+        "ms_per_update": 0.0044,
+        "reads_per_update": 6.0,
+        "bytes_per_update": 320.0
+      },
+      "candidate_vs_release_1_12_percent": {
+        "ms_per_update": -55.1,
+        "reads_per_update": -25.0,
+        "bytes_per_update": -47.4
+      },
+      "candidate_vs_lean_1_percent": {
+        "ms_per_update": -24.0,
+        "reads_per_update": 0.0,
+        "bytes_per_update": 0.0
+      }
+    },
+    "release_aim": {
+      "release_1_12": {
+        "ms_per_update": 0.9293,
+        "reads_per_update": 1064.797,
+        "bytes_per_update": 17992.313
+      },
+      "lean_1": {
+        "ms_per_update": 0.0693,
+        "reads_per_update": 122.0,
+        "bytes_per_update": 22998.0
+      },
+      "candidate": {
+        "ms_per_update": 0.0513,
+        "reads_per_update": 92.25,
+        "bytes_per_update": 20211.7
+      },
+      "candidate_vs_release_1_12_percent": {
+        "ms_per_update": -94.5,
+        "reads_per_update": -91.3,
+        "bytes_per_update": 12.3
+      },
+      "candidate_vs_lean_1_percent": {
+        "ms_per_update": -26.0,
+        "reads_per_update": -24.4,
+        "bytes_per_update": -12.1
+      }
+    },
+    "tank_passenger": {
+      "release_1_12": {
+        "ms_per_update": 1.0163,
+        "reads_per_update": 1155.84,
+        "bytes_per_update": 19647.647
+      },
+      "lean_1": {
+        "ms_per_update": 0.0719,
+        "reads_per_update": 130.0,
+        "bytes_per_update": 23350.0
+      },
+      "candidate": {
+        "ms_per_update": 0.0551,
+        "reads_per_update": 100.25,
+        "bytes_per_update": 20604.5
+      },
+      "candidate_vs_release_1_12_percent": {
+        "ms_per_update": -94.6,
+        "reads_per_update": -91.3,
+        "bytes_per_update": 4.9
+      },
+      "candidate_vs_lean_1_percent": {
+        "ms_per_update": -23.3,
+        "reads_per_update": -22.9,
+        "bytes_per_update": -11.8
+      }
+    }
+  },
+  "wine_read_process_memory": {
+    "no_mission": {
+      "release_1_12": {
+        "ms_per_update": 0.03,
+        "reads_per_update": 24.0,
+        "bytes_per_update": 1216.0
+      },
+      "lean_1": {
+        "ms_per_update": 0.0083,
+        "reads_per_update": 10.0,
+        "bytes_per_update": 472.0
+      },
+      "candidate": {
+        "ms_per_update": 0.0083,
+        "reads_per_update": 10.0,
+        "bytes_per_update": 472.0
+      },
+      "candidate_vs_release_1_12_percent": {
+        "ms_per_update": -72.2,
+        "reads_per_update": -58.3,
+        "bytes_per_update": -61.2
+      },
+      "candidate_vs_lean_1_percent": {
+        "ms_per_update": 0.0,
+        "reads_per_update": 0.0,
+        "bytes_per_update": 0.0
+      }
+    },
+    "other_weapon": {
+      "release_1_12": {
+        "ms_per_update": 0.1933,
+        "reads_per_update": 196.0,
+        "bytes_per_update": 3536.0
+      },
+      "lean_1": {
+        "ms_per_update": 0.0267,
+        "reads_per_update": 40.0,
+        "bytes_per_update": 3656.0
+      },
+      "candidate": {
+        "ms_per_update": 0.0267,
+        "reads_per_update": 40.0,
+        "bytes_per_update": 3656.0
+      },
+      "candidate_vs_release_1_12_percent": {
+        "ms_per_update": -86.2,
+        "reads_per_update": -79.6,
+        "bytes_per_update": 3.4
+      },
+      "candidate_vs_lean_1_percent": {
+        "ms_per_update": 0.0,
+        "reads_per_update": 0.0,
+        "bytes_per_update": 0.0
+      }
+    },
+    "c4_idle": {
+      "release_1_12": {
+        "ms_per_update": 1.0733,
+        "reads_per_update": 1064.797,
+        "bytes_per_update": 17992.313
+      },
+      "lean_1": {
+        "ms_per_update": 0.08,
+        "reads_per_update": 122.0,
+        "bytes_per_update": 22998.0
+      },
+      "candidate": {
+        "ms_per_update": 0.06,
+        "reads_per_update": 92.25,
+        "bytes_per_update": 20211.7
+      },
+      "candidate_vs_release_1_12_percent": {
+        "ms_per_update": -94.4,
+        "reads_per_update": -91.3,
+        "bytes_per_update": 12.3
+      },
+      "candidate_vs_lean_1_percent": {
+        "ms_per_update": -25.0,
+        "reads_per_update": -24.4,
+        "bytes_per_update": -12.1
+      }
+    },
+    "c4_volatile": {
+      "release_1_12": {
+        "ms_per_update": 1.0617,
+        "reads_per_update": 1064.797,
+        "bytes_per_update": 17992.313
+      },
+      "lean_1": {
+        "ms_per_update": 0.24,
+        "reads_per_update": 226.0,
+        "bytes_per_update": 30020.0
+      },
+      "candidate": {
+        "ms_per_update": 0.12,
+        "reads_per_update": 129.1,
+        "bytes_per_update": 22781.4
+      },
+      "candidate_vs_release_1_12_percent": {
+        "ms_per_update": -88.7,
+        "reads_per_update": -87.9,
+        "bytes_per_update": 26.6
+      },
+      "candidate_vs_lean_1_percent": {
+        "ms_per_update": -50.0,
+        "reads_per_update": -42.9,
+        "bytes_per_update": -24.1
+      }
+    },
+    "crowded_bindings": {
+      "release_1_12": {
+        "ms_per_update": 1.0533,
+        "reads_per_update": 1064.797,
+        "bytes_per_update": 17992.313
+      },
+      "lean_1": {
+        "ms_per_update": 0.085,
+        "reads_per_update": 126.0,
+        "bytes_per_update": 25734.0
+      },
+      "candidate": {
+        "ms_per_update": 0.0683,
+        "reads_per_update": 96.25,
+        "bytes_per_update": 22947.7
+      },
+      "candidate_vs_release_1_12_percent": {
+        "ms_per_update": -93.5,
+        "reads_per_update": -91.0,
+        "bytes_per_update": 27.5
+      },
+      "candidate_vs_lean_1_percent": {
+        "ms_per_update": -19.6,
+        "reads_per_update": -23.6,
+        "bytes_per_update": -10.8
+      }
+    },
+    "menu": {
+      "release_1_12": {
+        "ms_per_update": 0.0117,
+        "reads_per_update": 8.0,
+        "bytes_per_update": 608.0
+      },
+      "lean_1": {
+        "ms_per_update": 0.0067,
+        "reads_per_update": 6.0,
+        "bytes_per_update": 320.0
+      },
+      "candidate": {
+        "ms_per_update": 0.005,
+        "reads_per_update": 6.0,
+        "bytes_per_update": 320.0
+      },
+      "candidate_vs_release_1_12_percent": {
+        "ms_per_update": -57.1,
+        "reads_per_update": -25.0,
+        "bytes_per_update": -47.4
+      },
+      "candidate_vs_lean_1_percent": {
+        "ms_per_update": -25.0,
+        "reads_per_update": 0.0,
+        "bytes_per_update": 0.0
+      }
+    },
+    "release_aim": {
+      "release_1_12": {
+        "ms_per_update": 1.0533,
+        "reads_per_update": 1064.797,
+        "bytes_per_update": 17992.313
+      },
+      "lean_1": {
+        "ms_per_update": 0.0817,
+        "reads_per_update": 122.0,
+        "bytes_per_update": 22998.0
+      },
+      "candidate": {
+        "ms_per_update": 0.0633,
+        "reads_per_update": 92.25,
+        "bytes_per_update": 20211.7
+      },
+      "candidate_vs_release_1_12_percent": {
+        "ms_per_update": -94.0,
+        "reads_per_update": -91.3,
+        "bytes_per_update": 12.3
+      },
+      "candidate_vs_lean_1_percent": {
+        "ms_per_update": -22.4,
+        "reads_per_update": -24.4,
+        "bytes_per_update": -12.1
+      }
+    },
+    "tank_passenger": {
+      "release_1_12": {
+        "ms_per_update": 1.1833,
+        "reads_per_update": 1155.84,
+        "bytes_per_update": 19647.647
+      },
+      "lean_1": {
+        "ms_per_update": 0.0817,
+        "reads_per_update": 130.0,
+        "bytes_per_update": 23350.0
+      },
+      "candidate": {
+        "ms_per_update": 0.0683,
+        "reads_per_update": 100.25,
+        "bytes_per_update": 20604.5
+      },
+      "candidate_vs_release_1_12_percent": {
+        "ms_per_update": -94.2,
+        "reads_per_update": -91.3,
+        "bytes_per_update": 4.9
+      },
+      "candidate_vs_lean_1_percent": {
+        "ms_per_update": -16.3,
+        "reads_per_update": -22.9,
+        "bytes_per_update": -11.8
+      }
+    }
+  },
+  "wine_runtime": {
+    "lua_dll_sha256": "2c8720c9f446c848436ad993b1a88099d76f0b0b09df53689719b797c3039ce7",
+    "wine": "wine-11.17"
+  },
+  "differential": {
+    "sessions": 400,
+    "updates_per_session": 600,
+    "identical_to": {
+      "1.12": 400,
+      "1.12-opt.2": 400
+    },
+    "different": {
+      "1.12": 0,
+      "1.12-opt.2": 0
+    },
+    "activity": {
+      "start_calls": 8552,
+      "data_writes": 19958,
+      "reloads": 1882,
+      "disabled_sessions": 0
+    },
+    "compared": "every native call with arguments, every data write, Fire flags, Aim/Fire inhibition state and call counts, reload calls and eligibility queries, mapping queries, lean calls, vanilla Fire events and addon status, on every update"
+  },
+  "retained_heap_KiB": {
+    "c4_idle": {
+      "first_post_warmup_KiB": 2162.62,
+      "last_KiB": 2165.58,
+      "post_warmup_range_KiB": 50.48000000000002,
+      "net_growth_KiB": 2.9600000000000364
+    },
+    "crowded_bindings": {
+      "first_post_warmup_KiB": 3430.16,
+      "last_KiB": 3442.04,
+      "post_warmup_range_KiB": 42.49000000000024,
+      "net_growth_KiB": 11.88000000000011
+    },
+    "other_weapon": {
+      "first_post_warmup_KiB": 3830.36,
+      "last_KiB": 3833.0,
+      "post_warmup_range_KiB": 3.2100000000000364,
+      "net_growth_KiB": 2.6399999999998727
+    },
+    "menu": {
+      "first_post_warmup_KiB": 4246.52,
+      "last_KiB": 4235.7,
+      "post_warmup_range_KiB": 12.010000000000218,
+      "net_growth_KiB": -10.820000000000618
+    },
+    "release_aim": {
+      "first_post_warmup_KiB": 4745.64,
+      "last_KiB": 4758.83,
+      "post_warmup_range_KiB": 13.1899999999996,
+      "net_growth_KiB": 13.1899999999996
+    },
+    "tank_passenger": {
+      "first_post_warmup_KiB": 5231.7,
+      "last_KiB": 5241.23,
+      "post_warmup_range_KiB": 9.529999999999745,
+      "net_growth_KiB": 9.529999999999745
+    }
+  },
+  "offline_checks": {
+    "passed": true,
+    "pass_lines": 1635
+  },
+  "live_gameplay_verified": false,
+  "live_performance_verified": false
+}

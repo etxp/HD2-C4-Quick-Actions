@@ -47,32 +47,28 @@ def main():
         'Version': 1, 'Guid': GUID, 'Name': 'HD2 C4 Quick Actions ' + VERSION,
         'Description': 'C4 throw and detonate actions with customizable mouse and controller bindings, Manual/Contact detonation modes, passenger throwing and automatic reload. Requires Mod Bindings Menu v2 and Bingus Shared Loader v17+.',
         'IconPath': None,
-        'Options': [{'Name': 'Installation / 安裝', 'Description': 'Install the MBM control version / 安裝 MBM 操作版本',
-                     'SubOptions': [{'Name': 'C4 Quick Actions — MBM controls', 'Description': 'Set Throw C4 and Detonate C4 on the MODS tab. No fixed mouse/controller mapping.', 'Image': None, 'Include': ['Core']}]}]
     }
-    with tempfile.TemporaryDirectory(dir=ROOT / 'private', prefix='package-') as temp:
-        built = Path(temp) / 'addon.zip'
-        subprocess.run([sys.executable, str(helper / 'scripts/build_addon.py'),
-            '--name', 'mods/etxp/c4_boundary_probe', '--entry', str(entry), '--guid', GUID,
-            '--display-name', manifest['Name'], '--output', str(built)], check=True)
-        entries = {'manifest.json': (json.dumps(manifest, ensure_ascii=False, indent=2) + '\n').encode(),
-                   'README.txt': (ROOT / 'docs/INSTALL.txt').read_bytes(),
-                   'LICENSE.txt': (ROOT / 'LICENSE').read_bytes()}
-        with zipfile.ZipFile(built) as z:
-            for name in z.namelist():
-                if name.startswith('Addon/'):
-                    entries['Core/' + Path(name).name] = z.read(name)
-    # The loader explicitly supports require() of separate archived resources.
-    # Only the main script has a discovery declaration; dependency order is
-    # explicit. Each ZIP entry stays small enough for the checked Arsenal worker.
     sys.path.insert(0,str(helper/'scripts'))
     from archive import make_archive,resource_hash,ARCHIVE
-    assert ARCHIVE.endswith('.patch_0')
+    from build_addon import entry_source
+    entries = {'manifest.json': (json.dumps(manifest, ensure_ascii=False, indent=2) + '\n').encode(),
+               'README.txt': (ROOT / 'docs/INSTALL.txt').read_bytes(),
+               'LICENSE.txt': (ROOT / 'LICENSE').read_bytes()}
     support=ARCHIVE[:-1]+'1'
-    entries['Core/'+support]=make_archive({resource_hash('mods/etxp/c4_quick_actions_catalog'):
-        struct.pack('<II',len(catalog),2)+catalog})
-    entries['Core/'+support+'.stream']=b''
-    entries['Core/'+support+'.gpu_resources']=b''
+    resource='mods/etxp/c4_quick_actions'
+    body=entry_source(resource,entry.read_bytes())
+    # Public build has no install-time settings. Use the already validated Off
+    # configuration; gameplay entry/catalog/config bytes are not rewritten.
+    config=(ROOT/'private/build/c4_config.off.lua').read_bytes()
+    payloads=[(ARCHIVE,resource,body),
+              (support,'mods/etxp/c4_quick_actions_catalog',catalog),
+              (ARCHIVE[:-1]+'2','mods/etxp/c4_quick_actions_config',config)]
+    payload_names=[]
+    for name,key,value in payloads:
+        entries[name]=make_archive({resource_hash(key):struct.pack('<II',len(value),2)+value})
+        payload_names.append(name)
+        for suffix in ['.stream','.gpu_resources']:
+            entries[name+suffix]=b'';payload_names.append(name+suffix)
     target = ROOT / 'dist' / ('HD2-C4-Quick-Actions-' + VERSION + '.zip')
     target.parent.mkdir(parents=True, exist_ok=True)
     # Use stronger standard DEFLATE and verify the original Arsenal worker.
@@ -91,7 +87,7 @@ def main():
         assert {name:z.read(name) for name in z.namelist()} == entries
     (ROOT / 'evidence/package.json').write_text(json.dumps(dict(
         version=VERSION, package=str(target.relative_to(ROOT)), sha256=hashlib.sha256(target.read_bytes()).hexdigest(),
-        manifest=manifest, payloads={name:hashlib.sha256(data).hexdigest() for name,data in entries.items() if name.startswith('Core/')},
+        manifest=manifest, payloads={name:hashlib.sha256(data).hexdigest() for name,data in entries.items() if name in payload_names},
         live_gameplay_verified=False), indent=2, ensure_ascii=False) + '\n')
     print(target)
 

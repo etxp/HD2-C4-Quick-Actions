@@ -18,7 +18,7 @@ def main():
         assert z.testzip() is None
         sys.path.insert(0,str(ROOT/'tests'))
         from package_resources import check
-        resources=check(ROOT,z,VERSION,helper)
+        resources={'Public':check(ROOT,z,VERSION,helper)}
         manifest=json.loads(z.read('manifest.json'))
         assert artifact.name=='HD2-C4-Quick-Actions-'+VERSION+'.zip'
         assert manifest['Name']=='HD2 C4 Quick Actions '+VERSION
@@ -33,15 +33,15 @@ def main():
                     for folder in item['Include']:
                         assert any(n.startswith(folder.rstrip('/')+'/') for n in z.namelist())
                 if 'SubOptions' in item: options(item['SubOptions'])
-        options(manifest['Options'])
+        assert 'Options' not in manifest, 'Public package must not expose diagnostic options'
+        assert all('/' not in n for n in z.namelist()), 'Public payloads must be at ZIP root'
         for p,h in package['payloads'].items():assert sha(z.read(p))==h
         assert set(z.namelist())=={'manifest.json','README.txt','LICENSE.txt',*package['payloads']}
     assert manifest['Version']==1 and manifest['Description'].strip()
-    assert 'Include' not in manifest['Options'][0]
-    assert manifest['Options'][0]['SubOptions'][0]['Include']==['Core']
+    assert "diagnostics" not in manifest['Description'].lower()
     report=dict(passed=True,resources=resources,artifact_sha256=package['sha256'],
                 manager_integration_retested=False,real_game_modified=False,live_gameplay_verified=False)
     (ROOT/'evidence/package-checks.json').write_text(json.dumps(report,indent=2)+'\n')
-    print('PASS V1 manifest rules, ZIP paths, payload hashes and both Lua resources')
-    print('Manager integration is recorded separately in evidence/release-1.1.json')
+    print('PASS V1 public manifest without options, ZIP root paths, Off configuration and all payload hashes')
+    print('Manager integration is validated separately')
 if __name__=='__main__':main()

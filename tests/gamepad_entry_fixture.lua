@@ -49,11 +49,42 @@ local function scenario(options)
     function k.GetCurrentProcessId() return 42 end
     function u.GetForegroundWindow() return ffi.cast('void *',1) end
     function u.GetWindowThreadProcessId(_,pid) pid[0]=s.focused and 42 or 123;return 1 end
+    -- Real memory is mapped by page: a span between two fixture fields on one
+    -- page is readable. 'pages' models that; the default keeps the historical
+    -- byte-granular fixture, where such a span is unreadable.
+    local paged=options.pages
+    if paged==nil then paged=rawget(_G,'C4FixturePages')==true end
+    if paged then
+        -- The legacy two-byte fake signature is unused by the resolver and
+        -- must not overlay the native image when its page is read as a whole.
+        s.memory[s.signature]=nil;s.memory[s.signature+1]=nil
+        s.pages[math.floor(s.signature/4096)]=nil
+        function s.fill(at)
+            if not s.pages[math.floor(at/4096)] then return nil end
+            local relative=at-s.game
+            if relative>=0 and relative<#native_image then return native_image:sub(relative+1,relative+1) end
+            return '\0'
+        end
+    end
+    local function overlaid(at,n)
+        for page=math.floor(at/4096),math.floor((at+n-1)/4096) do
+            if s.pages[page] then
+                for i=at,at+n-1 do
+                    if s.memory[i] and i~=s.signature and i~=s.signature+1 then return true end
+                end
+                return false
+            end
+        end
+        return false
+    end
     function k.ReadProcessMemory(_,address,out,n,count)
         if s.fail_reads then return 0 end
         local at=tonumber(ffi.cast('uintptr_t',address))
         local value=s.api.read(at,n)
         local relative=at-s.game
+        -- A sparse span mixing fixture bytes with native image bytes is not
+        -- one readable object; never answer it with the bare image.
+        if not value and relative>=0 and relative+n<=#native_image and overlaid(at,n) then return 0 end
         if not value and relative>=0 and relative+n<=#native_image then
             value=native_image:sub(relative+1,relative+n)
             if (options.bad_code or s.bad_code) and relative<=R.fn_start and relative+n>R.fn_start then
@@ -200,6 +231,7 @@ local function scenario(options)
     _G.shutdown=function() return 'shutdown-original' end
     package.loaded['mods/etxp/c4_quick_actions_catalog']=nil
     package.preload['mods/etxp/c4_quick_actions_catalog']=function()return dofile('private/build/c4_catalog.lua')end
+    if options.before_load then options.before_load(s,k,native_image) end
     s.module=assert(loadfile(options.entry or 'src/c4_dual_input_gamepad.lua'))()
     function s.tick(dt)
         local a,b,c=_G.update(dt or 1/60,42)

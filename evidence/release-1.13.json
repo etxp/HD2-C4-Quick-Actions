@@ -1,0 +1,33 @@
+{
+  "version": "1.13",
+  "release_type": "stable",
+  "date": "2026-10-04",
+  "artifact": "HD2-C4-Quick-Actions-1.13.zip",
+  "sha256": "26553eb4b62f0d8032617779190859669c59fcbf3e6c9fa55ae0911949d594f3",
+  "bytes": 81397,
+  "promoted_from": "development build 1.12-lean.2; assembled entry differs only in the version string",
+  "user_accepted_gameplay": true,
+  "user_acceptance": "throw, detonate and automatic reload confirmed in the game on 2026-10-04 (1.12-lean.2 build)",
+  "offline_checks": 1635,
+  "differential": {
+    "sessions": 400,
+    "updates_per_session": 600,
+    "identical_to_1_12": 400,
+    "identical_to_1_12_opt_2": 400
+  },
+  "live_measurements": {
+    "watchdog_ms_per_second": {
+      "ship": "3.6-4.4",
+      "ordinary_weapon": "4.3",
+      "c4_in_hand": "9.9"
+    },
+    "reads_per_update_development_build_1_12_lean_1": {
+      "ship": 10,
+      "primary_weapon": 36,
+      "c4": 119
+    },
+    "note": "different sessions, not a same-mission comparison; states inferred from the steps in cost"
+  },
+  "known_difference_from_1_12": "a context that becomes unusable for a non-ammunition reason releases input inhibition up to 100 ms later",
+  "binary_in_repository": false
+}

@@ -3,18 +3,27 @@
 local bit=require('bit')
 local M={}
 local EXPECTED='090200000000000000000000000000003482df840000000014f02aa3c6abad38010100000000000008020000000000000000000000000000926c9d6c00000000f8934147834337550001000000000000'
-local function gameplay_descriptor(hex)
+local EXPECTED_BYTES=(EXPECTED:gsub('..',function(v)return string.char(tonumber(v,16))end))
+local function gameplay_descriptor(bytes)
     -- +16/+56 are localized captions, consumed by the native weapon menu.
     -- Keep every ability ID, trigger, function and gameplay flag checked.
-    return hex:sub(1,32)..hex:sub(41,112)..hex:sub(121,160)
+    return bytes:sub(1,16)..bytes:sub(21,56)..bytes:sub(61,80)
 end
 
-function M.snapshot(api,game,base)
+local function avatar_scope(e,row,cap,diagnostics)
+    row.action_read_stage='avatar_scope'
+    local av=e.read(e.avatar+0x53e880+e.avatar_index*0x1238,24,true)
+    if diagnostics~=false then row.avatar_flags=e.hex(av) end
+    row.test_avatar_allowed=AvatarScope.apply(e,row,cap,av)
+    cap.interrupt=not row.test_avatar_allowed or row.native_fire_held
+end
+
+local function snapshot(api,game,base,input_only)
     return base.snapshot(api,game,function(e,row)
         local read,ptr,global,lookup,u32=e.read,e.ptr,e.global,e.lookup,e.u32
         row.action_read_stage='c4_descriptors'
         assert(row.ability_template_status=='present' and
-            gameplay_descriptor(row.ability_template_hex)==gameplay_descriptor(EXPECTED),'unsupported_c4_descriptors')
+            gameplay_descriptor(e.ability_template)==gameplay_descriptor(EXPECTED_BYTES),'unsupported_c4_descriptors')
         assert(row.weapon_data_status~='missing' and e.weapon_data_index and e.weapon_data_index~=0xffffffff,
             'weapon_data_missing')
         local types=row.weapon_function_types
@@ -59,6 +68,13 @@ function M.snapshot(api,game,base)
         local driver=global(R.global_fire_latch)
         local di=component(driver,0x20,0x38,e.weapon_id,e.weapon)
         row.native_fire_held=read(ptr(driver+0x48,true)+di*8,8,true):byte(1)~=0
+        if input_only then
+            -- Steady input ownership needs identity, Fire and avatar vetoes.
+            -- This observation cannot authorize a weapon action/reload. A new
+            -- input inhibition still obtains the full action snapshot first.
+            avatar_scope(e,row,cap,base.diagnostics)
+            return {identity=cap.identity,interrupt=cap.interrupt,same=cap.same,input_only=true}
+        end
         cap.ability_manager=global(R.global_ability)
         local bi=component(cap.ability_manager,0x18,0x30,e.weapon_id,e.weapon)
         local ability=read(ptr(cap.ability_manager+0x38,true)+bi*0xe0,32,true)
@@ -99,9 +115,14 @@ function M.snapshot(api,game,base)
             -- alone is insufficient when this weapon uses a chambered round.
             local rm=global(R.global_rounds)
             local ri=component(rm,0x28,0x40,e.weapon_id,e.weapon)
-            local rounds=read(ptr(rm+0x50,true)+ri*24,24,true)
-            local runtime=read(ptr(rm+0x58,true)+ri*20,20,true)
-            row.rounds_state_hex=e.hex(rounds);row.rounds_runtime_hex=e.hex(runtime)
+            local rounds_at=ptr(rm+0x50,true)+ri*24
+            local rounds=read(rounds_at,24,true)
+            local runtime_at=ptr(rm+0x58,true)+ri*20
+            local runtime=read(runtime_at,20,true)
+            -- The records that hold the chamber and reserve counts; automatic
+            -- reload rereads exactly these between its complete observations.
+            cap.ammo_watch={{at=rounds_at,bytes=rounds},{at=runtime_at,bytes=runtime}}
+            if base.diagnostics then row.rounds_state_hex=e.hex(rounds);row.rounds_runtime_hex=e.hex(runtime) end
             row.rounds_reserve_count=u32(runtime,0)
             local selected=u32(runtime,4)
             row.rounds_selected_magazine=selected
@@ -136,7 +157,7 @@ function M.snapshot(api,game,base)
                 row.rounds_config_source='resource_template'
             end
             assert(config,'rounds_configuration_missing')
-            row.rounds_config_hex=e.hex(config)
+            if base.diagnostics then row.rounds_config_hex=e.hex(config) end
             row.rounds_chambered=config:byte(0x69)~=0
             if row.rounds_chambered then
                 row.deploy_ammo_ready=not row.rounds_chamber_blocked and row.rounds_chamber_token~=0
@@ -178,14 +199,7 @@ function M.snapshot(api,game,base)
         row.deploy_ammo_reason=row.deploy_ammo_ready and 'resource_ready' or 'empty_c4_resource'
         end
 
-        -- The EXP03 test scope is deliberately limited to the conservative
-        -- local grounded state used by the same-build reference. This is an
-        -- EXTRA veto, not a replacement for any C4 native eligibility rule.
-        row.action_read_stage='avatar_scope'
-        local av=read(e.avatar+0x53e880+e.avatar_index*0x1238,24,true)
-        row.avatar_flags=e.hex(av)
-        row.test_avatar_allowed=AvatarScope.apply(e,row,cap,av)
-        cap.interrupt=not row.test_avatar_allowed or row.native_fire_held
+        avatar_scope(e,row,cap,base.diagnostics)
         cap.blocked=blocked or cap.interrupt
         cap.deploy_ready=row.deploy_ammo_ready
         -- Keep reload diagnostics separate: a missing reload component does
@@ -200,4 +214,6 @@ function M.snapshot(api,game,base)
         return cap
     end)
 end
+function M.snapshot(api,game,base)return snapshot(api,game,base,false)end
+function M.input_snapshot(api,game,base)return snapshot(api,game,base,true)end
 return M

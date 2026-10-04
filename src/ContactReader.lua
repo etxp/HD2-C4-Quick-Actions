@@ -36,7 +36,7 @@ local function memory(api,game,base)
     end
     return e
 end
-local function scan(e,symbols,lease,events)
+local function scan(e,symbols,lease,events,wanted)
     local read,ptr,lookup,u32=e.read,e.ptr,e.lookup,e.u32
     local owner=e.global(symbols.global_contact_owner)
     assert(owner==lease.owner and e.global(symbols.global_contact_world)==lease.root,'contact_world_changed')
@@ -52,9 +52,14 @@ local function scan(e,symbols,lease,events)
     if count==0 then return result end
     local registry,links=ptr(remote+0x38,true),ptr(remote+0x48,true)
     local by_unit={}
-    for i=0,count-1 do
+    local function inspect(i,identity)
+        assert(i<count,'contact_remote_index')
         local at=ptr(registry+i*8,true);local entity=read(at,24,true)
-        if e.resource(entity)==CHARGE and bit.band(entity:byte(21),1)~=0 then
+        -- A tracked entity may disappear or its registry slot may be reused.
+        -- The complete immutable identity must still match before following
+        -- any of its current native component relations.
+        if (not identity or hex(entity)==identity) and
+            e.resource(entity)==CHARGE and bit.band(entity:byte(21),1)~=0 then
             local reference=u32(read(links+i*8,8,true),0)
             local oi=reference~=0x7fff and lookup(owner+D.entity_unit_map,reference,1048576)
             if oi then
@@ -82,17 +87,26 @@ local function scan(e,symbols,lease,events)
             end
         end
     end
+    if wanted then
+        local total=0
+        for identity,track in pairs(wanted)do
+            total=total+1;assert(total<=128,'contact_owned_budget')
+            local i=lookup(remote+0x20,track.id,65536)
+            if i then inspect(i,identity) end
+        end
+    else
+        for i=0,count-1 do inspect(i) end
+    end
     for _,event in ipairs(events and events.contacts or {})do
         if event.kind~=2 and event.unit_a~=event.unit_b then
-            for _,unit in ipairs({event.unit_a,event.unit_b})do
-                local item=by_unit[unit]
-                if item and not item.contact then item.contact=event end
-            end
+            local a,b=by_unit[event.unit_a],by_unit[event.unit_b]
+            if a and not a.contact then a.contact=event end
+            if b and not b.contact then b.contact=event end
         end
     end
     return result
 end
-function M.selected(api,game,base,symbols)
+function M.selected(api,game,base,symbols,prepare_only)
     local row,err,selected=base.snapshot(api,game,function(e,row)
         assert(row.weapon_function_types and row.weapon_function_types['0']==10,'contact_selector_type')
         local selector=row.weapon_function_values['0'];assert(selector==0 or selector==1,'contact_selector')
@@ -101,14 +115,22 @@ function M.selected(api,game,base,symbols)
         return {lease=lease,mode=selector==1 and 'CONTACT' or 'MANUAL',same=e.checked}
     end)
     if not selected then return row,err end
+    if prepare_only and selected.mode=='MANUAL' then
+        -- Manual throws do not arm projectiles. Only preparation takes this
+        -- shortcut; airborne manual detonation still requests a complete
+        -- current owned-charge snapshot through the default path below.
+        assert(selected.same(),'contact_selected_context_changed')
+        selected.charges={}
+        return row,err,selected
+    end
     local result=M.tracked(api,game,base,symbols,selected.lease)
     assert(selected.same(),'contact_selected_context_changed')
     result.mode=selected.mode
     return row,err,result
 end
-function M.tracked(api,game,base,symbols,lease,events)
+function M.tracked(api,game,base,symbols,lease,events,wanted)
     local e=memory(api,game,base);e.game=game
-    local result=scan(e,symbols,lease,events)
+    local result=scan(e,symbols,lease,events,wanted)
     assert(e.checked(),'contact_snapshot_changed')
     return result
 end

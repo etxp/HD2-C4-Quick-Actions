@@ -33,12 +33,12 @@ function M.new(backend,emit,options)
         if not row then row={context_status='snapshot_unavailable',current_weapon='UNKNOWN',
             current_fire_mode='UNKNOWN',reason=tostring(reason)} end
         self.latest=row;self.last_sample=now
-        local key=table.concat({row.context_status,tostring(row.selected_entity_id),
+        local key=options.diagnostics~=false and table.concat({row.context_status,tostring(row.selected_entity_id),
             tostring(row.current_fire_mode),tostring(row.action_gate),tostring(row.active_ability_id),
             tostring(row.native_action_active),tostring(row.ammo_available),tostring(row.deploy_ammo_ready),
             tostring(row.weapon_driver_flags),tostring(row.ammo_path),tostring(row.action_context_error),
             tostring(row.action_read_stage),tostring(row.reason)},'|')
-        if key~=self.last_key or now-self.last_emit>=1000 then
+        if options.diagnostics~=false and (key~=self.last_key or now-self.last_emit>=1000) then
             publish('action_context');self.last_key=key;self.last_emit=now
         end
         return cap
@@ -86,7 +86,8 @@ function M.new(backend,emit,options)
         local lock={action=action,id=self.serial,identity=cap.identity,start=now,
             ability=action=='DEPLOY' and 521 or 520,saw_active=false,mode=self.latest.current_fire_mode}
         self.lock=lock
-        -- This record must reach the file before any native side effect.
+        -- Diagnostic policy accepts this event before the native side effect;
+        -- verbose mode additionally writes and flushes it for investigation.
         publish('action_call',{requested_action=action,request_id=lock.id,
             action_result='CALL_BEGIN',ability_id=lock.ability,
             input=from_pending and 'PENDING' or request_input or labels[action],
@@ -143,6 +144,11 @@ function M.new(backend,emit,options)
             if request then reject(request,'original_mouse_input') end
             request=nil
         end
+        -- With diagnostics off, an idle controller has no lifecycle or queued
+        -- request to observe. AutoReload still checks its own fresh context on
+        -- every allowed update. Requests, arming and active/pending actions keep
+        -- the original complete observation and call-boundary validation.
+        if options.diagnostics==false and not request and not self.lock and not self.pending then return end
         if not request and not (self.pending and self.pending.prepare) and now-self.last_sample<50 then return end
         local cap=observe(now)
         if not cap then
