@@ -8,11 +8,12 @@ local P=(function()
     do
         local ok,fn=pcall(function()
             local ffi=require('ffi')
-            pcall(ffi.cdef,'int QueryPerformanceCounter(int64_t *);')
-            pcall(ffi.cdef,'int QueryPerformanceFrequency(int64_t *);')
+            -- Private names, as in src/WinApi.lua: never bound to another mod's prototype.
+            ffi.cdef[[int c4qa_QueryPerformanceCounter(int64_t *) __asm__("QueryPerformanceCounter");
+                int c4qa_QueryPerformanceFrequency(int64_t *) __asm__("QueryPerformanceFrequency");]]
             local k=ffi.load('kernel32')
-            local counter=ffi.cast('int (*)(int64_t *)',k.QueryPerformanceCounter)
-            local frequency=ffi.cast('int (*)(int64_t *)',k.QueryPerformanceFrequency)
+            local counter=k.c4qa_QueryPerformanceCounter
+            local frequency=k.c4qa_QueryPerformanceFrequency
             local value=ffi.new('int64_t[1]')
             assert(frequency(value)~=0 and value[0]>0)
             local scale=1/tonumber(value[0])

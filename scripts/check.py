@@ -1,12 +1,20 @@
 """Regression checks and captured-native validation; never attaches to the game."""
 import hashlib
 import argparse
+from pathlib import Path
 import json
 import subprocess
 import sys
 from assemble import ROOT, VERSION, assemble
 
 def sha(path): return hashlib.sha256(path.read_bytes()).hexdigest()
+
+# Optional: the source of Mod Bindings Menu v2.2 (src/ folder holding poll.lua),
+# from https://github.com/CowboyBingus/ModBindingsMenu/releases/tag/v2.2. When
+# present, the contract test also runs that release's real poll.lua.
+import os
+_mbm = os.environ.get('MBM_V22_SRC') or str(ROOT.parent.parent / 'private/deps-20261005/ModBindingsMenu-v2.2/src/src')
+MBM_SOURCE = [_mbm] if (Path(_mbm) / 'poll.lua').is_file() else []
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
@@ -25,6 +33,10 @@ def main():
                 ['luajit', 'tests/test_runtime.lua', 'off'],
                 ['luajit', 'tests/test_runtime.lua', 'verbose', 'pages'],
                 ['luajit', 'tests/test_runtime.lua', 'off', 'pages'],
+                # The same suite with a Mod Bindings Menu v2.2 table (poll, revision).
+                ['env', 'C4_MBM=v22', 'luajit', 'tests/test_runtime.lua', 'off'],
+                ['env', 'C4_MBM=v22', 'luajit', 'tests/test_runtime.lua', 'verbose'],
+                ['luajit', 'tests/test_mbm_contract.lua'] + MBM_SOURCE,
                 ['luajit', 'tests/test_flight_observer.lua'],
                 ['luajit', 'tests/test_contact_probe.lua'],
                 ['luajit', 'tests/test_collision_events.lua'],

@@ -1,4 +1,4 @@
-# Building 1.13
+# Building 1.13.1
 
 Run commands from the repository root. Requirements: Python 3.10+, LuaJIT 2.1 and, for packaging, `libdeflate-gzip`. Python scripts use the standard library. No game installation is needed for the default tests or package build.
 
@@ -10,7 +10,7 @@ python3 scripts/check.py
 
 This assembles the runtime and catalogs, generates a synthetic native-memory fixture, checks Lua compilation and runs the runtime, collision, mode-label and contact-action suites. The complete gameplay suite runs four times: Off and Verbose diagnostics, each against the historical byte-granular fixture memory and against page-granular memory (`tests/test_runtime.lua off pages`), where guards on one page are compared with a single read as in a real process. Generated files go under ignored `private/`; the check report goes to ignored `evidence/checks.json`. Native calls are mocked. The fixed iterator contract fixture does not read or execute captured game code.
 
-`src/` contains the 1.13 release runtime, derived from 1.12. Edit modules and `entry.lua.in`, then assemble through the check command; do not edit generated Lua files directly.
+`src/` contains the 1.13.1 runtime, derived from release 1.13. Edit modules and `entry.lua.in`, then assemble through the check command; do not edit generated Lua files directly.
 
 ## Packaging helper
 
@@ -25,12 +25,12 @@ python3 scripts/check_package.py --loader vendor/BingusSharedLoader
 
 Both package commands verify helper-file hashes from `dependencies.lock.json` before importing or executing them. An existing matching checkout can be supplied instead. Runtime users still need Bingus Shared Loader v17+ and official Mod Bindings Menu v2+, both with API 1.
 
-Output: `dist/HD2-C4-Quick-Actions-1.13.zip`. The check validates ZIP integrity, V1 manifest fields and Include folders, GUID, version consistency, hashes, archive resources and Lua catalog loading. It does not deploy into a game or invoke an installed manager. The separate local manager integration checks are documented in `docs/VALIDATION.md`.
+Output: `dist/HD2-C4-Quick-Actions-1.13.1.zip`. The check validates ZIP integrity, V1 manifest fields and Include folders, GUID, version consistency, hashes, archive resources and Lua catalog loading. It does not deploy into a game or invoke an installed manager. The separate local manager integration checks are documented in `docs/VALIDATION.md`.
 
 The public ZIP directly contains `manifest.json`, `README.txt`, `LICENSE.txt`,
 and three patch archives (`.patch_0`, `.patch_1`, `.patch_2`) with their sidecars.
 The V1 manifest has no Options field; both managers deploy the complete package.
-The entry is the 1.13 release runtime. The configuration selects Off; Summary/Verbose variants remain local developer build artifacts and
+The entry is the 1.13.1 runtime. The configuration selects Off; Summary/Verbose variants remain local developer build artifacts and
 are not included in the public ZIP. No diagnostic files or profiling data are
 written by this package. The old diagnostic-choice ZIP is withdrawn.
 
@@ -48,6 +48,25 @@ unmetered updates and counts reads in a separate pass, warming both paths. `benc
 is a local comparison convenience requiring the preserved project-root 1.11 source;
 the normal benchmark has no such dependency. Local measurement evidence stays in the project workspace. Do not include
 private captures or manager backends in releases.
+
+## Dependency contracts
+
+`scripts/check.py` runs the gameplay suite a third time with a Mod Bindings Menu
+v2.2-style table (`poll`, `revision`) and `tests/test_mbm_contract.lua`, which
+covers both menu generations, registration retries and both assignments file
+formats. When the Mod Bindings Menu v2.2 source is available (set
+`MBM_V22_SRC` to its `src/` folder holding `poll.lua`, from
+https://github.com/CowboyBingus/ModBindingsMenu/releases/tag/v2.2), the same test
+also runs that release's real `poll.lua` against a simulated input owner.
+
+```bash
+python3 scripts/check_wine.py --lua-dll PATH/TO/lua51.dll --baseline ../../releases/1.13/src
+```
+
+runs `tests/test_ffi_names.lua` in the game's own LuaJIT under Wine against the
+real kernel32/user32 on its own memory: with nothing declared first, with the six
+plain declarations of Bingus Shared Loader v18/v19, and with another mod's
+conflicting declarations of the same Windows functions. The DLL stays private.
 
 ## Optional maintainer research
 

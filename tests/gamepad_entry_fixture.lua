@@ -39,6 +39,15 @@ local function scenario(options)
     end
     s.lines={};s.keys={};s.mouse={};s.writes={};s.passenger_writes={};s.updates=0;s.focused=true;s.vanilla={};s.aim_ticks=0;s.sprint_breaks=0
     local k,b,u={},{},{}
+    -- The runtime calls Windows functions by private names (src/WinApi.lua).
+    -- Each resolves to the plain mock of that function, looked up at each
+    -- access, so a benchmark memory provider replacing a mock is still used.
+    for _,t in ipairs({k,u}) do
+        setmetatable(t,{__index=function(_,key)
+            local plain=type(key)=='string' and key:match('^c4qa_(.+)$')
+            if plain then return rawget(t,plain) end
+        end})
+    end
     function k.GetModuleHandleA() return ffi.cast('void *',s.game) end
     function k.GetModuleFileNameW() return 1 end
     function k.GetCurrentProcess() return ffi.cast('void *',-1) end

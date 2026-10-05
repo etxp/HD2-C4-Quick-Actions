@@ -1,4 +1,94 @@
-# 1.13 validation
+# 1.13.1 validation
+
+1.13.1 changes only how the addon talks to its two dependencies and to
+Windows; gameplay code is that of release 1.13.
+
+**Accepted in the game on 2026-10-05.** The owner reported all functions
+working. The deployed files were checked byte for byte: this package, Mod
+Bindings Menu v2.2 and Bingus Shared Loader v19 from their GitHub releases.
+The loader log shows `loader-v19`, both mods loaded and "Startup finished: 2
+loaded, 0 failed"; the menu log shows both bindings registered on their
+previous native actions (10:0, 10:2) with no refused registration, and the
+assignments file converted to format 2 with its backup. Released 1.13 ran in
+the game with Loader v18 and the menu v2.1.
+
+## What the new dependencies changed
+
+Both releases were downloaded from their GitHub releases and checked against
+their published SHA256SUMS; their sources were compared with the previous
+releases.
+
+- **Bingus Shared Loader v19.** `version` stays 17 and `api` 1, so the addon's
+  check (`api == 1`, `version >= 16`, `open_log`) is unchanged. The loader now
+  calls Windows under private names and keeps only six plain declarations for
+  mods written for v18. New `revision`, `capabilities` and `after_startup`
+  fields; this addon uses none of them. Its packaging helper changed two loader
+  build constants and added a read function; for this addon's three payloads it
+  produces archives byte-identical to the pinned helper's.
+- **Mod Bindings Menu v2.2.** `api` 1, `version` 3, the same
+  `register_binding`, `is_down` and `ready`. New: `poll` (several bindings in
+  one call), `revision`, refusals that last the session, and a new format of the
+  assignments file this addon reads, saved through a temporary file.
+
+## Offline evidence
+
+- **Gameplay suite** in Off and Verbose on byte-granular and page-granular
+  memory, and again in Off and Verbose with a v2.2-style menu table (`poll`,
+  `revision`): all cases pass. With `poll`, each update makes one `poll` call
+  and no `is_down` call.
+- **Differential sessions** (`scripts/differential.py`): 400 of 400 sessions identical to 1.12, 400 to 1.12-opt.2 and 400 to released 1.13 (240,000 updates, every native call, data write and gate state compared after each update). Half of the
+  seeds give the addon a v2.2-style menu; builds that do not know `poll` read
+  the same answers through `is_down`.
+- **Menu contract** (`tests/test_mbm_contract.lua`): identical samples from
+  `poll` and `is_down` menus over 20,000 random states; `poll` errors or
+  refusals fall back to `is_down`; a refused registration is retried only when
+  `revision` changes (once per second without it); a replaced menu table
+  registers again. With the v2.2 source present, the release's **real
+  `poll.lua`** runs against a simulated input owner: over 5,000 random states
+  (sweeps, missing owner, input not ready) it accepts this addon's arguments
+  and equals `is_down`, and the bindings layer runs on it.
+- **Assignments file:** v2.1 and format 2 (with CRLF) give the same native
+  actions; incomplete, duplicate, out-of-range and malformed records are
+  rejected; a missing or unusable file keeps the actions last read, and a
+  changed action is read within a second.
+- **Windows declarations in the game's own LuaJIT** (`scripts/check_wine.py`,
+  game `lua51.dll` under Wine, real kernel32/user32 on the test's own memory):
+  reads, the Fire-flag, passenger and label exchanges and the focus query work
+  with nothing declared first, after the loader's six plain declarations, and
+  after another mod declared `ReadProcessMemory`, `WriteProcessMemory`,
+  `GetCurrentProcess` and others with conflicting prototypes. Released 1.13
+  passes the first two and fails the third (`cannot convert 'uint64_t [1]' to
+  'unsigned int *'`).
+
+## Cost
+
+Read counts per update are those of 1.13 in every scenario (C4 idle 92.2, ordinary weapon 40, ship 10). Absolute
+timings vary with machine load between runs, so 1.13.1 is compared as a share of 1.12 measured in the same run:
+
+| Scenario | 1.13 share of 1.12, C / Wine | 1.13.1 share of 1.12, C / Wine |
+| --- | --- | --- |
+| Not in a mission | 24.5% / 27.8% | 24.6% / 28.6% |
+| Ordinary weapon | 12.8% / 13.8% | 13.3% / 15.1% |
+| C4 idle | 5.8% / 5.6% | 5.9% / 5.0% |
+| C4, guards changing every update | 12.1% / 11.3% | 11.3% / 12.1% |
+| Tank passenger | 5.4% / 5.8% | 5.5% / 6.1% |
+
+The benchmark menu offers only `is_down`, so these runs measure the Windows
+declaration change; `poll` is covered by the contract and gameplay tests.
+
+Retained heap over six 5,000-update states: -12.56 to +14.90 KiB net, no accumulating trend.
+
+## Live check
+
+Run on 2026-10-05 with Bingus Shared Loader v19 and Mod Bindings Menu v2.2:
+both bindings on the MODS tab with their keys, throw and detonate, shoulder-aim
+suppression and the menu log were checked; the owner reported all functions
+working. The cost was not re-measured; the offline read counts and timings
+equal 1.13's.
+
+---
+
+# 1.13 validation (unchanged by 1.13.1)
 
 1.13 is development build 1.12-lean.2 with version metadata and documentation
 changes only. That build was run in the live game on 2026-10-04: the owner

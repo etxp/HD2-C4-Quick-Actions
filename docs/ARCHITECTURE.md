@@ -1,7 +1,8 @@
 # Architecture — 1.13
 
 - `entry.lua.in` assembles the addon lifecycle, update integration and cleanup. `assemble.py` embeds project modules and creates explicitly required catalog and diagnostic-configuration resources.
-- `MBMBindings` and `MBMProfile` integrate official Mod Bindings Menu v2. Physical mouse/controller polling and old Standard/Reversed routes are not used.
+- `MBMBindings` and `MBMProfile` integrate official Mod Bindings Menu v2 and later. With v2.2 both bindings are read through one `poll` call; older menus answer through `is_down`. A refused registration is retried when the menu's `revision` changes. `MBMProfile` reads the menu's assignments file in its v2.1 and format 2 layouts. Physical mouse/controller polling and old Standard/Reversed routes are not used.
+- `WinApi` declares every Windows function this addon calls under private `c4qa_` names bound to the real symbols, so another mod's declarations of the same Windows functions cannot change their prototypes for this addon.
 - `GameplayGuard`, `NativeUiGuard`, `AvatarScope` and the context/action readers validate selected C4, player ownership, state and interfaces before new actions.
 - `NativeResolver` locates masked code signatures and related structures at runtime. It verifies identity and code before calls; no game-build allowlist or whole-module hash gate is used.
 - `ActionController` and `ActionBackend` request original native throw/detonate operations. `PassengerHold` retains lean-out through the full throw; `AutoReload` and `PassengerReloadRecovery` handle interruptible reload opportunities.

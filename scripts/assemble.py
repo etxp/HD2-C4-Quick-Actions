@@ -7,7 +7,7 @@ import re
 from lua_packaging import strip_comments
 
 ROOT = Path(__file__).resolve().parents[1]
-VERSION = '1.13'
+VERSION = '1.13.1'
 # Idle automatic-reload observation interval of the Off build, milliseconds.
 RELOAD_IDLE_MS = 100
 

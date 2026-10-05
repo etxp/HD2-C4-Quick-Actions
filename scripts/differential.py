@@ -9,7 +9,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 PROJECT = ROOT.parent.parent
-BASELINES = {'1.12': PROJECT / 'optimization/1.12', '1.12-opt.2': PROJECT / 'optimization/1.12-opt.2'}
+BASELINES = {'1.12': PROJECT / 'optimization/1.12', '1.12-opt.2': PROJECT / 'optimization/1.12-opt.2',
+             '1.13': PROJECT / 'releases/1.13'}
 
 def trace(base, seed, ticks, memory):
     command = ['luajit', 'tests/differential_trace.lua',

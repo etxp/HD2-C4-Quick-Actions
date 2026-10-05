@@ -1,9 +1,9 @@
 HD2 C4 Quick Actions
-Version 1.13 profile (diagnostic test build)
+Version 1.13.1 profile (diagnostic test build)
 
 繁體中文
 
-這是 1.13 的診斷測試包，不是正式安裝包。遊戲內功能與 1.13 相同，
+這是 1.13.1 的診斷測試包，不是正式安裝包。遊戲內功能與 1.13.1 相同，
 另外每 30 秒把自身的耗時與讀取統計寫入一個紀錄檔，用來找出：
 - 快照為什麼在實機上常常失效（哪一筆讀取、哪個位元組在變）；
 - 不隨讀取次數變化的固定成本花在哪一段。
@@ -31,12 +31,12 @@ Windows: %LOCALAPPDATA%\CowboyBingus\Helldivers2\Logs\C4QuickActionsProfile.log
 內容只有計數、耗時、原始碼位置與少量記憶體位元組，沒有個人資料。最多寫 240 份報表。
 
 還原
-退出遊戲，改回 HD2-C4-Quick-Actions-1.13.zip，重新部署。
+退出遊戲，改回 HD2-C4-Quick-Actions-1.13.1.zip，重新部署。
 
 ENGLISH
 
-Diagnostic test build of 1.13, not a release. Gameplay is the same as
-1.13. Every 30 seconds it writes its own timing and read statistics to a
+Diagnostic test build of 1.13.1, not a release. Gameplay is the same as
+1.13.1. Every 30 seconds it writes its own timing and read statistics to a
 log, to find which guarded bytes make retained snapshots obsolete in the live
 game and where the cost that does not depend on the read count is spent. It
 reads memory only, calls no additional game function and writes no game memory.
@@ -58,5 +58,5 @@ Log: %LOCALAPPDATA%\CowboyBingus\Helldivers2\Logs\C4QuickActionsProfile.log
 It contains counts, timings, source positions and a few memory bytes; no
 personal data. At most 240 reports are written.
 
-To restore, exit the game, switch back to HD2-C4-Quick-Actions-1.13.zip and
+To restore, exit the game, switch back to HD2-C4-Quick-Actions-1.13.1.zip and
 redeploy.

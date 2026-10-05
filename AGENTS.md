@@ -1,8 +1,9 @@
-# Working on 1.13
+# Working on 1.13.1
 
-This directory is the formal 1.13 source snapshot (promoted from the
-user-accepted 1.12-lean.2 with version metadata and documentation changes only).
-Preserve it as release history; start later changes in a new work folder.
+This directory is the formal 1.13.1 source snapshot: release 1.13 adapted to
+Bingus Shared Loader v19 and Mod Bindings Menu v2.2, accepted in the game on
+2026-10-05. Preserve it as release history; start later changes in a new work
+folder.
 
 MBM-only controls, one V1 HD2MM/Arsenal ZIP with the existing GUID, no
 diagnostics menu in the public package, no executable-memory writes, hooks,
@@ -29,6 +30,14 @@ Automatic reload interval (Off build only):
 - Do not space input sampling, routing, UI vetoes, Contact tracking or any
   observation an action depends on. Do not drop a phase or validate structure
   less often than every phase. Diagnostic builds keep per-update observation.
+
+Declare Windows functions only through src/WinApi.lua, under the c4qa_ prefix
+with `__asm__` to the real symbol. Never add a plain Windows name or a typedef or
+struct of a common Windows name: the first ffi.cdef of a name wins for every mod.
+
+Mod Bindings Menu: use `poll` when it is a function, else `is_down`; derive edges
+here. Retry a refused registration only when `revision` changes (or once per
+second without `revision`). Never call register_binding every frame.
 
 Do not replace `ReadProcessMemory` with direct pointer reads. The WeaponData
 template that holds the Aim permission byte is in a read-only page: do not

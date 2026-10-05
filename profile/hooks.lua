@@ -103,8 +103,8 @@ do
         local protection=function()return 'not queried' end
         pcall(function()
             local ffi=require('ffi')
-            pcall(ffi.cdef,'size_t VirtualQuery(const void *,void *,size_t);')
-            local query=ffi.cast('size_t (*)(const void *,void *,size_t)',ffi.load('kernel32').VirtualQuery)
+            ffi.cdef'size_t c4qa_VirtualQuery(const void *,void *,size_t) __asm__("VirtualQuery");'
+            local query=assert(ffi.load('kernel32').c4qa_VirtualQuery,'VirtualQuery unavailable')
             local info=ffi.new('uint8_t[48]')
             protection=function(at)
                 if query(ffi.cast('const void *',at),info,48)==0 then return 'query failed' end

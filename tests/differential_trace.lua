@@ -18,6 +18,17 @@ local values={deploy=false,detonate=false}
 local menu={api=1,version=2,ready=function()return true end,
     register_binding=function()return true end,
     is_down=function(id)return values[id:match('%.([^%.]+)$')] end}
+-- Odd seeds: a Mod Bindings Menu v2.2 table, with revision and poll. Builds
+-- that do not know poll still read is_down, which gives the same answers.
+if seed%2==1 then
+    menu.version=3;menu.revision=1
+    function menu.poll(ids,out)
+        if type(ids)~='table' or type(out)~='table' then return false,'invalid poll arguments' end
+        out.down=out.down or {}
+        for i,id in ipairs(ids)do out.down[i]=values[id:match('%.([^%.]+)$')] end
+        return true
+    end
+end
 _G.ModBindingsMenu=menu
 local real_print=print
 print=function()end -- the entry banner names its own version

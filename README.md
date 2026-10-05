@@ -1,8 +1,18 @@
-# HD2 C4 Quick Actions 1.13
+# HD2 C4 Quick Actions 1.13.1
 
 [繁體中文](README.zh-TW.md)
 
 Throw and detonate C4 with separate, customizable controls in Helldivers 2. Set both actions through Mod Bindings Menu for keyboard, mouse, Xbox or PlayStation controllers. No F6 activation is needed.
+
+## Version 1.13.1
+
+Compatibility update for [Bingus Shared Loader v19](https://github.com/CowboyBingus/BingusSharedLoader/releases/tag/v19) and [Mod Bindings Menu v2.2](https://github.com/CowboyBingus/ModBindingsMenu/releases/tag/v2.2), both released 2026-10-04. Gameplay, controls and per-frame cost are those of 1.13; older loader and menu versions keep working.
+
+- With Mod Bindings Menu v2.2, both bindings are read with one `poll` call; a refused registration is retried only when the menu changes.
+- The menu's new assignments file format is read, including while the menu replaces the file.
+- Windows functions are declared under this addon's own names, so another mod's declarations of the same functions can no longer break it.
+
+Accepted in the game on 2026-10-05 with Loader v19 and the menu v2.2. [Details](docs/VALIDATION.md).
 
 ## Version 1.13
 
@@ -31,13 +41,13 @@ Vehicle features apply to passenger seats, not drivers. Already thrown Contact c
 
 ## Requirements and installation
 
-- Bingus Shared Loader **v17+ / API 1**.
-- Official Mod Bindings Menu **v2+ / API 1**.
+- Bingus Shared Loader **v17+ / API 1** (current: v19).
+- Official Mod Bindings Menu **v2+ / API 1** (current: v2.2, which needs the loader v18 or newer).
 - **HD2 Mod Manager 1.3** or **HD2 Arsenal**. Both use the same V1-manifest ZIP.
 
-Disable older C4 Quick Actions editions, import `HD2-C4-Quick-Actions-1.13.zip` and deploy; there are no installation options. Configure **Throw C4** and **Detonate C4** on the MODS bindings page. See [installation instructions](docs/INSTALL.txt).
+Disable older C4 Quick Actions editions, import `HD2-C4-Quick-Actions-1.13.1.zip` and deploy; there are no installation options. Configure **Throw C4** and **Detonate C4** on the MODS bindings page. See [installation instructions](docs/INSTALL.txt).
 
-This repository holds the 1.13 source and documentation. The installable ZIP is not stored in the repository; developers can [build it from source](docs/BUILDING.md). The existing `dist/HD2-C4-Quick-Actions-v0.6.0.zip` is historical.
+This repository holds the 1.13.1 source and documentation. The installable ZIP is not stored in the repository; developers can [build it from source](docs/BUILDING.md). The existing `dist/HD2-C4-Quick-Actions-v0.6.0.zip` is historical.
 
 ## Source and validation
 
@@ -54,6 +64,6 @@ Runtime code is not gated on a game build number or whole-file hash. It resolves
 
 - **etxp** — project direction, feature requirements, in-game testing, feedback and release approval.
 - **OpenAI Codex (AI assistant)** — assisted with implementation, debugging, offline tests, packaging, documentation and media preparation under etxp's direction (through 1.12).
-- **Claude (AI assistant, Anthropic)** — the 1.13 read-path redesign, its tests, diagnostic build and documentation, under etxp's direction.
+- **Claude (AI assistant, Anthropic)** — the 1.13 read-path redesign, the 1.13.1 dependency update, their tests, diagnostic build and documentation, under etxp's direction.
 
 Project-authored code and documentation use the [MIT license](LICENSE). External dependencies and game material retain their own rights; see [third-party notes](THIRD_PARTY.md).

@@ -1,5 +1,37 @@
 # Changelog
 
+## 1.13.1 — 2026-10-05
+
+Compatibility update for Bingus Shared Loader v19 and Mod Bindings Menu v2.2,
+both released 2026-10-04. Gameplay, controls and per-frame work are those of
+1.13; older loader and menu versions keep working. Accepted by the owner in the
+game on 2026-10-05 with exactly Loader v19, the menu v2.2 and this package
+deployed.
+
+- Windows functions are declared under this addon's own names
+  (`c4qa_ReadProcessMemory` and so on, bound to the real functions with
+  `__asm__`). In the game's single LuaJIT VM the first declaration of a name
+  wins for every mod; loader v19 and the menu v2.2 moved to private names for
+  this reason. Released 1.13 fails to read memory when another mod declares
+  `ReadProcessMemory` first with 32-bit sizes; 1.13.1 does not (tested in the
+  game's own lua51.dll under Wine).
+- With Mod Bindings Menu v2.2, both bindings are read with one `poll` call
+  instead of two `is_down` calls. `poll` answers exactly what `is_down` would;
+  this addon still derives its own press edges. Older menus use `is_down`.
+- A refused binding registration is retried when the menu's `revision`
+  changes (v2.2: a refusal lasts the session otherwise), and once per second
+  with menus that have no `revision`, as before.
+- The assignments file is read line by line as the menu reads it, in the v2.1
+  format and in v2.2's format 2; an incomplete format 2 file is not used. The
+  menu now saves it through a temporary file: while it is momentarily missing
+  or unusable, the native actions last read are kept instead of switching the
+  Aim policy off for up to a second.
+- Not used: loader v19's `after_startup` and `capabilities`. Registration
+  already happens once, on the first update, and is no longer repeated after
+  a refusal unless the menu changes.
+- Packaging: the pinned loader packaging helper produces archives identical to
+  the v19 helper's for this addon; the pin is unchanged.
+
 ## 1.13 — 2026-10-04
 
 Same features and controls as 1.12. The checks behind them need far fewer

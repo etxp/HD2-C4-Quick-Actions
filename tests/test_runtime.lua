@@ -26,6 +26,20 @@ local function fresh(missing,extra)
             assert(label=='Throw C4' or label=='Detonate C4')
             registered[id]=true;return true
         end,is_down=function(id)return values[id:match('%.([^%.]+)$')] end} or nil
+    -- C4_MBM=v22: the menu also offers revision and poll, as Mod Bindings Menu
+    -- v2.2 does; poll answers what is_down would, and is_down then goes unused.
+    if os.getenv('C4_MBM')=='v22' and _G.ModBindingsMenu then
+        local menu=_G.ModBindingsMenu
+        menu.version=3;menu.revision=1;menu.polls=0
+        local is_down=menu.is_down
+        menu.is_down=function(id)menu.is_down_calls=(menu.is_down_calls or 0)+1;return is_down(id)end
+        function menu.poll(ids,out)
+            if type(ids)~='table' or type(out)~='table' then return false,'invalid poll arguments' end
+            menu.polls=menu.polls+1;out.down=out.down or {}
+            for i,id in ipairs(ids)do out.down[i]=is_down(id) end
+            return true
+        end
+    end
     -- C4_TEST_BUILD selects another assembled build, such as the diagnostic one.
     local options={entry=(os.getenv('C4_TEST_BUILD') or 'private/build')..'/c4_quick_actions.'..diagnostics..'.lua',
         window=true,native_ui=true,pad_profile='xbox'}

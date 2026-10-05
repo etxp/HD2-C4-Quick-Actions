@@ -1,0 +1,64 @@
+{
+  "version": "1.13.1",
+  "release_type": "stable",
+  "date": "2026-10-05",
+  "artifact": "HD2-C4-Quick-Actions-1.13.1.zip",
+  "sha256": "603d26dddf1699c0ab4f875f2e5d181688a6d881e75964be394bcfafe769c8aa",
+  "bytes": 81988,
+  "identical_to_tested_package": true,
+  "user_accepted_gameplay": true,
+  "user_acceptance": "all functions working, reported by the owner on 2026-10-05",
+  "live_environment": {
+    "loader": "Bingus Shared Loader v19 (log: loader-v19; startup finished 2 loaded, 0 failed)",
+    "menu": "Mod Bindings Menu v2.2 (assignments file format 2 with backup; both bindings registered on 10:0 and 10:2, none refused)",
+    "deployed_files_verified": "six patch files matched byte for byte to this package and the two official release archives",
+    "game_build": "25480438"
+  },
+  "adapted_to": {
+    "loader": "v19, GitHub release 2026-10-04",
+    "menu": "v2.2, GitHub release 2026-10-04"
+  },
+  "offline_checks": 2327,
+  "differential": {
+    "sessions": 400,
+    "identical": {
+      "1.12": 400,
+      "1.12-opt.2": 400,
+      "1.13": 400
+    }
+  },
+  "wine_ffi_names": [
+    [
+      "current",
+      "none",
+      true
+    ],
+    [
+      "current",
+      "loader",
+      true
+    ],
+    [
+      "current",
+      "hostile",
+      true
+    ],
+    [
+      "baseline",
+      "none",
+      true
+    ],
+    [
+      "baseline",
+      "loader",
+      true
+    ],
+    [
+      "baseline",
+      "hostile",
+      false
+    ]
+  ],
+  "cost": "read counts equal 1.13; timings equal 1.13 as a share of 1.12 in the same run; not re-measured in game",
+  "binary_in_repository": false
+}

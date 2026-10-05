@@ -2,6 +2,7 @@
 local R,D
 @@CATALOG@@
 @@CONTACT_CATALOG@@
+@@MODULE:WinApi@@
 @@MODULE:GuardSpans@@
 @@MODULE:ReadMemo@@
 @@MODULE:NativeResolver@@

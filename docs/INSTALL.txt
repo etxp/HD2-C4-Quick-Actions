@@ -1,19 +1,23 @@
 HD2 C4 Quick Actions
-Version 1.13
+Version 1.13.1
 
 ENGLISH
 
-Release 1.13. Features and controls are those of 1.12; the addon now needs far
-fewer memory reads and less bookkeeping per frame to perform the same checks.
-Measured in the game: about 0.14 ms per frame with C4 in hand, about 0.05 ms
-with any other weapon.
+Compatibility update of 1.13 for Bingus Shared Loader v19 and Mod Bindings
+Menu v2.2 (both released 2026-10-04). Gameplay, controls and costs are those of
+1.13. With Mod Bindings Menu v2.2 the two bindings are read with one poll
+call; Windows functions are declared under this addon's own names, so another
+mod's declarations cannot break it. Older loader and menu versions keep
+working.
 
 Separate, customizable C4 throw and detonate actions for keyboard, mouse,
 Xbox and PlayStation controllers through Mod Bindings Menu.
 
 Requirements
 - Bingus Shared Loader v17+ / API 1 (internal version 16 or newer).
-- Official Mod Bindings Menu v2+ / API 1.
+  Current: v19.
+- Official Mod Bindings Menu v2+ / API 1. Current: v2.2, which itself needs
+  Bingus Shared Loader v18 or newer.
 
 Installation — HD2 Mod Manager 1.3 or HD2 Arsenal
 1. Exit the game and enable the dependencies above.
@@ -43,16 +47,17 @@ Modes and features
 
 繁體中文
 
-正式版 1.13。功能與操作同 1.12；完成同樣檢查所需的記憶體讀取與每幀簿記大幅減少。
-遊戲內實測：手持 C4 每幀約 0.14 ms，手持其他武器約 0.05 ms。
+1.13.1 是 1.13 的相容性更新，適配 Bingus Shared Loader v19 與 Mod Bindings Menu v2.2
+（皆於 2026-10-04 發布）。遊戲功能、操作與耗時同 1.13。搭配 MBM v2.2 時，兩個按鍵以一次
+poll 讀取；Windows 函式改用本模組專屬名稱宣告，其他模組的宣告無法再影響本模組。舊版依賴仍可使用。
 
-HD2 C4 Quick Actions 1.13
+HD2 C4 Quick Actions 1.13.1
 透過 Mod Bindings Menu 自訂獨立的投擲和引爆操作，
 支援鍵盤、滑鼠、Xbox 與 PlayStation 手柄。
 
 需求
-- Bingus Shared Loader v17+／API 1（內部版本值 16 以上）。
-- 官方 Mod Bindings Menu v2+／API 1。
+- Bingus Shared Loader v17+／API 1（內部版本值 16 以上），目前最新為 v19。
+- 官方 Mod Bindings Menu v2+／API 1，目前最新為 v2.2（本身需要 Loader v18 以上）。
 
 安裝：HD2 Mod Manager 1.3 或 HD2 Arsenal
 1. 退出遊戲，啟用上述依賴模組。

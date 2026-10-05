@@ -1,8 +1,18 @@
-# HD2 C4 Quick Actions 1.13
+# HD2 C4 Quick Actions 1.13.1
 
 [English](README.md)
 
 在 Helldivers 2 中，用獨立按鍵投擲與引爆 C4。透過 Mod Bindings Menu 設定按鍵與觸發方式，支援鍵盤、滑鼠、Xbox 與 PlayStation 手柄，不需要按 F6 啟用。
+
+## 1.13.1 更新內容
+
+適配 2026-10-04 發布的 [Bingus Shared Loader v19](https://github.com/CowboyBingus/BingusSharedLoader/releases/tag/v19) 與 [Mod Bindings Menu v2.2](https://github.com/CowboyBingus/ModBindingsMenu/releases/tag/v2.2)。遊戲功能、操作與每幀耗時同 1.13，舊版依賴仍可使用。
+
+- 搭配 Mod Bindings Menu v2.2 時，兩個按鍵以一次 `poll` 讀取；註冊被拒時，只在按鍵選單變動後才重試。
+- 支援按鍵選單的新指派檔格式，選單替換檔案的瞬間也能正確讀取。
+- Windows 函式改用本模組專屬名稱宣告，其他模組宣告同名函式不會再影響本模組。
+
+已於 2026-10-05 搭配 Loader v19 與 Mod Bindings Menu v2.2 在遊戲內驗收。[詳細說明](docs/VALIDATION.md)。
 
 ## 1.13 更新內容
 
@@ -31,13 +41,13 @@
 
 ## 需求與安裝
 
-- Bingus Shared Loader **v17+／API 1**。
-- 官方 Mod Bindings Menu **v2+／API 1**。
+- Bingus Shared Loader **v17+／API 1**（目前最新為 v19）。
+- 官方 Mod Bindings Menu **v2+／API 1**（目前最新為 v2.2，本身需要 Loader v18 以上）。
 - **HD2 Mod Manager 1.3** 或 **HD2 Arsenal**，共用同一個 V1 manifest ZIP。
 
-停用舊版 C4 Quick Actions，匯入 `HD2-C4-Quick-Actions-1.13.zip` 後部署，沒有安裝選項。在 MODS 按鍵頁設定 **Throw C4** 與 **Detonate C4**。詳見[安裝說明](docs/INSTALL.txt)。
+停用舊版 C4 Quick Actions，匯入 `HD2-C4-Quick-Actions-1.13.1.zip` 後部署，沒有安裝選項。在 MODS 按鍵頁設定 **Throw C4** 與 **Detonate C4**。詳見[安裝說明](docs/INSTALL.txt)。
 
-本倉庫提供 1.13 的原始碼與文件，安裝用的 ZIP 不放在倉庫裡；開發者可依[建置說明](docs/BUILDING.md)自行產生。原有 `dist/HD2-C4-Quick-Actions-v0.6.0.zip` 是歷史檔案。
+本倉庫提供 1.13.1 的原始碼與文件，安裝用的 ZIP 不放在倉庫裡；開發者可依[建置說明](docs/BUILDING.md)自行產生。原有 `dist/HD2-C4-Quick-Actions-v0.6.0.zip` 是歷史檔案。
 
 ## 開發與文件
 
@@ -54,6 +64,6 @@
 
 - **etxp**：專案方向、功能需求、遊戲實測、問題回報與發布確認。
 - **OpenAI Codex（AI 助理）**：依 etxp 的指示，協助程式實作、除錯、離線測試、打包、文件撰寫及影音素材製作（至 1.12）。
-- **Claude（AI 助理，Anthropic）**：依 etxp 的指示，負責 1.13 的讀取路徑重新設計、測試、診斷版與文件。
+- **Claude（AI 助理，Anthropic）**：依 etxp 的指示，負責 1.13 的讀取路徑重新設計、1.13.1 的依賴適配、相關測試、診斷版與文件。
 
 本專案自行撰寫的程式碼與文件採 [MIT 授權](LICENSE)。第三方依賴與遊戲素材保留原權利，詳見[第三方說明](THIRD_PARTY.md)。
